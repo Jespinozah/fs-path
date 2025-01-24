@@ -1,0 +1,47 @@
+package controllers
+
+import (
+	"net/http"
+	"github.com/gin-gonic/gin"
+	"github.com/greysespinoza/fs-path/models"
+	"github.com/greysespinoza/fs-path/database"
+)
+
+// CreateUser - Create a new user
+func CreatePets(c *gin.Context) {
+	var pet models.Pet
+	if err := c.ShouldBindJSON(&pet); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	query := "INSERT INTO pets (name, type) VALUES ($1, $2) RETURNING id"
+	err := database.DB.QueryRow(query, pet.Name, pet.Type).Scan(&pet.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, pet)
+}
+
+func GetPets(c *gin.Context) {
+	rows, err := database.DB.Query("SELECT id, name, type FROM pets")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	defer rows.Close()
+
+	var pets []models.Pet
+	for rows.Next() {
+		var pet models.Pet
+		if err := rows.Scan(&pet.ID, &pet.Name, &pet.Type); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		pets = append(pets, pet)
+	}
+
+	c.JSON(http.StatusOK, pets)
+}

@@ -13,6 +13,7 @@ func SetupRouter() *gin.Engine {
 	router.GET("/users/:id", controllers.GetUserByID)
 	router.PUT("/users/:id", controllers.UpdateUser)
 	router.DELETE("/users/:id", controllers.DeleteUser)
-
+	router.GET("/pets", controllers.GetPets)
+	router.POST("/pets", controllers.CreatePets)
 	return router
 }
