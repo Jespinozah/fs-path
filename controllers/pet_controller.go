@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"database/sql"
 	"net/http"
 	"github.com/gin-gonic/gin"
 	"github.com/greysespinoza/fs-path/models"
@@ -44,4 +45,20 @@ func GetPets(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, pets)
+}
+
+func GetPetsByID(c *gin.Context) {
+	id := c.Param("id")
+	var pet models.Pet
+
+	err := database.DB.QueryRow("SELECT id, name, type FROM pets WHERE id=$1", id).Scan(&pet.ID, &pet.Name, &pet.Type)
+	if err == sql.ErrNoRows {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Pet not found"})
+		return
+	} else if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, pet)
 }
