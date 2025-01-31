@@ -1,0 +1,41 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+persa/node_modules
+persa/.pnp
+persa/.pnp.*
+persa/.yarn/*
+persa/!.yarn/patches
+persa/!.yarn/plugins
+persa/!.yarn/releases
+persa/!.yarn/versions
+
+# testing
+persa//coverage
+
+# next.js
+persa//.next/
+persa//out/
+
+# production
+persa//build
+
+# misc
+persa/.DS_Store
+persa/*.pem
+
+# debug
+persa/npm-debug.log*
+persa/yarn-debug.log*
+persa/yarn-error.log*
+persa/.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+persa/.env*
+
+# vercel
+persa/.vercel
+
+# typescript
+persa/*.tsbuildinfo
+persa/next-env.d.ts
