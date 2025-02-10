@@ -1,8 +1,9 @@
 "use client";
-import { useRouter } from "next/router";
+//import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import PetForm from "../../../components/PetForm";
+import PetForm from "../../../../components/PetForm";
 import { fetchPet, updatePet } from "../../../../utils/api";
+import { useRouter } from "next/navigation";
 
 export default function EditPet() {
     const router = useRouter();

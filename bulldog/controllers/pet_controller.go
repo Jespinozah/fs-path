@@ -62,3 +62,15 @@ func GetPetsByID(c *gin.Context) {
 
 	c.JSON(http.StatusOK, pet)
 }
+
+func DeletePet(c *gin.Context) {
+	id := c.Param("id")
+
+	_, err := database.DB.Exec("DELETE FROM pets WHERE id=$1", id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Pet deleted successfully"})
+}

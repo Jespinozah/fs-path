@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:8080/api/pets"; // Adjust for your backend
+const API_URL = "http://localhost:8080/pets"; // Adjust for your backend
 
 export async function fetchPets() {
     const res = await fetch(API_URL);
