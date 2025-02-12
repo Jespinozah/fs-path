@@ -1,18 +1,23 @@
 "use client";
-//import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import PetForm from "../../../../components/PetForm";
 import { fetchPet, updatePet } from "../../../../utils/api";
-import { useRouter } from "next/navigation";
 
 export default function EditPet() {
+    const { id } = useParams(); // Get ID from dynamic route
     const router = useRouter();
-    const { id } = router.query;
     const [pet, setPet] = useState(null);
 
     useEffect(() => {
+        console.log("Router ID:", id); // Debugging step
         if (id) {
-            fetchPet(id).then(setPet);
+            fetchPet(id)
+                .then((data) => {
+                    console.log("Fetched pet data:", data);
+                    setPet(data);
+                })
+                .catch((error) => console.error("Error fetching pet:", error));
         }
     }, [id]);
 

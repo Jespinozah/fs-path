@@ -74,3 +74,22 @@ func DeletePet(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Pet deleted successfully"})
 }
+   
+func UpdatePet(c *gin.Context) {
+	id := c.Param("id")
+	var pet models.Pet
+
+	if err := c.ShouldBindJSON(&pet); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	query := "UPDATE pets SET name=$1, type=$2 WHERE id=$3"
+	_, err := database.DB.Exec(query, pet.Name, pet.Type, id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Pet updated successfully"})
+}
