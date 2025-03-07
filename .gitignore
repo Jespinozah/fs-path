@@ -39,3 +39,4 @@ persa/.vercel
 # typescript
 persa/*.tsbuildinfo
 persa/next-env.d.ts
+persa/.next/
