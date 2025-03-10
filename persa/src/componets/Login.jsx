@@ -54,7 +54,7 @@ export default function Login({ onLogin }) {
               Remember Me
             </p>
             <button type="button" className="text-blue-500">
-              <a href="/register">Create an account</a>
+              <a href="/signup">Create an account</a>
             </button>
           </div>
         </form>
