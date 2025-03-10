@@ -53,7 +53,9 @@ export default function Login({ onLogin }) {
               <input className="mr-2" type="checkbox" />
               Remember Me
             </p>
-            <p>Create an account</p>
+            <button type="button" className="text-blue-500">
+              <a href="/register">Create an account</a>
+            </button>
           </div>
         </form>
       </div>
