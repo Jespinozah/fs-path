@@ -6,10 +6,29 @@ import Success from "./componets/Success";
 import Failure from "./componets/failure";
 
 function App() {
-  const handleLogin = (email, password, navigate) => {
-    if (email === "test@example.com" && password === "password123") {
-      navigate("/success");
-    } else {
+
+
+  const handleLogin = async (email, password, navigate) => {
+    try {
+      const response = await fetch("https://reqres.in/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("Login successful:", data);
+        navigate("/success"); // Redirect on success
+      } else {
+        console.error("Login failed:", data.error);
+        navigate("/failure"); // Redirect on failure
+      }
+    } catch (error) {
+      console.error("Error:", error);
       navigate("/failure");
     }
   };

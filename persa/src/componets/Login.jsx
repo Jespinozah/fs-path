@@ -9,7 +9,8 @@ export default function Login({ onLogin }) {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = () => {
+  const handleSubmit = (e) => {
+    e.preventDefault(); // Prevents page reload
     onLogin(email, password, navigate);
   };
 
