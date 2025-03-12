@@ -1,10 +1,12 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Signup({ onSignUp }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -12,7 +14,7 @@ export default function Signup({ onSignUp }) {
       alert("Passwords do not match!");
       return;
     }
-    onSignUp(name, email, password);
+    onSignUp(name, email, password, navigate);
   };
 
   return (
