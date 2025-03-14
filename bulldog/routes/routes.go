@@ -8,7 +8,7 @@ import (
 func SetupRouter() *gin.Engine {
 	router := gin.Default()
 
-	router.POST("/users", controllers.CreateUser)
+	router.POST("/users", controllers.ValidateToken(), controllers.CreateUser)
 	router.GET("/users", controllers.GetUsers)
 	router.GET("/users/:id", controllers.GetUserByID)
 	router.PUT("/users/:id", controllers.UpdateUser)
@@ -18,5 +18,8 @@ func SetupRouter() *gin.Engine {
 	router.GET("/pets/:id", controllers.GetPetsByID)
 	router.DELETE("/pets/:id", controllers.DeletePet)
 	router.PUT("/pets/:id", controllers.UpdatePet)
+	router.POST("/auth/login", controllers.Login)
+	router.POST("/auth/refresh", controllers.Refresh)
+	router.POST("/auth/logout", controllers.Logout)
 	return router
 }
