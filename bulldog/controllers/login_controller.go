@@ -37,7 +37,7 @@ func generateTokenPair(email string) (string, string, error) {
 
 	refreshExpiration := time.Now().Add(24 * time.Hour)
 	refreshClaims := &Claims{
-		Username: username,
+		Email: email,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(refreshExpiration),
 		},
@@ -58,12 +58,12 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	if creds.Username != "admin" || creds.Password != "password" {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
+	if creds.Email != "email" || creds.Password != "password" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password"})
 		return
 	}
 
-	accessToken, refreshToken, err := generateTokenPair(creds.Username)
+	accessToken, refreshToken, err := generateTokenPair(creds.Email)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate tokens"})
 		return
@@ -98,7 +98,7 @@ func ValidateToken() gin.HandlerFunc {
 			return
 		}
 
-		c.Set("username", claims.Username)
+		c.Set("email", claims.Email)
 		c.Next()
 	}
 }
@@ -118,7 +118,7 @@ func Refresh(c *gin.Context) {
 		return
 	}
 
-	newAccessToken, newRefreshToken, err := generateTokenPair(claims.Username)
+	newAccessToken, newRefreshToken, err := generateTokenPair(claims.Email)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate new tokens"})
 		return
