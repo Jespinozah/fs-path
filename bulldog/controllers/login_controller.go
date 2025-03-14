@@ -57,6 +57,17 @@ func Login(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
 		return
 	}
+	// Add collumn password to the table Users
+	// call the database to retrieve the user by email
+	//email := c.Param("email")
+
+	//var user models.User
+
+	//err := database.DB.QueryRow("SELECT id, name, email, age FROM users WHERE email=$1", id).Scan(&user.ID, &user.Name, &user.Email, &user.Age)
+	// if the user doesn't exist retunr Invalid email or password
+	// compare the user password from db with the user password from resquest
+	// if (user.password == request passoword)
+	// if the password is different return Invalid email or password
 
 	if creds.Email != "email" || creds.Password != "password" {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password"})
