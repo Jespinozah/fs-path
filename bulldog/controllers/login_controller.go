@@ -12,19 +12,19 @@ var jwtKey = []byte("my_secret_key")
 var tokenBlacklist = make(map[string]bool) // Token blacklist map
 
 type Credentials struct {
-	Username string `json:"username"`
+	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
 type Claims struct {
-	Username string `json:"username"`
+	Email string `json:"email"`
 	jwt.RegisteredClaims
 }
 
-func generateTokenPair(username string) (string, string, error) {
+func generateTokenPair(email string) (string, string, error) {
 	expirationTime := time.Now().Add(15 * time.Minute)
 	claims := &Claims{
-		Username: username,
+		Email: email,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 		},
