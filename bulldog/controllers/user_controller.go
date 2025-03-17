@@ -6,11 +6,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/greysespinoza/fs-path/database"
+	"github.com/greysespinoza/fs-path/dtos"
 	"github.com/greysespinoza/fs-path/models"
 	"golang.org/x/crypto/bcrypt"
 )
 
-// CreateUser - Create a new user
 func CreateUser(c *gin.Context) {
 	var user models.User
 	if err := c.ShouldBindJSON(&user); err != nil {
@@ -45,14 +45,19 @@ func GetUsers(c *gin.Context) {
 	}
 	defer rows.Close()
 
-	var users []models.User
+	var users []dtos.UserResponse
 	for rows.Next() {
 		var user models.User
 		if err := rows.Scan(&user.ID, &user.Name, &user.Email, &user.Age); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
-		users = append(users, user)
+		users = append(users, dtos.UserResponse{
+			ID:    user.ID,
+			Name:  user.Name,
+			Email: user.Email,
+			Age:   user.Age,
+		})
 	}
 
 	c.JSON(http.StatusOK, users)

@@ -3,9 +3,10 @@ package controllers
 import (
 	"database/sql"
 	"net/http"
+
 	"github.com/gin-gonic/gin"
-	"github.com/greysespinoza/fs-path/models"
 	"github.com/greysespinoza/fs-path/database"
+	"github.com/greysespinoza/fs-path/models"
 )
 
 // CreateUser - Create a new user
@@ -74,7 +75,7 @@ func DeletePet(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Pet deleted successfully"})
 }
-   
+
 func UpdatePet(c *gin.Context) {
 	id := c.Param("id")
 	var pet models.Pet
