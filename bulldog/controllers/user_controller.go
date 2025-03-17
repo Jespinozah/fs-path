@@ -3,9 +3,10 @@ package controllers
 import (
 	"database/sql"
 	"net/http"
+
 	"github.com/gin-gonic/gin"
-	"github.com/greysespinoza/fs-path/models"
 	"github.com/greysespinoza/fs-path/database"
+	"github.com/greysespinoza/fs-path/models"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -17,36 +18,25 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	// Hash the password before storing it in the database
 	if user.Password != "" {
-		// Generate bcrypt hash for the password
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not hash password"})
 			return
 		}
-		// Set the hashed password in the user struct
 		user.Password = string(hashedPassword)
 	}
 
-	// Insert the new user into the database
 	query := "INSERT INTO users (name, email, age, password) VALUES ($1, $2, $3, $4) RETURNING id"
 	err := database.DB.QueryRow(query, user.Name, user.Email, user.Age, user.Password).Scan(&user.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	/*query := "INSERT INTO users (name, email, age) VALUES ($1, $2, $3) RETURNING id"
-	err := database.DB.QueryRow(query, user.Name, user.Email, user.Age).Scan(&user.ID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}*/
 
 	c.JSON(http.StatusCreated, user)
 }
 
-// GetUsers - Get all users
 func GetUsers(c *gin.Context) {
 	rows, err := database.DB.Query("SELECT id, name, email, age FROM users")
 	if err != nil {
@@ -68,7 +58,6 @@ func GetUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, users)
 }
 
-// GetUserByID - Get a user by ID
 func GetUserByID(c *gin.Context) {
 	id := c.Param("id")
 	var user models.User
@@ -85,7 +74,6 @@ func GetUserByID(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
-// UpdateUser - Update a user's details
 func UpdateUser(c *gin.Context) {
 	id := c.Param("id")
 	var user models.User
@@ -105,7 +93,6 @@ func UpdateUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "User updated successfully"})
 }
 
-// DeleteUser - Delete a user by ID
 func DeleteUser(c *gin.Context) {
 	id := c.Param("id")
 
