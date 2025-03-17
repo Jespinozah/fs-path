@@ -3,9 +3,12 @@ package controllers
 import (
 	"net/http"
 	"time"
-
+    "database/sql"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/greysespinoza/fs-path/database"
+	"github.com/greysespinoza/fs-path/models"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var jwtKey = []byte("my_secret_key")
@@ -66,13 +69,35 @@ func Login(c *gin.Context) {
 	//err := database.DB.QueryRow("SELECT id, name, email, age FROM users WHERE email=$1", id).Scan(&user.ID, &user.Name, &user.Email, &user.Age)
 	// if the user doesn't exist retunr Invalid email or password
 	// compare the user password from db with the user password from resquest
-	// if (user.password == request passoword)
+	// if (user.password == creds.passoword)
 	// if the password is different return Invalid email or password
+    // Use creds.Email directly since it's already from the request body
+	
+	var user models.User
+	err := database.DB.QueryRow("SELECT id, name, email, password FROM users WHERE email=$1", creds.Email).Scan(&user.ID, &user.Name, &user.Email, &user.Password)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			// If no user is found, return "Invalid email or password"
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password"})
+		} else {
+			// Handle other errors (e.g., database issues)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
+		}
+		return
+	}
 
-	if creds.Email != "email" || creds.Password != "password" {
+	// Compare the hashed password from the database with the provided password
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(creds.Password))
+	if err != nil {
+		// If the passwords don't match, return "Invalid email or password"
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password"})
 		return
 	}
+
+	/*if creds.Email != "email" || creds.Password != "password" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password"})
+		return
+	}*/
 
 	accessToken, refreshToken, err := generateTokenPair(creds.Email)
 	if err != nil {

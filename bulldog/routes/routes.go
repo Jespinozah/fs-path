@@ -8,7 +8,8 @@ import (
 func SetupRouter() *gin.Engine {
 	router := gin.Default()
 
-	router.POST("/users", controllers.ValidateToken(), controllers.CreateUser)
+	//router.POST("/users", controllers.ValidateToken(), controllers.CreateUser)
+	router.POST("/users", controllers.CreateUser)
 	router.GET("/users", controllers.GetUsers)
 	router.GET("/users/:id", controllers.GetUserByID)
 	router.PUT("/users/:id", controllers.UpdateUser)

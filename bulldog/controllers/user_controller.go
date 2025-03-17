@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/greysespinoza/fs-path/models"
 	"github.com/greysespinoza/fs-path/database"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // CreateUser - Create a new user
@@ -16,12 +17,31 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	query := "INSERT INTO users (name, email, age) VALUES ($1, $2, $3) RETURNING id"
-	err := database.DB.QueryRow(query, user.Name, user.Email, user.Age).Scan(&user.ID)
+	// Hash the password before storing it in the database
+	if user.Password != "" {
+		// Generate bcrypt hash for the password
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not hash password"})
+			return
+		}
+		// Set the hashed password in the user struct
+		user.Password = string(hashedPassword)
+	}
+
+	// Insert the new user into the database
+	query := "INSERT INTO users (name, email, age, password) VALUES ($1, $2, $3, $4) RETURNING id"
+	err := database.DB.QueryRow(query, user.Name, user.Email, user.Age, user.Password).Scan(&user.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+	/*query := "INSERT INTO users (name, email, age) VALUES ($1, $2, $3) RETURNING id"
+	err := database.DB.QueryRow(query, user.Name, user.Email, user.Age).Scan(&user.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}*/
 
 	c.JSON(http.StatusCreated, user)
 }
@@ -75,8 +95,8 @@ func UpdateUser(c *gin.Context) {
 		return
 	}
 
-	query := "UPDATE users SET name=$1, email=$2, age=$3 WHERE id=$4"
-	_, err := database.DB.Exec(query, user.Name, user.Email, user.Age, id)
+	query := "UPDATE users SET name=$1, email=$2, age=$3 , password=$4 WHERE id=$5"
+	_, err := database.DB.Exec(query, user.Name, user.Email, user.Age, user.Password, id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
