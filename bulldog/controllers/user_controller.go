@@ -34,7 +34,12 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, user)
+	c.JSON(http.StatusCreated, dtos.UserResponse{
+		ID:    user.ID,
+		Name:  user.Name,
+		Email: user.Email,
+		Age:   user.Age,
+	})
 }
 
 func GetUsers(c *gin.Context) {
@@ -76,7 +81,12 @@ func GetUserByID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, user)
+	c.JSON(http.StatusOK, dtos.UserResponse{
+		ID:    user.ID,
+		Name:  user.Name,
+		Email: user.Email,
+		Age:   user.Age,
+	})
 }
 
 func UpdateUser(c *gin.Context) {

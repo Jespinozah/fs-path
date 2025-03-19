@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"net/http"
-
 	"github.com/greysespinoza/fs-path/database"
 	"github.com/greysespinoza/fs-path/routes"
 	"github.com/rs/cors"
