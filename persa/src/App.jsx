@@ -1,30 +1,31 @@
 import "./App.css";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import Login from "./componets/login";
 import Signup from "./componets/Signup";
 import Success from "./componets/Success";
 import Failure from "./componets/failure";
+import { API_URL } from "./config";
 
 function App() {
 
 
   const handleLogin = async (email, password, navigate) => {
     try {
-      const response = await fetch("http://localhost:8080/auth/login", {
+      const response = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
       });
-  
+
       const data = await response.json();
-  
+
       if (response.ok) {
         console.log("Login successful:", data);
         // Store the access token in localStorage
         localStorage.setItem("token", data.access_token);
-        
+
         // Redirect to the success page
         navigate("/success"); // You can change this to any protected route or dashboard
       } else {
@@ -48,6 +49,7 @@ function App() {
   return (
     <Router>
       <Routes>
+        <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<Login onLogin={handleLogin} />} />
         <Route
           path="/signup"

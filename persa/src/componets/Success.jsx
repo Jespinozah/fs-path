@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { API_URL } from "../config";
 
 export default function Success() {
   const navigate = useNavigate();
@@ -15,7 +16,7 @@ export default function Success() {
       }
 
       // Send logout request to backend API
-      const response = await fetch("http://localhost:8080/auth/logout", {
+      const response = await fetch(`${API_URL}/auth/logout`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
