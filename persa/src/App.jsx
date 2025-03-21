@@ -17,12 +17,16 @@ function App() {
         },
         body: JSON.stringify({ email, password }),
       });
-
+  
       const data = await response.json();
-
+  
       if (response.ok) {
         console.log("Login successful:", data);
-        navigate("/success"); // Redirect on success
+        // Store the access token in localStorage
+        localStorage.setItem("token", data.access_token);
+        
+        // Redirect to the success page
+        navigate("/success"); // You can change this to any protected route or dashboard
       } else {
         console.error("Login failed:", data.error);
         navigate("/failure"); // Redirect on failure

@@ -16,10 +16,10 @@ func main() {
 
 	// Enable CORS (you can customize it as needed)
 	corsHandler := cors.New(cors.Options{
-		AllowedOrigins:   []string{"*"}, // Allows all origins, you can customize it
+		AllowedOrigins:   []string{"http://localhost:5173"}, // Allow only your frontend origin
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Content-Type", "Authorization", "X-Requested-With"},
-		AllowCredentials: true,
+		AllowCredentials: true, // Allow credentials (cookies)
 	})
 
 	// Use CORS middleware with your router

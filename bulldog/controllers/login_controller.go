@@ -151,6 +151,11 @@ func Logout(c *gin.Context) {
 		return
 	}
 
+	// Extract token after "Bearer "
+	if len(tokenStr) > 7 && tokenStr[:7] == "Bearer " {
+		tokenStr = tokenStr[7:]
+	}
+
 	tokenBlacklist[tokenStr] = true // Blacklist token
 	c.SetCookie("refresh_token", "", -1, "/", "", false, true)
 	c.JSON(http.StatusOK, gin.H{"message": "Logged out successfully"})
