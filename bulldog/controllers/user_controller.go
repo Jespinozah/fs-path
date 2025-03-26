@@ -42,6 +42,7 @@ func CreateUser(c *gin.Context) {
 	})
 }
 
+
 func GetUsers(c *gin.Context) {
 	rows, err := database.DB.Query("SELECT id, name, email, age FROM users")
 	if err != nil {
@@ -93,19 +94,62 @@ func UpdateUser(c *gin.Context) {
 	id := c.Param("id")
 	var user models.User
 
+	// Bind the JSON body to the user model
 	if err := c.ShouldBindJSON(&user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input data", "details": err.Error()})
 		return
 	}
 
-	query := "UPDATE users SET name=$1, email=$2, age=$3 , password=$4 WHERE id=$5"
-	_, err := database.DB.Exec(query, user.Name, user.Email, user.Age, user.Password, id)
+	// Validation - Make sure name, email, and age are provided
+	if user.Name == "" || user.Email == "" || user.Age == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Name, email, and age are required"})
+		return
+	}
+
+	// Handle password hashing if a password is provided
+	var hashedPassword string
+	if user.Password != "" {
+		hashed, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not hash password"})
+			return
+		}
+		hashedPassword = string(hashed)
+	}
+
+	// Update query based on whether password is provided
+	var query string
+	var args []interface{}
+	if user.Password != "" {
+		query = "UPDATE users SET name=$1, email=$2, age=$3, password=$4 WHERE id=$5"
+		args = []interface{}{user.Name, user.Email, user.Age, hashedPassword, id}
+	} else {
+		query = "UPDATE users SET name=$1, email=$2, age=$3 WHERE id=$4"
+		args = []interface{}{user.Name, user.Email, user.Age, id}
+	}
+
+	// Execute the query to update the user
+	_, err := database.DB.Exec(query, args...)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user", "details": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "User updated successfully"})
+	// Fetch updated user data from the database
+	var updatedUser models.User
+	err = database.DB.QueryRow("SELECT id, name, email, age FROM users WHERE id=$1", id).Scan(&updatedUser.ID, &updatedUser.Name, &updatedUser.Email, &updatedUser.Age)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not retrieve updated user"})
+		return
+	}
+
+	// Return the updated user data in the response
+	c.JSON(http.StatusOK, dtos.UserResponse{
+		ID:    updatedUser.ID,
+		Name:  updatedUser.Name,
+		Email: updatedUser.Email,
+		Age:   updatedUser.Age,
+	})
 }
 
 func DeleteUser(c *gin.Context) {

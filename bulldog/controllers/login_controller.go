@@ -86,7 +86,10 @@ func Login(c *gin.Context) {
 	}
 
 	c.SetCookie("refresh_token", refreshToken, 86400, "/", "", false, true)
-	c.JSON(http.StatusOK, gin.H{"access_token": accessToken})
+	c.JSON(http.StatusOK, gin.H{
+		"access_token": accessToken,
+		"user_id":      user.ID,  // Add user ID here
+	})
 }
 
 func ValidateToken() gin.HandlerFunc {

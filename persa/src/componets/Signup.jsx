@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 export default function Signup({ onSignUp }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [age, setAge] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const navigate = useNavigate();
@@ -14,7 +15,7 @@ export default function Signup({ onSignUp }) {
       alert("Passwords do not match!");
       return;
     }
-    onSignUp(name, email, password, navigate);
+    onSignUp(name, email, age, password, navigate);
   };
 
   return (
@@ -43,6 +44,17 @@ export default function Signup({ onSignUp }) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+            />
+          </div>
+          <div className="flex flex-col py-2">
+            <label>Age</label>
+            <input
+              className="border p-2"
+              type="number"
+              value={age}
+              onChange={(e) => setAge(e.target.value)}
+              required
+              min="1"
             />
           </div>
           <div className="flex flex-col py-2">

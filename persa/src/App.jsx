@@ -4,11 +4,12 @@ import Login from "./componets/login";
 import Signup from "./componets/Signup";
 import Success from "./componets/Success";
 import Failure from "./componets/failure";
+import Profile from "./componets/Profile";
 import { API_URL } from "./config";
 
 function App() {
 
-
+  console.log("API_URL:", API_URL);
   const handleLogin = async (email, password, navigate) => {
     try {
       const response = await fetch(`${API_URL}/auth/login`, {
@@ -23,11 +24,12 @@ function App() {
 
       if (response.ok) {
         console.log("Login successful:", data);
-        // Store the access token in localStorage
-        localStorage.setItem("token", data.access_token);
 
+        // Store token and user ID in localStorage
+        localStorage.setItem("token", data.access_token);
+        localStorage.setItem("userId", data.user_id); // Save userId
         // Redirect to the success page
-        navigate("/success"); // You can change this to any protected route or dashboard
+        navigate("/success"); 
       } else {
         console.error("Login failed:", data.error);
         navigate("/failure"); // Redirect on failure
@@ -38,10 +40,28 @@ function App() {
     }
   };
 
-  const handleSignUp = (name, email, password, navigate) => {
-    if (email && password.length >= 6) {
-      navigate("/success");
-    } else {
+  const handleSignUp = async (name, email, age, password, navigate) => {
+    try {
+      const response = await fetch(`${API_URL}/users`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, email, age: parseInt(age, 10), password }),
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        console.log("Sign up successful:", data);
+        // Redirect to the success page
+        navigate("/login", { state: { message: "Signup successful! Please log in." } });
+      } else {
+        console.error("Sign up failed:", data.error);
+        navigate("/failure");
+      }
+    } catch (error) {
+      console.error("Error:", error);
       navigate("/failure");
     }
   };
@@ -57,6 +77,7 @@ function App() {
         />
         <Route path="/success" element={<Success />} />
         <Route path="/failure" element={<Failure />} />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
     </Router>
   );
