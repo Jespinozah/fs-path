@@ -34,13 +34,13 @@ export default function Login({ onLogin }) {
   };
 
   return (
-    <div className="relative w-full h-screen bg-blue-900/90">
+    <div className="relative w-full h-screen bg-gray-100">
       <div className="flex justify-center items-center h-full">
         <form
-          className="max-w-[400px] w-full mx-auto bg-white p-12 rounded-lg"
+          className="max-w-[400px] w-full mx-auto bg-white p-12 rounded-lg shadow-md"
           onSubmit={handleSubmit}
         >
-          <h2 className="text-4xl font-bold text-center py-5">Log in</h2>
+          <h2 className="text-4xl font-bold text-center text-blue-600 py-5">Log in</h2>
 
           {/* Display success message box if the message exists */}
           {message && (
@@ -50,17 +50,17 @@ export default function Login({ onLogin }) {
           )}
 
           <div className="flex justify-between py-4">
-            <button className="border border-gray-300 shadow-lg hover:shadow-xl px-6 py-2 flex items-center gap-2 rounded-lg w-full mr-2">
+            <button className="border border-gray-300 shadow-sm hover:shadow-md px-6 py-2 flex items-center gap-2 rounded-lg w-full mr-2 bg-white text-gray-700">
               <FaFacebookSquare /> Facebook
             </button>
-            <button className="border border-gray-300 shadow-lg hover:shadow-xl px-6 py-2 flex items-center gap-2 rounded-lg w-full ml-2">
+            <button className="border border-gray-300 shadow-sm hover:shadow-md px-6 py-2 flex items-center gap-2 rounded-lg w-full ml-2 bg-white text-gray-700">
               <FcGoogle /> Google
             </button>
           </div>
           <div className="flex flex-col py-2">
-            <label>Email</label>
+            <label className="text-gray-700">Email</label>
             <input
-              className="border p-2"
+              className="border p-2 bg-gray-50 text-gray-700 rounded"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -70,9 +70,9 @@ export default function Login({ onLogin }) {
             )}
           </div>
           <div className="flex flex-col py-2">
-            <label>Password</label>
+            <label className="text-gray-700">Password</label>
             <input
-              className="border p-2"
+              className="border p-2 bg-gray-50 text-gray-700 rounded"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -82,21 +82,20 @@ export default function Login({ onLogin }) {
             )}
           </div>
           <button
-            className={`border w-full my-5 py-2 text-white rounded ${
-              Object.keys(errors).length === 0
-                ? "bg-indigo-600 hover:bg-indigo-500"
-                : "bg-gray-400 cursor-not-allowed"
-            }`}
+            className={`border w-full my-5 py-2 text-white rounded ${Object.keys(errors).length === 0
+              ? "bg-blue-600 hover:bg-blue-500"
+              : "bg-gray-400 cursor-not-allowed"
+              }`}
             type="submit"
             disabled={Object.keys(errors).length > 0}
           >
             Sign In
           </button>
           <div className="flex justify-between">
-            <p className="flex items-center mr-2">
+            <p className="flex items-center mr-2 text-gray-700">
               <input className="mr-2" type="checkbox" /> Remember Me
             </p>
-            <button type="button" className="text-blue-500">
+            <button type="button" className="text-blue-600 hover:underline">
               <a href="/signup">Create an account</a>
             </button>
           </div>
