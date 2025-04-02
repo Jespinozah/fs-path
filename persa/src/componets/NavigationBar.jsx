@@ -10,9 +10,15 @@ export default function NavigationBar({ onLogout }) {
                 <h2 className="text-xl font-semibold">My App</h2>
                 <button
                     className="px-4 py-2 bg-blue-500 rounded hover:bg-blue-400"
-                    onClick={() => navigate("/")}
+                    onClick={() => navigate("/success")}
                 >
                     Home
+                </button>
+                <button
+                    className="px-4 py-2 bg-blue-500 rounded hover:bg-blue-400"
+                    onClick={() => navigate("/add-expense")}
+                >
+                    Add Expense
                 </button>
             </div>
             <div className="flex items-center space-x-4">

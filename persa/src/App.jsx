@@ -5,6 +5,7 @@ import Signup from "./componets/Signup";
 import Success from "./componets/Success";
 import Failure from "./componets/failure";
 import Profile from "./componets/Profile";
+import AddExpense from "./componets/AddExpenses";
 import { API_URL } from "./config";
 
 function App() {
@@ -76,6 +77,7 @@ function App() {
           element={<Signup onSignUp={handleSignUp} />}
         />
         <Route path="/success" element={<Success />} />
+        <Route path="/add-expense" element={<AddExpense />} />
         <Route path="/failure" element={<Failure />} />
         <Route path="/profile" element={<Profile />} />
       </Routes>
