@@ -3,16 +3,26 @@ package main
 import (
 	"log"
 	"net/http"
+
+	"github.com/greysespinoza/fs-path/controllers"
 	"github.com/greysespinoza/fs-path/database"
+	"github.com/greysespinoza/fs-path/repositories"
 	"github.com/greysespinoza/fs-path/routes"
+	"github.com/greysespinoza/fs-path/services"
 	"github.com/rs/cors"
 )
 
 func main() {
 	database.Connect()
 
-	// Set up the router
-	router := routes.SetupRouter()
+	// Initialize repository and service layers
+	userRepo := repositories.NewUserRepository(database.DB)
+	userService := services.NewUserService(userRepo)
+	// Initialize controllers
+	userController := controllers.NewUserController(userService)
+	authController := controllers.NewLoginController(userService)
+	// Pass the service layer to the router or controllers as needed
+	router := routes.SetupRouter(userController, authController)
 
 	// Enable CORS (you can customize it as needed)
 	corsHandler := cors.New(cors.Options{

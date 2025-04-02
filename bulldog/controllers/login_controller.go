@@ -1,75 +1,42 @@
 package controllers
 
 import (
-	"database/sql"
 	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/greysespinoza/fs-path/database"
 	"github.com/greysespinoza/fs-path/models"
+	"github.com/greysespinoza/fs-path/services"
 	"golang.org/x/crypto/bcrypt"
 )
 
 var jwtKey = []byte("my_secret_key")
-var tokenBlacklist = make(map[string]bool) // Token blacklist map
-
-type Credentials struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
+var tokenBlacklist = make(map[string]bool)
 
 type Claims struct {
-	Email string `json:"email"`
 	jwt.RegisteredClaims
+	Email string `json:"email"`
 }
 
-func generateTokenPair(email string) (string, string, error) {
-	expirationTime := time.Now().Add(15 * time.Minute)
-	claims := &Claims{
-		Email: email,
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(expirationTime),
-		},
-	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(jwtKey)
-	if err != nil {
-		return "", "", err
-	}
-
-	refreshExpiration := time.Now().Add(24 * time.Hour)
-	refreshClaims := &Claims{
-		Email: email,
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(refreshExpiration),
-		},
-	}
-	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshClaims)
-	refreshTokenString, err := refreshToken.SignedString(jwtKey)
-	if err != nil {
-		return "", "", err
-	}
-
-	return tokenString, refreshTokenString, nil
+type LoginController struct {
+	UserService *services.UserService
 }
 
-func Login(c *gin.Context) {
-	var creds Credentials
+func NewLoginController(userService *services.UserService) *LoginController {
+	return &LoginController{UserService: userService}
+}
+
+func (lc *LoginController) Login(c *gin.Context) {
+	var creds models.User
 	if err := c.ShouldBindJSON(&creds); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
 		return
 	}
 
-	var user models.User
-	err := database.DB.QueryRow("SELECT id, name, email, password FROM users WHERE email=$1", creds.Email).Scan(&user.ID, &user.Name, &user.Email, &user.Password)
+	user, err := lc.UserService.GetUserByEmail(creds.Email)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password"})
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
-		}
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password"})
 		return
 	}
 
@@ -79,7 +46,7 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	accessToken, refreshToken, err := generateTokenPair(creds.Email)
+	accessToken, refreshToken, err := generateTokenPair(user.Email)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate tokens"})
 		return
@@ -88,8 +55,34 @@ func Login(c *gin.Context) {
 	c.SetCookie("refresh_token", refreshToken, 86400, "/", "", false, true)
 	c.JSON(http.StatusOK, gin.H{
 		"access_token": accessToken,
-		"user_id":      user.ID,  // Add user ID here
+		"user_id":      user.ID,
 	})
+}
+
+func generateTokenPair(email string) (string, string, error) {
+	expirationTime := time.Now().Add(15 * time.Minute)
+	claims := &jwt.RegisteredClaims{
+		ExpiresAt: jwt.NewNumericDate(expirationTime),
+		Subject:   email,
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString(jwtKey)
+	if err != nil {
+		return "", "", err
+	}
+
+	refreshExpiration := time.Now().Add(24 * time.Hour)
+	refreshClaims := &jwt.RegisteredClaims{
+		ExpiresAt: jwt.NewNumericDate(refreshExpiration),
+		Subject:   email,
+	}
+	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshClaims)
+	refreshTokenString, err := refreshToken.SignedString(jwtKey)
+	if err != nil {
+		return "", "", err
+	}
+
+	return tokenString, refreshTokenString, nil
 }
 
 func ValidateToken() gin.HandlerFunc {
@@ -121,6 +114,7 @@ func ValidateToken() gin.HandlerFunc {
 		c.Next()
 	}
 }
+
 func Refresh(c *gin.Context) {
 	refreshToken, err := c.Cookie("refresh_token")
 	if err != nil {

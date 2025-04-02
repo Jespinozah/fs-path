@@ -7,7 +7,7 @@ import (
 	"github.com/greysespinoza/fs-path/controllers"
 )
 
-func SetupRouter() *gin.Engine {
+func SetupRouter(userController *controllers.UserController, loginController *controllers.LoginController) *gin.Engine {
 	router := gin.Default()
 
 	// Custom Logger Middleware
@@ -24,36 +24,25 @@ func SetupRouter() *gin.Engine {
 	apiV1 := router.Group("/api/v1")
 	{
 		// User routes
-		setupUserRoutes(apiV1)
-
-		// Pet routes
-		setupPetRoutes(apiV1)
+		setupUserRoutes(apiV1, userController)
 
 		// Auth routes
-		setupAuthRoutes(apiV1)
+		setupAuthRoutes(apiV1, loginController)
 	}
 
 	return router
 }
 
-func setupUserRoutes(router *gin.RouterGroup) {
-	router.POST("/users", controllers.CreateUser)
-	router.GET("/users", controllers.GetUsers)
-	router.GET("/users/:id", controllers.GetUserByID)
-	router.PUT("/users/:id", controllers.UpdateUser)
-	router.DELETE("/users/:id", controllers.DeleteUser)
+func setupUserRoutes(router *gin.RouterGroup, userController *controllers.UserController) {
+	router.POST("/users", userController.CreateUser)
+	router.GET("/users", userController.GetUsers)
+	router.GET("/users/:id", userController.GetUserByID)
+	router.PUT("/users/:id", userController.UpdateUser)
+	router.DELETE("/users/:id", userController.DeleteUser)
 }
 
-func setupPetRoutes(router *gin.RouterGroup) {
-	router.GET("/pets", controllers.GetPets)
-	router.POST("/pets", controllers.CreatePets)
-	router.GET("/pets/:id", controllers.GetPetsByID)
-	router.DELETE("/pets/:id", controllers.DeletePet)
-	router.PUT("/pets/:id", controllers.UpdatePet)
-}
-
-func setupAuthRoutes(router *gin.RouterGroup) {
-	router.POST("/auth/login", controllers.Login)
+func setupAuthRoutes(router *gin.RouterGroup, loginController *controllers.LoginController) {
+	router.POST("/auth/login", loginController.Login)
 	router.POST("/auth/refresh", controllers.Refresh)
 	router.POST("/auth/logout", controllers.Logout)
 }
