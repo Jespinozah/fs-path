@@ -20,10 +20,16 @@ func NewUserController(userService *services.UserService) *UserController {
 
 func (uc *UserController) CreateUser(c *gin.Context) {
 	var user models.User
-	if err := c.ShouldBindJSON(&user); err != nil {
+	var reqUser dtos.CreateUserRequest
+	if err := c.ShouldBindJSON(&reqUser); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
+	user.Name = reqUser.Name
+	user.Email = reqUser.Email
+	user.Age = reqUser.Age
+	user.Password = reqUser.Password
 
 	if err := uc.UserService.CreateUser(&user); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
