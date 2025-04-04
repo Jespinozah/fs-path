@@ -6,13 +6,13 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
-  /*server: {
+  server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:8080', // Go backend
+        target: 'http://localhost:8080', // Backend URL
         changeOrigin: true,
         secure: false,
       },
     },
-  },*/
+  },
 });

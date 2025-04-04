@@ -7,7 +7,7 @@ import (
 	"github.com/greysespinoza/fs-path/controllers"
 )
 
-func SetupRouter(userController *controllers.UserController, loginController *controllers.LoginController) *gin.Engine {
+func SetupRouter(userController *controllers.UserController, loginController *controllers.LoginController, expenseController *controllers.ExpenseController) *gin.Engine {
 	router := gin.Default()
 
 	// Custom Logger Middleware
@@ -28,6 +28,9 @@ func SetupRouter(userController *controllers.UserController, loginController *co
 
 		// Auth routes
 		setupAuthRoutes(apiV1, loginController)
+
+		// Expense routes
+		setupExpenseRoutes(apiV1, expenseController)
 	}
 
 	return router
@@ -45,4 +48,16 @@ func setupAuthRoutes(router *gin.RouterGroup, loginController *controllers.Login
 	router.POST("/auth/login", loginController.Login)
 	router.POST("/auth/refresh", controllers.Refresh)
 	router.POST("/auth/logout", controllers.Logout)
+}
+
+// Add expense routes
+func setupExpenseRoutes(router *gin.RouterGroup, expenseController *controllers.ExpenseController) {
+	expenses := router.Group("/expenses")
+	{
+		expenses.POST("/", expenseController.CreateExpense) // Ensure this route exists
+		expenses.GET("/", expenseController.GetExpenses)
+		expenses.GET("/:id", expenseController.GetExpenseByID)
+		expenses.PUT("/:id", expenseController.UpdateExpense)
+		expenses.DELETE("/:id", expenseController.DeleteExpense)
+	}
 }

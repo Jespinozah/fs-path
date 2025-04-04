@@ -10,6 +10,7 @@ import (
 	"github.com/greysespinoza/fs-path/routes"
 	"github.com/greysespinoza/fs-path/services"
 	"github.com/rs/cors"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -18,11 +19,20 @@ func main() {
 	// Initialize repository and service layers
 	userRepo := repositories.NewUserRepository(database.DB)
 	userService := services.NewUserService(userRepo)
+
+	expenseRepo := repositories.NewExpenseRepository(database.DB)
+	expenseService := services.NewExpenseService(expenseRepo)
+
 	// Initialize controllers
 	userController := controllers.NewUserController(userService)
 	authController := controllers.NewLoginController(userService)
+	expenseController := controllers.NewExpenseController(expenseService)
+
 	// Pass the service layer to the router or controllers as needed
-	router := routes.SetupRouter(userController, authController)
+	router := gin.Default()
+	router.Use(gin.Logger()) // Logs all HTTP requests
+	router.Use(gin.Recovery())
+	router = routes.SetupRouter(userController, authController, expenseController)
 
 	// Enable CORS (you can customize it as needed)
 	corsHandler := cors.New(cors.Options{

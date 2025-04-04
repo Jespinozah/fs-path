@@ -1,18 +1,70 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import NavigationBar from "./NavigationBar";
+import { API_URL } from "../config"; // Assuming API_URL is defined in the config file
 
 export default function AddExpense() {
     const navigate = useNavigate();
     const [amount, setAmount] = useState("");
     const [category, setCategory] = useState("");
     const [date, setDate] = useState("");
-    const [notes, setNotes] = useState("");
+    const [description, setDescription] = useState(""); // Changed to "description" as per your table structure
 
-    const handleSave = (e) => {
+    const handleSave = async (e) => {
         e.preventDefault();
-        console.log("Expense Saved:", { amount, category, date, notes });
-        // Add logic to save the expense
+
+        // Retrieve userId from localStorage
+        const userId = localStorage.getItem("userId");
+
+        // Ensure userId exists
+        if (!userId) {
+            console.error("User ID not found, redirecting to login.");
+            navigate("/login");
+            return;
+        }
+
+        // Convert userId to an integer
+        const userIdInt = parseInt(userId, 10);
+
+        // Create the expense object to send to the backend
+        const expenseData = {
+            user_id: userIdInt, // Now user_id is an integer
+            amount: parseFloat(amount), // Ensure the amount is a float
+            category,
+            date,
+            description
+        };
+
+        console.log("Expense Data:", expenseData); // Log the data to verify it
+
+        try {
+            // Send POST request to your backend API
+            const response = await fetch(`${API_URL}/expenses`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(expenseData),
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                console.log("Expense Saved:", result);
+                alert("Expense saved successfully!"); // Pop-up alert
+                // Reset form fields after successful save
+                setAmount("");
+                setCategory("");
+                setDate("");
+                setDescription("");
+            } else {
+                const errorText = await response.text();
+                console.error("Failed to save expense:", errorText);
+                alert("Failed to save expense: " + errorText);
+            }
+        } catch (error) {
+            console.error("Error saving expense:", error);
+            alert("Error saving expense");
+        }
     };
 
     return (
@@ -67,14 +119,14 @@ export default function AddExpense() {
                         </div>
 
                         <div className="flex flex-col">
-                            <label htmlFor="notes" className="mb-1 font-medium text-gray-700">Notes (Optional)</label>
+                            <label htmlFor="description" className="mb-1 font-medium text-gray-700">Description (Optional)</label>
                             <textarea
-                                id="notes"
-                                name="notes"
-                                value={notes}
-                                onChange={(e) => setNotes(e.target.value)}
+                                id="description"
+                                name="description"
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
                                 className="border p-2 bg-gray-50 text-gray-700 rounded"
-                                placeholder="Add any notes here..."
+                                placeholder="Add any description here..."
                             ></textarea>
                         </div>
 
