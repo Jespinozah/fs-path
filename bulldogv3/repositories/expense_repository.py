@@ -32,3 +32,7 @@ class ExpenseRepository:
             raise ValueError("Expense not found.")
         db.session.delete(expense)
         db.session.commit()
+
+    @staticmethod
+    def get_expenses_by_user_id(user_id):
+        return Expense.query.filter_by(user_id=user_id).all()

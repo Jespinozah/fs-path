@@ -60,3 +60,12 @@ def delete_expense(expense_id):
         return jsonify({"message": "Expense deleted successfully"}), 200
     except Exception as e:
         return jsonify({"error": "Failed to delete expense"}), 500
+
+
+@expense_bp.route("/user/<int:user_id>", methods=["GET"])
+def get_expenses_by_user_id(user_id):
+    try:
+        expenses = ExpenseService.get_expenses_by_user_id(user_id)
+        return jsonify([expense.to_dict() for expense in expenses]), 200
+    except Exception as e:
+        return jsonify({"error": "Failed to fetch expenses for the user"}), 500
