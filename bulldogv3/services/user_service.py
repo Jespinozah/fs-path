@@ -1,11 +1,12 @@
+import bcrypt
 from repositories.user_repository import UserRepository
-from werkzeug.security import generate_password_hash
 
 class UserService:
     @staticmethod
     def create_user(data):
-        hashed_password = generate_password_hash(data["password"], method="sha256")
-        data["password"] = hashed_password
+        # Hash the password using bcrypt
+        hashed_password = bcrypt.hashpw(data["password"].encode("utf-8"), bcrypt.gensalt())
+        data["password"] = hashed_password.decode("utf-8")
         UserRepository.create_user(data)
 
     @staticmethod
@@ -22,6 +23,10 @@ class UserService:
 
     @staticmethod
     def update_user(user_id, data):
+        # Hash the password if it is being updated
+        if "password" in data and data["password"]:
+            hashed_password = bcrypt.hashpw(data["password"].encode("utf-8"), bcrypt.gensalt())
+            data["password"] = hashed_password.decode("utf-8")
         UserRepository.update_user(user_id, data)
 
     @staticmethod
