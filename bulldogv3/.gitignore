@@ -1,0 +1,67 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+
+# Virtual environment
+venv/
+env/
+.myenv/
+
+# Logs
+*.log
+*.out
+*.err
+
+# Database files
+*.sqlite3
+
+# Environment variables
+.env
+
+# Compiled files
+*.so
+
+# Docker
+docker-compose.override.yml
+*.pid
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+.DS_Store
+
+# Node.js dependencies (if applicable)
+node_modules/
+
+# Build artifacts
+dist/
+build/
+
+# Python egg files
+*.egg-info/
+.eggs/
+
+# Coverage reports
+htmlcov/
+.coverage
+*.cover
+*.py,cover
+
+# Test artifacts
+.tox/
+.nox/
+.cache/
+pytest_cache/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.orig
+*.old
+
+# Ignore PostgreSQL data volume (if using Docker)
+postgres_data/
