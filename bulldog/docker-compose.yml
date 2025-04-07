@@ -26,6 +26,21 @@ services:
     networks:
       - app_network
 
+  bulldog:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bulldog_app
+    environment:
+      - FLASK_ENV=development
+      - SQLALCHEMY_DATABASE_URI=postgresql://admin:admin@postgres:5432/db
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    networks:
+      - app_network
+
 volumes:
   postgres_data:
 
