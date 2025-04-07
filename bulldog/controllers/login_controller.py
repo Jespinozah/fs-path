@@ -10,6 +10,28 @@ SECRET_KEY = "my_secret_key"  # Replace with a secure key in production
 
 @login_bp.route("/login", methods=["POST"])
 def login():
+    """
+    User login
+    ---
+    tags:
+      - Authentication
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          properties:
+            email:
+              type: string
+            password:
+              type: string
+    responses:
+      200:
+        description: Login successful
+      401:
+        description: Invalid email or password
+    """
     data = request.json
     if not data or not data.get("email") or not data.get("password"):
         return jsonify({"error": "Email and password are required"}), 400
@@ -45,6 +67,17 @@ def login():
 
 @login_bp.route("/refresh", methods=["POST"])
 def refresh():
+    """
+    Refresh access token
+    ---
+    tags:
+      - Authentication
+    responses:
+      200:
+        description: New access token generated
+      401:
+        description: Invalid or expired refresh token
+    """
     refresh_token = request.cookies.get("refresh_token")
     if not refresh_token:
         return jsonify({"error": "Missing refresh token"}), 401
@@ -68,6 +101,15 @@ def refresh():
 
 @login_bp.route("/logout", methods=["POST"])
 def logout():
+    """
+    User logout
+    ---
+    tags:
+      - Authentication
+    responses:
+      200:
+        description: Logged out successfully
+    """
     response = make_response(jsonify({"message": "Logged out successfully"}))
     response.set_cookie("refresh_token", "", expires=0)
     return response, 200
