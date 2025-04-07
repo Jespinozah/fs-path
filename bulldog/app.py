@@ -23,7 +23,6 @@ swagger_config = {
     "title": "Bulldog API",
     "description": "API documentation for Bulldog",
     "version": "1.0.0",
-    "host": "localhost:8080",  # Update this if deployed
 }
 swagger = Swagger(app, config=swagger_config)
 
