@@ -5,7 +5,7 @@ from database import init_db
 from routes import register_routes
 
 app = Flask(__name__)
-CORS(app)
+CORS(app,  resources={r"/api/*": {"origins": "*"}})  # Enable CORS for all API routes
 
 # Initialize Flasgger Swagger
 swagger_config = {
