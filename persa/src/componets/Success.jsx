@@ -58,9 +58,8 @@ export default function Success() {
   };
 
   useEffect(() => {
-    // Calculate total balance (assuming an initial balance of $500)
     const totalExpenses = transactions.reduce((acc, t) => acc + t.amount, 0);
-    setBalance(500 - totalExpenses);
+    setBalance(-totalExpenses);
   }, [transactions]);
 
   // Pie chart data
