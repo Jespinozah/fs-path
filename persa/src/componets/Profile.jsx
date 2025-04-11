@@ -7,6 +7,9 @@ export default function Profile() {
   const [user, setUser] = useState({ id: "", name: "", email: "", age: "" });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -54,8 +57,11 @@ export default function Profile() {
     e.preventDefault();
 
     const age = parseInt(user.age, 10);
-    // Log the user object to check if all required fields are populated
-    console.log("User data before submitting:", user);
+
+    if (newPassword && newPassword !== confirmNewPassword) {
+      alert("New passwords do not match!");
+      return;
+    }
 
     try {
       const token = localStorage.getItem("token");
@@ -63,14 +69,15 @@ export default function Profile() {
       const response = await fetch(`${API_URL}/users/${user.id}`, {
         method: "PUT",
         headers: {
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           name: user.name,
           email: user.email,
           age: age,
-          password: user.password,  // Optional, only include if changing the password
+          current_password: currentPassword, // Verify current password
+          password: newPassword || undefined, // Only include if changing password
         }),
       });
 
@@ -78,6 +85,9 @@ export default function Profile() {
         const updatedUser = await response.json();
         setUser(updatedUser);
         alert("Profile updated successfully!");
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmNewPassword("");
       } else {
         const errorText = await response.text();
         console.error("Failed to update profile:", errorText);
@@ -103,7 +113,7 @@ export default function Profile() {
       <NavigationBar onLogout={handleLogout} />
       <div className="flex flex-col items-center justify-center h-full">
         <div className="w-3/4 md:w-1/2 bg-white p-6 rounded-lg shadow-md mt-6">
-          <h1 className="text-2xl font-semibold mb-4 text-gray-700">Update Your Profile</h1>
+          <h1 className="text-2xl font-semibold mb-4 text-gray-700 text-center">Update Your Profile</h1>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="flex flex-col">
               <label htmlFor="name" className="mb-1 font-medium text-gray-700">Name</label>
@@ -141,7 +151,59 @@ export default function Profile() {
               />
             </div>
 
-            <div className="flex justify-end">
+            <div className="flex flex-col">
+              <label htmlFor="currentPassword" className="mb-1 font-medium text-gray-700">
+                Current Password
+              </label>
+              <input
+                type="password"
+                id="currentPassword"
+                name="currentPassword"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                className="border p-2 bg-gray-50 text-gray-700 rounded"
+                placeholder="Enter current password"
+              />
+            </div>
+
+            <div className="flex flex-col">
+              <label htmlFor="newPassword" className="mb-1 font-medium text-gray-700">
+                New Password
+              </label>
+              <input
+                type="password"
+                id="newPassword"
+                name="newPassword"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="border p-2 bg-gray-50 text-gray-700 rounded"
+                placeholder="Enter new password"
+              />
+            </div>
+
+            <div className="flex flex-col">
+              <label htmlFor="confirmNewPassword" className="mb-1 font-medium text-gray-700">
+                Confirm New Password
+              </label>
+              <input
+                type="password"
+                id="confirmNewPassword"
+                name="confirmNewPassword"
+                value={confirmNewPassword}
+                onChange={(e) => setConfirmNewPassword(e.target.value)}
+                className="border p-2 bg-gray-50 text-gray-700 rounded"
+                placeholder="Confirm new password"
+              />
+            </div>
+
+            <div className="flex justify-between">
+              <button
+                type="button"
+                className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-400"
+                onClick={() => navigate("/success")} // Redirect to Success page
+              >
+                Cancel
+              </button>
               <button
                 type="submit"
                 className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-500"
