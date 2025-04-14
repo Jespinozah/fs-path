@@ -155,6 +155,9 @@ export default function Success() {
               ...newExpense,
               id: result.id, // Use the ID returned from the backend
               amount: parseFloat(newExpense.amount),
+              category: newExpense.category,
+              date: newExpense.date,
+              icon: getCategoryIcon(newExpense.category), // Map category to an icon
             },
           ]);
           setShowAddExpensePopup(false);
