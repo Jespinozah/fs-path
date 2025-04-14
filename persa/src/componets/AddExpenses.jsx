@@ -9,40 +9,34 @@ export default function AddExpense() {
     const [category, setCategory] = useState("");
     const [date, setDate] = useState("");
     const [description, setDescription] = useState(""); // Changed to "description" as per your table structure
+    const [successMessage, setSuccessMessage] = useState(""); // State for success message
 
     const handleSave = async (e) => {
         e.preventDefault();
 
-        // Retrieve userId from localStorage
         const userId = localStorage.getItem("userId");
+        const token = localStorage.getItem("token");
 
-        // Ensure userId exists
-        if (!userId) {
-            console.error("User ID not found, redirecting to login.");
+        if (!userId || !token) {
+            console.error("User ID or token not found, redirecting to login.");
             navigate("/login");
             return;
         }
 
-        // Convert userId to an integer
-        const userIdInt = parseInt(userId, 10);
-
-        // Create the expense object to send to the backend
         const expenseData = {
-            user_id: userIdInt, // Now user_id is an integer
-            amount: parseFloat(amount), // Ensure the amount is a float
+            user_id: parseInt(userId, 10),
+            amount: parseFloat(amount),
             category,
             date,
-            description
+            description,
         };
 
-        console.log("Expense Data:", expenseData); // Log the data to verify it
-
         try {
-            // Send POST request to your backend API
             const response = await fetch(`${API_URL}/expenses`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`, // Include token for authentication
                 },
                 body: JSON.stringify(expenseData),
             });
@@ -50,12 +44,12 @@ export default function AddExpense() {
             if (response.ok) {
                 const result = await response.json();
                 console.log("Expense Saved:", result);
-                alert("Expense saved successfully!"); // Pop-up alert
-                // Reset form fields after successful save
                 setAmount("");
                 setCategory("");
                 setDate("");
                 setDescription("");
+                setSuccessMessage("Expense added successfully!"); // Set success message
+                setTimeout(() => setSuccessMessage(""), 3000); // Clear message after 3 seconds
             } else {
                 const errorText = await response.text();
                 console.error("Failed to save expense:", errorText);
@@ -68,22 +62,32 @@ export default function AddExpense() {
     };
 
     return (
-        <div className="h-screen bg-gray-100">
+        <div className="min-h-screen bg-gray-100">
             <NavigationBar onLogout={() => navigate("/login")} />
             <div className="flex flex-col items-center justify-center h-full">
                 <div className="w-3/4 md:w-1/2 bg-white p-6 rounded-lg shadow-md mt-6">
                     <h1 className="text-2xl font-semibold mb-4 text-gray-700 text-center">Add Expense</h1>
+                    
+                    {/* Display success message */}
+                    {successMessage && (
+                        <div className="bg-green-100 text-green-700 p-4 mb-4 rounded-lg text-center">
+                            {successMessage}
+                        </div>
+                    )}
+
                     <form onSubmit={handleSave} className="space-y-4">
                         <div className="flex flex-col">
                             <label htmlFor="amount" className="mb-1 font-medium text-gray-700">Amount</label>
                             <input
-                                type="number"
+                                type="text" // Change to text to prevent scroll behavior
                                 id="amount"
                                 name="amount"
                                 value={amount}
                                 onChange={(e) => setAmount(e.target.value)}
                                 className="border p-2 bg-gray-50 text-gray-700 rounded"
                                 placeholder="Enter amount"
+                                inputMode="decimal" // Allow only numeric input
+                                pattern="[0-9]*" // Ensure only numbers are entered
                                 required
                             />
                         </div>
@@ -119,7 +123,7 @@ export default function AddExpense() {
                         </div>
 
                         <div className="flex flex-col">
-                            <label htmlFor="description" className="mb-1 font-medium text-gray-700">Description (Optional)</label>
+                            <label htmlFor="description" className="mb-1 font-medium text-gray-700">Description</label>
                             <textarea
                                 id="description"
                                 name="description"
