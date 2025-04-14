@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom"; // Import useLocation
 import { API_URL } from "../config";
 import NavigationBar from "./NavigationBar";
 import { Pie } from "react-chartjs-2";
@@ -7,6 +7,8 @@ import "chart.js/auto";
 
 export default function Success() {
   const navigate = useNavigate();
+  const location = useLocation(); // Access location state
+  const successMessage = location.state?.message; // Get success message if available
   const [balance, setBalance] = useState(0);
   const [transactions, setTransactions] = useState([]);
 
@@ -115,26 +117,73 @@ export default function Success() {
     description: "",
   });
 
-  const handleAddExpense = () => {
+  const handleAddExpense = async () => {
     if (newExpense.amount && newExpense.category && newExpense.date) {
-      setTransactions([
-        ...transactions,
-        {
-          ...newExpense,
-          id: transactions.length + 1,
+      try {
+        const token = localStorage.getItem("token");
+        const userId = localStorage.getItem("userId");
+
+        if (!token || !userId) {
+          console.error("User ID or token not found, redirecting to login.");
+          navigate("/login");
+          return;
+        }
+
+        const expenseData = {
+          user_id: parseInt(userId, 10),
           amount: parseFloat(newExpense.amount),
-        },
-      ]);
-      setShowAddExpensePopup(false);
-      setNewExpense({ amount: "", category: "", date: "", description: "" });
+          category: newExpense.category,
+          date: newExpense.date,
+          description: newExpense.description,
+        };
+
+        const response = await fetch(`${API_URL}/expenses`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(expenseData),
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          console.log("Expense Saved:", result);
+          setTransactions([
+            ...transactions,
+            {
+              ...newExpense,
+              id: result.id, // Use the ID returned from the backend
+              amount: parseFloat(newExpense.amount),
+            },
+          ]);
+          setShowAddExpensePopup(false);
+          setNewExpense({ amount: "", category: "", date: "", description: "" });
+          navigate("/success", { state: { message: "Expense added successfully!" } }); // Redirect with success message
+        } else {
+          const errorText = await response.text();
+          console.error("Failed to add expense:", errorText);
+          alert("Failed to add expense: " + errorText);
+        }
+      } catch (error) {
+        console.error("Error adding expense:", error);
+        alert("Error adding expense");
+      }
     } else {
       alert("Please fill out all required fields.");
     }
   };
 
   return (
-    <div className="h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100">
       <NavigationBar onLogout={handleLogout} />
+
+      {/* Display success message if it exists */}
+      {successMessage && (
+        <div className="bg-green-100 text-green-700 p-4 mb-4 rounded-lg text-center">
+          {successMessage}
+        </div>
+      )}
 
       {/* Main Content */}
       <div className="flex flex-col items-center p-6">
@@ -210,14 +259,18 @@ export default function Success() {
             <div className="mb-4">
               <label className="block text-gray-700">Amount</label>
               <input
-                type="number"
+                type="text" // Change to text to prevent scroll behavior
                 value={newExpense.amount}
-                onChange={(e) =>
-                  setNewExpense({ ...newExpense, amount: e.target.value })
-                }
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (/^\d*\.?\d*$/.test(value)) { // Allow only numeric input
+                    setNewExpense({ ...newExpense, amount: value });
+                  }
+                }}
                 className="w-full p-2 border rounded"
                 placeholder="Enter amount"
                 required
+                inputMode="decimal" // Ensure numeric keyboard on mobile
               />
             </div>
             <div className="mb-4">
@@ -249,7 +302,7 @@ export default function Success() {
               />
             </div>
             <div className="mb-4">
-              <label className="block text-gray-700">Description (Optional)</label>
+              <label className="block text-gray-700">Description</label>
               <textarea
                 value={newExpense.description}
                 onChange={(e) =>
