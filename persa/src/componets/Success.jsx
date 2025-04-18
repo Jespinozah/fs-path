@@ -8,9 +8,20 @@ import "chart.js/auto";
 export default function Success() {
   const navigate = useNavigate();
   const location = useLocation(); // Access location state
-  const successMessage = location.state?.message; // Get success message if available
+  const initialSuccessMessage = location.state?.message; // Get success message if available
   const [balance, setBalance] = useState(0);
   const [transactions, setTransactions] = useState([]);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [selectedTransaction, setSelectedTransaction] = useState(null); // State for selected transaction
+
+  useEffect(() => {
+    if (initialSuccessMessage) {
+      setShowSuccessPopup(true);
+      const timer = setTimeout(() => setShowSuccessPopup(false), 2000); // Hide after 2 seconds
+      return () => clearTimeout(timer); // Cleanup timer
+    }
+  }, [location.state?.message]);
 
   useEffect(() => {
     const fetchExpenses = async () => {
@@ -113,7 +124,9 @@ export default function Success() {
   const [newExpense, setNewExpense] = useState({
     amount: "",
     category: "",
-    date: "",
+    date: new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000)
+    .toISOString()
+    .split("T")[0],
     description: "",
   });
 
@@ -160,9 +173,11 @@ export default function Success() {
               icon: getCategoryIcon(newExpense.category), // Map category to an icon
             },
           ]);
-          setShowAddExpensePopup(false);
           setNewExpense({ amount: "", category: "", date: "", description: "" });
-          navigate("/success", { state: { message: "Expense added successfully!" } }); // Redirect with success message
+          setSuccessMessage("Expense added successfully!");
+          setShowSuccessPopup(true);
+          // Keep the popup open for better user feedback
+          setTimeout(() => setShowSuccessPopup(false), 2000); // Hide success message after 2 seconds
         } else {
           const errorText = await response.text();
           console.error("Failed to add expense:", errorText);
@@ -177,16 +192,35 @@ export default function Success() {
     }
   };
 
+  const handleTransactionClick = async (transactionId) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.error("No token found, redirecting to login.");
+        navigate("/login");
+        return;
+      }
+
+      const response = await fetch(`${API_URL}/expenses/${transactionId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setSelectedTransaction(data); // Set the full transaction details, including description
+      } else {
+        console.error("Failed to fetch transaction details:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error fetching transaction details:", error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-100">
       <NavigationBar onLogout={handleLogout} />
-
-      {/* Display success message if it exists */}
-      {successMessage && (
-        <div className="bg-green-100 text-green-700 p-4 mb-4 rounded-lg text-center">
-          {successMessage}
-        </div>
-      )}
 
       {/* Main Content */}
       <div className="flex flex-col items-center p-6">
@@ -204,10 +238,11 @@ export default function Success() {
             Recent Transactions
           </h2>
           <ul className="mt-2">
-            {transactions.map((t) => (
+            {transactions.slice(-8).map((t) => ( // Show only the last 8 transactions
               <li
                 key={t.id}
-                className="flex justify-between items-center py-2 border-b"
+                className="flex justify-between items-center py-2 border-b cursor-pointer"
+                onClick={() => handleTransactionClick(t.id)} // Fetch transaction details on click
               >
                 <span className="text-gray-500 text-sm">{t.date}</span> {/* Display date first */}
                 <span className="flex items-center">
@@ -220,6 +255,12 @@ export default function Success() {
               </li>
             ))}
           </ul>
+          <button
+            onClick={() => navigate("/expenses")} // Redirect to the Expenses page
+            className="mt-4 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-500"
+          >
+            See More
+          </button>
         </div>
 
         {/* Pie Chart */}
@@ -259,6 +300,14 @@ export default function Success() {
             <h2 className="text-lg font-semibold text-gray-700 mb-4">
               Add Expense
             </h2>
+
+            {/* Success Message */}
+            {showSuccessPopup && (
+              <div className="bg-green-100 text-green-700 p-4 mb-4 rounded-lg text-center">
+                {successMessage}
+              </div>
+            )}
+
             <div className="mb-4">
               <label className="block text-gray-700">Amount</label>
               <input
@@ -327,6 +376,38 @@ export default function Success() {
                 className="bg-blue-600 text-white px-4 py-2 rounded"
               >
                 Add
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Transaction Description Popup */}
+      {selectedTransaction && (
+        <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-3/4 md:w-1/3">
+            <h2 className="text-lg font-semibold text-gray-700 mb-4">
+              Transaction Details
+            </h2>
+            <p>
+              <strong>Date:</strong> {selectedTransaction.date}
+            </p>
+            <p>
+              <strong>Category:</strong> {selectedTransaction.category}
+            </p>
+            <p>
+              <strong>Amount:</strong> ${selectedTransaction.amount.toFixed(2)}
+            </p>
+            <p>
+              <strong>Description:</strong>{" "}
+              {selectedTransaction.description || "No description provided."}
+            </p>
+            <div className="flex justify-end mt-4">
+              <button
+                onClick={() => setSelectedTransaction(null)} // Close popup
+                className="bg-blue-600 text-white px-4 py-2 rounded"
+              >
+                Close
               </button>
             </div>
           </div>

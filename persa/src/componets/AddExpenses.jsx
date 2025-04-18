@@ -7,7 +7,11 @@ export default function AddExpense() {
     const navigate = useNavigate();
     const [amount, setAmount] = useState("");
     const [category, setCategory] = useState("");
-    const [date, setDate] = useState("");
+    const [date, setDate] = useState(
+        new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000)
+            .toISOString()
+            .split("T")[0]
+    ); // Adjust for local timezone
     const [description, setDescription] = useState(""); // Changed to "description" as per your table structure
     const [successMessage, setSuccessMessage] = useState(""); // State for success message
 
