@@ -6,6 +6,7 @@ import Success from "./componets/Success";
 import Failure from "./componets/failure";
 import Profile from "./componets/Profile";
 import AddExpense from "./componets/AddExpenses";
+import Expenses from "./componets/Expenses"; // Import the Expenses component
 import { API_URL } from "./config";
 
 function App() {
@@ -80,6 +81,7 @@ function App() {
         <Route path="/add-expense" element={<AddExpense />} />
         <Route path="/failure" element={<Failure />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/expenses" element={<Expenses />} /> {/* Add route for Expenses */}
       </Routes>
     </Router>
   );
