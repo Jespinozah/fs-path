@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom"; // Import useLocation
+import { FiPlus } from 'react-icons/fi';
 import { API_URL } from "../config";
 import NavigationBar from "./NavigationBar";
 import { Pie } from "react-chartjs-2";
@@ -42,13 +43,15 @@ export default function Success() {
         if (response.ok) {
           const data = await response.json();
           setTransactions(
-            data.map((expense) => ({
-              id: expense.id,
-              category: expense.category,
-              amount: expense.amount,
-              date: expense.date, // Add date field
-              icon: getCategoryIcon(expense.category), // Map category to an icon
-            }))
+            data
+              .map((expense) => ({
+                id: expense.id,
+                category: expense.category,
+                amount: expense.amount,
+                date: expense.date, // Add date field
+                icon: getCategoryIcon(expense.category), // Map category to an icon
+              }))
+              .sort((a, b) => new Date(b.date) - new Date(a.date)) // Sort by date (descending)
           );
         } else {
           console.error("Failed to fetch expenses:", response.statusText);
@@ -143,7 +146,7 @@ export default function Success() {
         }
 
         const expenseData = {
-          user_id: parseInt(userId, 10),
+          user_id: parseInt(userId, 10), // Include user_id
           amount: parseFloat(newExpense.amount),
           category: newExpense.category,
           date: newExpense.date,
@@ -238,22 +241,27 @@ export default function Success() {
             Recent Transactions
           </h2>
           <ul className="mt-2">
-            {transactions.slice(-8).map((t) => ( // Show only the last 8 transactions
-              <li
-                key={t.id}
-                className="flex justify-between items-center py-2 border-b cursor-pointer"
-                onClick={() => handleTransactionClick(t.id)} // Fetch transaction details on click
-              >
-                <span className="text-gray-500 text-sm">{t.date}</span> {/* Display date first */}
-                <span className="flex items-center">
-                  <span className="text-xl">{t.icon}</span>
-                  <span className="ml-2 text-gray-700">{t.category}</span>
-                </span>
-                <span className="font-medium text-red-500">
-                  - ${t.amount.toFixed(2)}
-                </span>
-              </li>
-            ))}
+            {transactions.slice(0, 8).map(
+              (
+                t // Show the first 8 most recent transactions
+              ) => (
+                <li
+                  key={t.id}
+                  className="flex justify-between items-center py-2 border-b cursor-pointer"
+                  onClick={() => handleTransactionClick(t.id)} // Fetch transaction details on click
+                >
+                  <span className="text-gray-500 text-sm">{t.date}</span>{" "}
+                  {/* Display date first */}
+                  <span className="flex items-center">
+                    <span className="text-xl">{t.icon}</span>
+                    <span className="ml-2 text-gray-700">{t.category}</span>
+                  </span>
+                  <span className="font-medium text-red-500">
+                    - ${t.amount.toFixed(2)}
+                  </span>
+                </li>
+              )
+            )}
           </ul>
           <button
             onClick={() => navigate("/expenses")} // Redirect to the Expenses page
@@ -288,8 +296,9 @@ export default function Success() {
         <button
           onClick={() => setShowAddExpensePopup(true)}
           className="fixed bottom-6 right-6 bg-blue-600 text-white text-3xl w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:bg-blue-500"
+          title="Add Expense"
         >
-          +
+          <FiPlus />
         </button>
       </div>
 
@@ -315,7 +324,8 @@ export default function Success() {
                 value={newExpense.amount}
                 onChange={(e) => {
                   const value = e.target.value;
-                  if (/^\d*\.?\d*$/.test(value)) { // Allow only numeric input
+                  if (/^\d*\.?\d*$/.test(value)) {
+                    // Allow only numeric input
                     setNewExpense({ ...newExpense, amount: value });
                   }
                 }}

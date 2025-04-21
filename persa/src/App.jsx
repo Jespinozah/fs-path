@@ -7,6 +7,7 @@ import Failure from "./componets/failure";
 import Profile from "./componets/Profile";
 import AddExpense from "./componets/AddExpenses";
 import Expenses from "./componets/Expenses"; // Import the Expenses component
+import EditExpense from "./componets/EditExpense"; // Import the EditExpense component
 import { API_URL } from "./config";
 
 function App() {
@@ -82,6 +83,7 @@ function App() {
         <Route path="/failure" element={<Failure />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/expenses" element={<Expenses />} /> {/* Add route for Expenses */}
+        <Route path="/expenses/:expenseId" element={<EditExpense />} /> {/* Add route for editing expenses */}
       </Routes>
     </Router>
   );
