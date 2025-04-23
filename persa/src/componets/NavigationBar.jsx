@@ -16,12 +16,6 @@ export default function NavigationBar({ onLogout }) {
                 </button>
                 <button
                     className="px-4 py-2 bg-blue-500 rounded hover:bg-blue-400"
-                    onClick={() => navigate("/add-expense")}
-                >
-                    Add Expense
-                </button>
-                <button
-                    className="px-4 py-2 bg-blue-500 rounded hover:bg-blue-400"
                     onClick={() => navigate("/expenses")}
                 >
                     Expenses

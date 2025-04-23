@@ -8,6 +8,9 @@ export default function Expenses() {
   const [expenses, setExpenses] = useState([]);
   const [showAddExpensePopup, setShowAddExpensePopup] = useState(false);
   const [successMessage, setSuccessMessage] = useState(""); // State for success message
+  const [deleteSuccessMessage, setDeleteSuccessMessage] = useState(""); // State for delete success message
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false); // State for delete confirmation popup
+  const [expenseToDelete, setExpenseToDelete] = useState(null); // State for expense to delete
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -113,6 +116,45 @@ export default function Expenses() {
     navigate(`/expenses/${expenseId}`);
   };
 
+  const confirmDelete = (expenseId) => {
+    setExpenseToDelete(expenseId);
+    setShowDeleteConfirm(true);
+  };
+
+  const handleDelete = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        console.error("No token found, redirecting to login.");
+        navigate("/login");
+        return;
+      }
+
+      const response = await fetch(`${API_URL}/expenses/${expenseToDelete}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        setExpenses(expenses.filter((expense) => expense.id !== expenseToDelete));
+        setShowDeleteConfirm(false);
+        setExpenseToDelete(null);
+        setDeleteSuccessMessage("Expense deleted successfully!"); // Set success message
+        setTimeout(() => setDeleteSuccessMessage(""), 2000); // Clear success message after 2 seconds
+      } else {
+        const errorText = await response.text();
+        console.error("Failed to delete expense:", errorText);
+        alert("Failed to delete expense: " + errorText);
+      }
+    } catch (error) {
+      console.error("Error deleting expense:", error);
+      alert("Error deleting expense");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-100">
       <NavigationBar onLogout={() => navigate("/login")} />
@@ -122,10 +164,15 @@ export default function Expenses() {
             All Expenses
           </h2>
 
-          {/* Display success message */}
+          {/* Display success messages */}
           {successMessage && (
             <div className="bg-green-100 text-green-700 p-4 mb-4 rounded-lg text-center">
               {successMessage}
+            </div>
+          )}
+          {deleteSuccessMessage && (
+            <div className="bg-green-100 text-green-700 p-4 mb-4 rounded-lg text-center">
+              {deleteSuccessMessage}
             </div>
           )}
 
@@ -141,7 +188,7 @@ export default function Expenses() {
             </thead>
             <tbody>
               {expenses.map((expense, index) => (
-                <tr key={expense.id || index}>{/* Ensure no extra whitespace */}
+                <tr key={expense.id || index}>
                   <td className="border border-gray-300 px-4 py-2">{expense.date}</td>
                   <td className="border border-gray-300 px-4 py-2">
                     <span className="flex items-center">
@@ -154,9 +201,15 @@ export default function Expenses() {
                   <td className="border border-gray-300 px-4 py-2">
                     <button
                       onClick={() => handleEdit(expense.id)}
-                      className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500"
+                      className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500 mr-2"
                     >
                       Edit
+                    </button>
+                    <button
+                      onClick={() => confirmDelete(expense.id)}
+                      className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-500"
+                    >
+                      Delete
                     </button>
                   </td>
                 </tr>
@@ -181,6 +234,30 @@ export default function Expenses() {
           onClose={() => setShowAddExpensePopup(false)}
           onAddExpense={handleAddExpense}
         />
+      )}
+
+      {/* Delete Confirmation Popup */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+            <h3 className="text-lg font-semibold mb-4">Are you sure?</h3>
+            <p className="mb-6">Do you really want to delete this expense? This action cannot be undone.</p>
+            <div className="flex justify-center">
+              <button
+                onClick={handleDelete}
+                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-500 mr-2"
+              >
+                Yes, Delete
+              </button>
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="bg-transparent text-gray-700 px-4 py-2 rounded hover:bg-gray-100"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
