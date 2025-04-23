@@ -3,8 +3,8 @@ from repositories.expense_repository import ExpenseRepository
 class ExpenseService:
     @staticmethod
     def create_expense(data):
-        if not data.get("user_id") or not data.get("amount") or not data.get("category") or not data.get("date"):
-            raise ValueError("All fields (user_id, amount, category, date) are required.")
+        if not data.get("user_id") or not data.get("amount") or not data.get("category") or not data.get("date") or not data.get("hour"):
+            raise ValueError("All fields (user_id, amount, category, date, hour) are required.")
         ExpenseRepository.create_expense(data)
 
     @staticmethod
@@ -21,8 +21,8 @@ class ExpenseService:
 
     @staticmethod
     def update_expense(expense_id, data):
-        if not data.get("user_id") or not data.get("amount") or not data.get("category") or not data.get("date"):
-            raise ValueError("All fields (user_id, amount, category, date) are required.")
+        if not data.get("user_id") or not data.get("amount") or not data.get("category") or not data.get("date") or not data.get("hour"):
+            raise ValueError("All fields (user_id, amount, category, date, hour) are required.")
         ExpenseRepository.update_expense(expense_id, data)
 
     @staticmethod

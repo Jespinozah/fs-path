@@ -10,7 +10,7 @@ CREATE TABLE pets (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100),
     type VARCHAR(100)
-)
+);
 
 CREATE TABLE expenses (
     id SERIAL PRIMARY KEY,
@@ -22,3 +22,9 @@ CREATE TABLE expenses (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+ALTER TABLE expenses ADD COLUMN hour TIME;
+
+UPDATE expenses SET hour = '00:00:00' WHERE hour IS NULL;
+
+ALTER TABLE expenses ALTER COLUMN hour SET NOT NULL;

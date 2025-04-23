@@ -26,6 +26,7 @@ class Expense(db.Model):
     category = db.Column(db.String(50), nullable=False)
     date = db.Column(db.Date, nullable=False)
     description = db.Column(db.Text, nullable=True)
+    hour = db.Column(db.Time, nullable=False)  # New field for storing the hour
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
@@ -41,6 +42,7 @@ class Expense(db.Model):
             "category": self.category,
             "date": self.date.isoformat(),  # Convert date to ISO 8601 string
             "description": self.description,
+            "hour": self.hour.isoformat(),  # Convert time to ISO 8601 string
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None
         }

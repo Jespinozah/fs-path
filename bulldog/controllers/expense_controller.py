@@ -26,6 +26,9 @@ def create_expense():
             date:
               type: string
               format: date
+            hour:
+              type: string
+              format: time
             description:
               type: string
     responses:
@@ -133,6 +136,9 @@ def update_expense(expense_id):
             date:
               type: string
               format: date
+            hour:
+              type: string
+              format: time
             description:
               type: string
     responses:
