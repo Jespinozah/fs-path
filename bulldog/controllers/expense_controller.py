@@ -3,7 +3,7 @@ from services.expense_service import ExpenseService
 
 expense_bp = Blueprint("expenses", __name__, url_prefix="/api/v1/expenses")
 
-@expense_bp.route("/", methods=["POST"])
+@expense_bp.route("", methods=["POST"])
 def create_expense():
     """
     Create a new expense
@@ -45,20 +45,38 @@ def create_expense():
         return jsonify({"error": "Failed to create expense"}), 500
 
 
-@expense_bp.route("/", methods=["GET"])
+@expense_bp.route("", methods=["GET"])
 def get_expenses():
     """
-    Get all expenses
+    Get all expenses with pagination
     ---
     tags:
       - Expenses
+    parameters:
+      - in: query
+        name: page
+        required: false
+        type: integer
+        default: 1
+      - in: query
+        name: per_page
+        required: false
+        type: integer
+        default: 10
     responses:
       200:
-        description: List of expenses
+        description: List of expenses with pagination
     """
     try:
-        expenses = ExpenseService.get_expenses()
-        return jsonify([expense.to_dict() for expense in expenses]), 200
+        page = request.args.get("page", 1, type=int)
+        per_page = request.args.get("per_page", 10, type=int)
+        expenses, total = ExpenseService.get_expenses(page, per_page)
+        return jsonify({
+            "expenses": [expense.to_dict() for expense in expenses],
+            "total": total,
+            "page": page,
+            "per_page": per_page
+        }), 200
     except Exception as e:
         return jsonify({"error": "Failed to fetch expenses"}), 500
 

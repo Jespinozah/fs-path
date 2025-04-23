@@ -3,7 +3,7 @@ from services.user_service import UserService
 
 user_bp = Blueprint("users", __name__, url_prefix="/api/v1/users")
 
-@user_bp.route("/", methods=["POST"])
+@user_bp.route("", methods=["POST"])
 def create_user():
     """
     Create a new user
@@ -33,7 +33,7 @@ def create_user():
     UserService.create_user(data)
     return jsonify({"message": "User created successfully"}), 201
 
-@user_bp.route("/", methods=["GET"])
+@user_bp.route("", methods=["GET"])
 def get_users():
     """
     Get all users

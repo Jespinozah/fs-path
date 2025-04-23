@@ -5,7 +5,6 @@ from database import init_db
 from routes import register_routes
 
 app = Flask(__name__)
-app.url_map.strict_slashes = False  # Disable strict slashes to avoid 308 redirects
 CORS(app,  resources={r"/api/*": {"origins": "*"}})  # Enable CORS for all API routes
 
 # Initialize Flasgger Swagger

@@ -9,8 +9,9 @@ class ExpenseRepository:
         db.session.commit()
 
     @staticmethod
-    def get_expenses():
-        return Expense.query.all()
+    def get_expenses(page, per_page):
+        pagination = Expense.query.paginate(page=page, per_page=per_page, error_out=False)
+        return pagination.items, pagination.total
 
     @staticmethod
     def get_expense_by_id(expense_id):

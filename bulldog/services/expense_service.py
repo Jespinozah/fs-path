@@ -8,8 +8,8 @@ class ExpenseService:
         ExpenseRepository.create_expense(data)
 
     @staticmethod
-    def get_expenses():
-        return ExpenseRepository.get_expenses()
+    def get_expenses(page, per_page):
+        return ExpenseRepository.get_expenses(page, per_page)
 
     @staticmethod
     def get_expense_by_id(expense_id):
