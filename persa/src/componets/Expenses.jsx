@@ -6,6 +6,8 @@ import AddExpensePopup from "./AddExpensePopup";
 
 export default function Expenses() {
   const [expenses, setExpenses] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1); // State for current page
+  const [totalPages, setTotalPages] = useState(1); // State for total pages
   const [showAddExpensePopup, setShowAddExpensePopup] = useState(false);
   const [successMessage, setSuccessMessage] = useState(""); // State for success message
   const [deleteSuccessMessage, setDeleteSuccessMessage] = useState(""); // State for delete success message
@@ -23,7 +25,7 @@ export default function Expenses() {
           return;
         }
 
-        const response = await fetch(`${API_URL}/expenses`, {
+        const response = await fetch(`${API_URL}/expenses?page=${currentPage}&per_page=10`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -31,14 +33,21 @@ export default function Expenses() {
 
         if (response.ok) {
           const data = await response.json();
-          setExpenses(
-            data
-              .map((expense) => ({
-                ...expense,
-                icon: getCategoryIcon(expense.category),
-              }))
-              .sort((a, b) => new Date(b.date) - new Date(a.date))
-          );
+          console.log("Fetched expenses data:", data); // Log the response data
+
+          if (Array.isArray(data.expenses)) { // Access the 'expenses' key
+            setExpenses(
+              data.expenses.sort((a, b) => {
+                const dateA = new Date(a.date || 0); // Fallback to 0 if date is invalid
+                const dateB = new Date(b.date || 0); // Fallback to 0 if date is invalid
+                return dateB - dateA; // Sort by date (descending)
+              })
+            );
+            setTotalPages(Math.ceil(data.total / data.per_page)); // Calculate total pages
+          } else {
+            console.error("Unexpected data format:", data);
+            alert("Failed to fetch expenses: Unexpected data format.");
+          }
         } else {
           console.error("Failed to fetch expenses:", response.statusText);
         }
@@ -48,7 +57,7 @@ export default function Expenses() {
     };
 
     fetchExpenses();
-  }, [navigate]);
+  }, [navigate, currentPage]);
 
   const getCategoryIcon = (category) => {
     const icons = {
@@ -155,6 +164,12 @@ export default function Expenses() {
     }
   };
 
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-100">
       <NavigationBar onLogout={() => navigate("/login")} />
@@ -216,6 +231,27 @@ export default function Expenses() {
               ))}
             </tbody>
           </table>
+
+          {/* Pagination Controls */}
+          <div className="flex justify-between items-center mt-4">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              className={`px-4 py-2 rounded ${currentPage === 1 ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-blue-600 text-white hover:bg-blue-500"}`}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </button>
+            <span className="text-gray-700">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              className={`px-4 py-2 rounded ${currentPage === totalPages ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-blue-600 text-white hover:bg-blue-500"}`}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </button>
+          </div>
         </div>
       </div>
 

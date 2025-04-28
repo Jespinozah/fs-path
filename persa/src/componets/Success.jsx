@@ -34,7 +34,7 @@ export default function Success() {
           return;
         }
 
-        const response = await fetch(`${API_URL}/expenses`, {
+        const response = await fetch(`${API_URL}/expenses?page=1&per_page=10`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -42,17 +42,24 @@ export default function Success() {
 
         if (response.ok) {
           const data = await response.json();
-          setTransactions(
-            data
-              .map((expense) => ({
-                id: expense.id,
-                category: expense.category,
-                amount: expense.amount,
-                date: expense.date, // Add date field
-                icon: getCategoryIcon(expense.category), // Map category to an icon
-              }))
-              .sort((a, b) => new Date(b.date) - new Date(a.date)) // Sort by date (descending)
-          );
+          console.log("Fetched expenses data:", data); // Log the response data
+
+          if (Array.isArray(data.expenses)) { // Access the 'expenses' key
+            setTransactions(
+              data.expenses
+                .map((expense) => ({
+                  id: expense.id,
+                  category: expense.category,
+                  amount: expense.amount,
+                  date: expense.date, // Add date field
+                  icon: getCategoryIcon(expense.category), // Map category to an icon
+                }))
+                .sort((a, b) => new Date(b.date) - new Date(a.date)) // Sort by date (descending)
+            );
+          } else {
+            console.error("Unexpected data format:", data);
+            alert("Failed to fetch expenses: Unexpected data format.");
+          }
         } else {
           console.error("Failed to fetch expenses:", response.statusText);
         }
@@ -128,13 +135,14 @@ export default function Success() {
     amount: "",
     category: "",
     date: new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000)
-    .toISOString()
-    .split("T")[0],
+      .toISOString()
+      .split("T")[0],
+    time: new Date().toTimeString().split(" ")[0], // Set current time in HH:mm:ss format
     description: "",
   });
 
   const handleAddExpense = async () => {
-    if (newExpense.amount && newExpense.category && newExpense.date) {
+    if (newExpense.amount && newExpense.category && newExpense.date && newExpense.time) {
       try {
         const token = localStorage.getItem("token");
         const userId = localStorage.getItem("userId");
@@ -149,9 +157,12 @@ export default function Success() {
           user_id: parseInt(userId, 10), // Include user_id
           amount: parseFloat(newExpense.amount),
           category: newExpense.category,
-          date: newExpense.date,
+          date: newExpense.date, // Send only the date part
+          hour: newExpense.time, // Send the time part as 'hour'
           description: newExpense.description,
         };
+
+        console.log("Payload being sent:", expenseData); // Log the payload
 
         const response = await fetch(`${API_URL}/expenses`, {
           method: "POST",
@@ -176,10 +187,9 @@ export default function Success() {
               icon: getCategoryIcon(newExpense.category), // Map category to an icon
             },
           ]);
-          setNewExpense({ amount: "", category: "", date: "", description: "" });
+          setNewExpense({ amount: "", category: "", date: "", time: "", description: "" });
           setSuccessMessage("Expense added successfully!");
           setShowSuccessPopup(true);
-          // Keep the popup open for better user feedback
           setTimeout(() => setShowSuccessPopup(false), 2000); // Hide success message after 2 seconds
         } else {
           const errorText = await response.text();
@@ -358,6 +368,18 @@ export default function Success() {
                 value={newExpense.date}
                 onChange={(e) =>
                   setNewExpense({ ...newExpense, date: e.target.value })
+                }
+                className="w-full p-2 border rounded"
+                required
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-700">Time</label>
+              <input
+                type="time"
+                value={newExpense.time || ""}
+                onChange={(e) =>
+                  setNewExpense({ ...newExpense, time: e.target.value })
                 }
                 className="w-full p-2 border rounded"
                 required

@@ -8,6 +8,7 @@ export default function AddExpensePopup({ onClose, onAddExpense }) {
     date: new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000)
       .toISOString()
       .split("T")[0],
+    time: new Date().toTimeString().split(" ")[0], // Add time field
     description: "",
   });
 
@@ -28,6 +29,7 @@ export default function AddExpensePopup({ onClose, onAddExpense }) {
           amount: parseFloat(newExpense.amount),
           category: newExpense.category,
           date: newExpense.date,
+          hour: newExpense.time, // Include time field
           description: newExpense.description,
         };
 
@@ -46,7 +48,7 @@ export default function AddExpensePopup({ onClose, onAddExpense }) {
             ...newExpense,
             id: result.id,
           });
-          setNewExpense({ amount: "", category: "", date: "", description: "" });
+          setNewExpense({ amount: "", category: "", date: "", time: "", description: "" });
           onClose(); 
         } else {
           const errorText = await response.text();
@@ -106,6 +108,18 @@ export default function AddExpensePopup({ onClose, onAddExpense }) {
             value={newExpense.date}
             onChange={(e) =>
               setNewExpense({ ...newExpense, date: e.target.value })
+            }
+            className="w-full p-2 border rounded"
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700">Time</label>
+          <input
+            type="time"
+            value={newExpense.time || ""}
+            onChange={(e) =>
+              setNewExpense({ ...newExpense, time: e.target.value })
             }
             className="w-full p-2 border rounded"
             required
