@@ -1,0 +1,36 @@
+import { API_URL } from "../config";
+
+const getAuthHeaders = () => {
+    const token = localStorage.getItem("token");
+    return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
+const api = async (endpoint, options = {}) => {
+    const headers = {
+        "Content-Type": "application/json",
+        ...getAuthHeaders(),
+        ...options.headers,
+    };
+
+    const response = await fetch(`${API_URL}${endpoint}`, {
+        ...options,
+        headers,
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || "API request failed");
+    }
+
+    return response.json();
+};
+
+export const get = (endpoint, options = {}) => api(endpoint, { ...options, method: "GET" });
+
+export const post = (endpoint, body, options = {}) =>
+    api(endpoint, { ...options, method: "POST", body: JSON.stringify(body) });
+
+export const put = (endpoint, body, options = {}) =>
+    api(endpoint, { ...options, method: "PUT", body: JSON.stringify(body) });
+
+export const del = (endpoint, options = {}) => api(endpoint, { ...options, method: "DELETE" });

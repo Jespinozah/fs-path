@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { API_URL } from "../../config";
 import NavigationBar from "../NavigationBar";
 import AddExpensePopup from "./AddExpensePopup";
+import { get, post, del } from "../../utils/Api"; // Import the get function from utils/api
 
 export default function Expenses() {
   const [expenses, setExpenses] = useState([]);
@@ -18,46 +19,19 @@ export default function Expenses() {
   useEffect(() => {
     const fetchExpenses = async () => {
       try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          console.error("No token found, redirecting to login.");
-          navigate("/login");
-          return;
-        }
-
-        const response = await fetch(`${API_URL}/expenses?page=${currentPage}&per_page=10`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          console.log("Fetched expenses data:", data); // Log the response data
-
-          if (Array.isArray(data.expenses)) { // Access the 'expenses' key
-            setExpenses(
-              data.expenses.sort((a, b) => {
-                const dateA = new Date(a.date || 0); // Fallback to 0 if date is invalid
-                const dateB = new Date(b.date || 0); // Fallback to 0 if date is invalid
-                return dateB - dateA; // Sort by date (descending)
-              })
-            );
-            setTotalPages(Math.ceil(data.total / data.per_page)); // Calculate total pages
-          } else {
-            console.error("Unexpected data format:", data);
-            alert("Failed to fetch expenses: Unexpected data format.");
-          }
-        } else {
-          console.error("Failed to fetch expenses:", response.statusText);
-        }
+        const data = await get(`/expenses?page=${currentPage}&per_page=10`);
+        setExpenses(
+          data.expenses.sort((a, b) => new Date(b.date) - new Date(a.date))
+        );
+        setTotalPages(Math.ceil(data.total / data.per_page));
       } catch (error) {
         console.error("Error fetching expenses:", error);
+        alert("Failed to fetch expenses");
       }
     };
 
     fetchExpenses();
-  }, [navigate, currentPage]);
+  }, [currentPage]);
 
   const getCategoryIcon = (category) => {
     const icons = {
@@ -70,15 +44,6 @@ export default function Expenses() {
 
   const handleAddExpense = async (newExpense) => {
     try {
-      const token = localStorage.getItem("token");
-      const userId = localStorage.getItem("userId");
-
-      if (!token || !userId) {
-        console.error("User ID or token not found, redirecting to login.");
-        navigate("/login");
-        return;
-      }
-
       const expenseData = {
         user_id: parseInt(userId, 10),
         amount: parseFloat(newExpense.amount),
@@ -87,34 +52,18 @@ export default function Expenses() {
         description: newExpense.description,
       };
 
-      const response = await fetch(`${API_URL}/expenses`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+      const result = await post("/expenses", expenseData);
+      setExpenses([
+        {
+          ...newExpense,
+          id: result.id,
+          amount: parseFloat(newExpense.amount),
         },
-        body: JSON.stringify(expenseData),
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        setExpenses([
-          {
-            ...newExpense,
-            id: result.id,
-            amount: parseFloat(newExpense.amount),
-            icon: getCategoryIcon(newExpense.category),
-          },
-          ...expenses,
-        ]);
-        setShowAddExpensePopup(false);
-        setSuccessMessage("Expense added successfully!"); // Set success message
-        setTimeout(() => setSuccessMessage(""), 2000); // Clear success message after 2 seconds
-      } else {
-        const errorText = await response.text();
-        console.error("Failed to add expense:", errorText);
-        alert("Failed to add expense: " + errorText);
-      }
+        ...expenses,
+      ]);
+      setShowAddExpensePopup(false);
+      setSuccessMessage("Expense added successfully!");
+      setTimeout(() => setSuccessMessage(""), 2000);
     } catch (error) {
       console.error("Error adding expense:", error);
       alert("Error adding expense");
@@ -132,32 +81,12 @@ export default function Expenses() {
 
   const handleDelete = async () => {
     try {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        console.error("No token found, redirecting to login.");
-        navigate("/login");
-        return;
-      }
-
-      const response = await fetch(`${API_URL}/expenses/${expenseToDelete}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        setExpenses(expenses.filter((expense) => expense.id !== expenseToDelete));
-        setShowDeleteConfirm(false);
-        setExpenseToDelete(null);
-        setDeleteSuccessMessage("Expense deleted successfully!"); // Set success message
-        setTimeout(() => setDeleteSuccessMessage(""), 2000); // Clear success message after 2 seconds
-      } else {
-        const errorText = await response.text();
-        console.error("Failed to delete expense:", errorText);
-        alert("Failed to delete expense: " + errorText);
-      }
+      await del(`/expenses/${expenseToDelete}`);
+      setExpenses(expenses.filter((expense) => expense.id !== expenseToDelete));
+      setShowDeleteConfirm(false);
+      setExpenseToDelete(null);
+      setDeleteSuccessMessage("Expense deleted successfully!");
+      setTimeout(() => setDeleteSuccessMessage(""), 2000);
     } catch (error) {
       console.error("Error deleting expense:", error);
       alert("Error deleting expense");
