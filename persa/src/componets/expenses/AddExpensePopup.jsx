@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { API_URL } from "../config";
+import { API_URL } from "../../config";
 
 export default function AddExpensePopup({ onClose, onAddExpense }) {
   const [newExpense, setNewExpense] = useState({
@@ -49,7 +49,7 @@ export default function AddExpensePopup({ onClose, onAddExpense }) {
             id: result.id,
           });
           setNewExpense({ amount: "", category: "", date: "", time: "", description: "" });
-          onClose(); 
+          onClose();
         } else {
           const errorText = await response.text();
           console.error("Failed to add expense:", errorText);

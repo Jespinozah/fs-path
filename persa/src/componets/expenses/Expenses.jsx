@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { API_URL } from "../config";
-import NavigationBar from "./NavigationBar";
+import { API_URL } from "../../config";
+import NavigationBar from "../NavigationBar";
 import AddExpensePopup from "./AddExpensePopup";
 
 export default function Expenses() {

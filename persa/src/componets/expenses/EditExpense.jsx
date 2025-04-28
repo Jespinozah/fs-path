@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import NavigationBar from "./NavigationBar";
-import { API_URL } from "../config";
+import NavigationBar from "../NavigationBar";
+import { API_URL } from "../../config";
 
 export default function EditExpense() {
   const { expenseId } = useParams(); // Get expense ID from URL

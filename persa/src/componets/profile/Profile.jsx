@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { API_URL } from "../config";
-import NavigationBar from "./NavigationBar";
+import { API_URL } from "../../config";
+import NavigationBar from "../NavigationBar";
 import EditProfileForm from "./EditProfileForm";
 import ChangePasswordForm from "./ChangePasswordForm";
 
@@ -77,21 +77,19 @@ export default function Profile() {
           {/* Tabs for switching between views */}
           <div className="flex justify-center mb-4 space-x-4">
             <button
-              className={`py-2 px-4 rounded ${
-                activeTab === "viewProfile"
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-200 text-gray-700"
-              }`}
+              className={`py-2 px-4 rounded ${activeTab === "viewProfile"
+                ? "bg-blue-600 text-white"
+                : "bg-gray-200 text-gray-700"
+                }`}
               onClick={() => setActiveTab("viewProfile")}
             >
               Edit Profile
             </button>
             <button
-              className={`py-2 px-4 rounded ${
-                activeTab === "changePassword"
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-200 text-gray-700"
-              }`}
+              className={`py-2 px-4 rounded ${activeTab === "changePassword"
+                ? "bg-blue-600 text-white"
+                : "bg-gray-200 text-gray-700"
+                }`}
               onClick={() => setActiveTab("changePassword")}
             >
               Change Password

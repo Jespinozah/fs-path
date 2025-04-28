@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import NavigationBar from "./NavigationBar";
-import { API_URL } from "../config"; // Assuming API_URL is defined in the config file
+import NavigationBar from "../NavigationBar";
+import { API_URL } from "../../config"; // Assuming API_URL is defined in the config file
 
 export default function AddExpense() {
     const navigate = useNavigate();
@@ -71,7 +71,7 @@ export default function AddExpense() {
             <div className="flex flex-col items-center justify-center h-full">
                 <div className="w-3/4 md:w-1/2 bg-white p-6 rounded-lg shadow-md mt-6">
                     <h1 className="text-2xl font-semibold mb-4 text-gray-700 text-center">Add Expense</h1>
-                    
+
                     {/* Display success message */}
                     {successMessage && (
                         <div className="bg-green-100 text-green-700 p-4 mb-4 rounded-lg text-center">

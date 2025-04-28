@@ -1,13 +1,13 @@
 import "./App.css";
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
-import Login from "./componets/login";
-import Signup from "./componets/Signup";
+import Login from "./componets/auth/Login";
+import Signup from "./componets/auth/Signup";
 import Success from "./componets/Success";
-import Failure from "./componets/failure";
-import Profile from "./componets/Profile";
-import AddExpense from "./componets/AddExpenses";
-import Expenses from "./componets/Expenses"; // Import the Expenses component
-import EditExpense from "./componets/EditExpense"; // Import the EditExpense component
+import Failure from "./componets/auth/Failure";
+import Profile from "./componets/profile/Profile";
+import AddExpense from "./componets/expenses/AddExpenses";
+import Expenses from "./componets/expenses/Expenses"; // Import the Expenses component
+import EditExpense from "./componets/expenses/EditExpense"; // Import the EditExpense component
 import { API_URL } from "./config";
 
 function App() {
@@ -32,7 +32,7 @@ function App() {
         localStorage.setItem("token", data.access_token);
         localStorage.setItem("userId", data.user_id); // Save userId
         // Redirect to the success page
-        navigate("/success"); 
+        navigate("/success");
       } else {
         console.error("Login failed:", data.error);
         navigate("/failure"); // Redirect on failure
@@ -52,9 +52,9 @@ function App() {
         },
         body: JSON.stringify({ name, email, age: parseInt(age, 10), password }),
       });
-  
+
       const data = await response.json();
-  
+
       if (response.ok) {
         console.log("Sign up successful:", data);
         // Redirect to the success page

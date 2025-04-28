@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { API_URL } from "../config";
+import { API_URL } from "../../config";
 
 export default function EditProfileForm({ user, setUser, setSuccessMessage, onCancel }) {
   const [formData, setFormData] = useState(user);
