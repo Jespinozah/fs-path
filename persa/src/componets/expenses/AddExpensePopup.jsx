@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { API_URL } from "../../config";
+import { post } from "../../utils/Api"; // Import the post function
 
 export default function AddExpensePopup({ onClose, onAddExpense }) {
   const [newExpense, setNewExpense] = useState({
@@ -13,54 +13,46 @@ export default function AddExpensePopup({ onClose, onAddExpense }) {
   });
 
   const handleAddExpense = async () => {
-    const token = localStorage.getItem("token");
-    const userId = localStorage.getItem("userId");
+    const userId = localStorage.getItem("userId"); // Retrieve userId from localStorage
 
-    if (!token || !userId) {
-      console.error("User ID or token not found, redirecting to login.");
+    if (!userId) {
+      console.error("User ID not found, redirecting to login.");
       alert("Please log in to add an expense.");
       return;
     }
 
-    if (newExpense.amount && newExpense.category && newExpense.date) {
+    if (newExpense.amount && newExpense.category && newExpense.date && newExpense.time) {
       try {
+
+        // Ensure time is in HH:MM:SS format
+        let formattedTime = newExpense.time;
+        if (formattedTime.length === 5) {
+          formattedTime += ":00";
+        }
         const expenseData = {
           user_id: parseInt(userId, 10), // Include user_id
           amount: parseFloat(newExpense.amount),
           category: newExpense.category,
           date: newExpense.date,
-          hour: newExpense.time, // Include time field
+          hour: formattedTime, // Include time field
           description: newExpense.description,
         };
 
-        const response = await fetch(`${API_URL}/expenses`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(expenseData),
-        });
+        console.log("Payload being sent:", expenseData); // Log the payload
 
-        if (response.ok) {
-          const result = await response.json();
-          onAddExpense({
-            ...newExpense,
-            id: result.id,
-          });
-          setNewExpense({ amount: "", category: "", date: "", time: "", description: "" });
-          onClose();
-        } else {
-          const errorText = await response.text();
-          console.error("Failed to add expense:", errorText);
-          alert("Failed to add expense: " + errorText);
-        }
+        const result = await post("/expenses", expenseData); // Use the post function
+        onAddExpense({
+          ...newExpense,
+          id: result.id,
+        });
+        setNewExpense({ amount: "", category: "", date: "", time: "", description: "" });
+        onClose();
       } catch (error) {
-        console.error("Error adding expense:", error);
+        console.error("Error adding expense:", error.message); // Log the error message
         alert("Error adding expense.");
       }
     } else {
-      alert("Please fill out all required fields.");
+      alert("Please fill out all required fields, including time.");
     }
   };
 

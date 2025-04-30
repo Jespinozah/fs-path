@@ -19,6 +19,7 @@ const api = async (endpoint, options = {}) => {
 
     if (!response.ok) {
         const errorText = await response.text();
+        console.error("Server response:", errorText); // Log the server response
         throw new Error(errorText || "API request failed");
     }
 

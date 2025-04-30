@@ -1,47 +1,31 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import NavigationBar from "../NavigationBar";
-import { API_URL } from "../../config";
+import { get, put } from "../../utils/Api"; // Import the get and put functions
 
 export default function EditExpense() {
-  const { expenseId } = useParams(); // Get expense ID from URL
+  const { expenseId } = useParams();
   const navigate = useNavigate();
   const [expense, setExpense] = useState({
     amount: "",
     category: "",
     date: "",
+    hour: "", // Add hour field
     description: "",
   });
-  const [successMessage, setSuccessMessage] = useState(""); // State for success message
+  const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
     const fetchExpense = async () => {
       try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          console.error("No token found, redirecting to login.");
-          navigate("/login");
-          return;
-        }
-
-        const response = await fetch(`${API_URL}/expenses/${expenseId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+        const data = await get(`/expenses/${expenseId}`);
+        setExpense({
+          amount: data.amount.toString(),
+          category: data.category,
+          date: data.date,
+          hour: data.hour || "", // Set hour if available
+          description: data.description || "",
         });
-
-        if (response.ok) {
-          const data = await response.json();
-          setExpense({
-            amount: data.amount.toString(),
-            category: data.category,
-            date: data.date,
-            description: data.description || "",
-          });
-        } else {
-          console.error("Failed to fetch expense:", response.statusText);
-          alert("Failed to fetch expense details.");
-        }
       } catch (error) {
         console.error("Error fetching expense:", error);
         alert("Error fetching expense details.");
@@ -49,46 +33,25 @@ export default function EditExpense() {
     };
 
     fetchExpense();
-  }, [expenseId, navigate]);
+  }, [expenseId]);
 
   const handleSave = async (e) => {
     e.preventDefault();
 
-    const token = localStorage.getItem("token");
-    const userId = localStorage.getItem("userId"); // Retrieve user_id from localStorage
-    if (!token || !userId) {
-      console.error("No token or user ID found, redirecting to login.");
-      navigate("/login");
-      return;
-    }
-
     try {
-      const response = await fetch(`${API_URL}/expenses/${expenseId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          user_id: parseInt(userId, 10), // Include user_id in the request body
-          amount: parseFloat(expense.amount),
-          category: expense.category,
-          date: expense.date,
-          description: expense.description,
-        }),
+      await put(`/expenses/${expenseId}`, {
+        user_id: parseInt(localStorage.getItem("userId"), 10),
+        amount: parseFloat(expense.amount),
+        category: expense.category,
+        date: expense.date,
+        hour: expense.hour, // Include hour in the request
+        description: expense.description,
       });
-
-      if (response.ok) {
-        setSuccessMessage("Expense updated successfully!");
-        setTimeout(() => {
-          setSuccessMessage("");
-          navigate("/expenses"); // Redirect to the expenses page
-        }, 2000);
-      } else {
-        const errorText = await response.text();
-        console.error("Failed to update expense:", errorText);
-        alert("Failed to update expense: " + errorText);
-      }
+      setSuccessMessage("Expense updated successfully!");
+      setTimeout(() => {
+        setSuccessMessage("");
+        navigate("/expenses");
+      }, 2000);
     } catch (error) {
       console.error("Error updating expense:", error);
       alert("Error updating expense.");
@@ -174,6 +137,23 @@ export default function EditExpense() {
             </div>
 
             <div className="flex flex-col">
+              <label htmlFor="hour" className="mb-1 font-medium text-gray-700">
+                Hour
+              </label>
+              <input
+                type="time"
+                id="hour"
+                name="hour"
+                value={expense.hour}
+                onChange={(e) =>
+                  setExpense({ ...expense, hour: e.target.value })
+                }
+                className="border p-2 bg-gray-50 text-gray-700 rounded"
+                required
+              />
+            </div>
+
+            <div className="flex flex-col">
               <label
                 htmlFor="description"
                 className="mb-1 font-medium text-gray-700"
@@ -192,7 +172,14 @@ export default function EditExpense() {
               ></textarea>
             </div>
 
-            <div className="flex justify-end">
+            <div className="flex justify-end space-x-4">
+              <button
+                type="button"
+                className="bg-red-600 text-white py-2 px-4 rounded hover:bg-red-500"
+                onClick={() => navigate("/expenses")} // Navigate back to the expenses page
+              >
+                Cancel
+              </button>
               <button
                 type="submit"
                 className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-500"

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { API_URL } from "../../config";
+import { get } from "../../utils/Api"; // Import the get function
 import NavigationBar from "../NavigationBar";
 import EditProfileForm from "./EditProfileForm";
 import ChangePasswordForm from "./ChangePasswordForm";
@@ -16,7 +16,6 @@ export default function Profile() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const token = localStorage.getItem("token");
         const userId = localStorage.getItem("userId");
 
         if (!userId) {
@@ -25,19 +24,8 @@ export default function Profile() {
           return;
         }
 
-        const response = await fetch(`${API_URL}/users/${userId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data);
-        } else {
-          console.error("Failed to fetch user data");
-          navigate("/login");
-        }
+        const data = await get(`/users/${userId}`); // Use the get function
+        setUser(data);
       } catch (error) {
         console.error("Error fetching user data:", error);
         setError("Failed to load profile.");

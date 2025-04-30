@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import NavigationBar from "../NavigationBar";
-import { API_URL } from "../../config"; // Assuming API_URL is defined in the config file
+import { post } from "../../utils/Api"; // Import the post function
 
 export default function AddExpense() {
     const navigate = useNavigate();
@@ -12,17 +12,15 @@ export default function AddExpense() {
             .toISOString()
             .split("T")[0]
     ); // Adjust for local timezone
-    const [description, setDescription] = useState(""); // Changed to "description" as per your table structure
-    const [successMessage, setSuccessMessage] = useState(""); // State for success message
+    const [description, setDescription] = useState("");
+    const [successMessage, setSuccessMessage] = useState("");
 
     const handleSave = async (e) => {
         e.preventDefault();
 
         const userId = localStorage.getItem("userId");
-        const token = localStorage.getItem("token");
-
-        if (!userId || !token) {
-            console.error("User ID or token not found, redirecting to login.");
+        if (!userId) {
+            console.error("User ID not found, redirecting to login.");
             navigate("/login");
             return;
         }
@@ -36,29 +34,13 @@ export default function AddExpense() {
         };
 
         try {
-            const response = await fetch(`${API_URL}/expenses`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`, // Include token for authentication
-                },
-                body: JSON.stringify(expenseData),
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                console.log("Expense Saved:", result);
-                setAmount("");
-                setCategory("");
-                setDate("");
-                setDescription("");
-                setSuccessMessage("Expense added successfully!"); // Set success message
-                setTimeout(() => setSuccessMessage(""), 3000); // Clear message after 3 seconds
-            } else {
-                const errorText = await response.text();
-                console.error("Failed to save expense:", errorText);
-                alert("Failed to save expense: " + errorText);
-            }
+            await post("/expenses", expenseData); // Use the post function
+            setAmount("");
+            setCategory("");
+            setDate("");
+            setDescription("");
+            setSuccessMessage("Expense added successfully!");
+            setTimeout(() => setSuccessMessage(""), 3000);
         } catch (error) {
             console.error("Error saving expense:", error);
             alert("Error saving expense");
