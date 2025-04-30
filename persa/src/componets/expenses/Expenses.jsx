@@ -44,6 +44,13 @@ export default function Expenses() {
 
   const handleAddExpense = async (newExpense) => {
     try {
+      const userId = localStorage.getItem("userId"); // Retrieve userId from localStorage
+      if (!userId) {
+        console.error("User ID not found, redirecting to login.");
+        navigate("/login");
+        return;
+      }
+
       const expenseData = {
         user_id: parseInt(userId, 10),
         amount: parseFloat(newExpense.amount),

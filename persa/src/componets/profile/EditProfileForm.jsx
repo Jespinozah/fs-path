@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { API_URL } from "../../config";
+import { put } from "../../utils/Api"; // Import the put function
 
 export default function EditProfileForm({ user, setUser, setSuccessMessage, onCancel }) {
   const [formData, setFormData] = useState(user);
@@ -13,31 +13,14 @@ export default function EditProfileForm({ user, setUser, setSuccessMessage, onCa
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await fetch(`${API_URL}/users/${user.id}`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          age: parseInt(formData.age, 10),
-        }),
-      });
-
-      if (response.ok) {
-        const updatedUser = await response.json();
-        setUser(updatedUser);
-        setSuccessMessage("Profile updated successfully!");
-        setIsEditing(false); // Disable editing mode after saving
-      } else {
-        const errorText = await response.text();
-        console.error("Failed to update profile:", errorText);
-        alert("Failed to update profile: " + errorText);
-      }
+      const updatedUser = await put(`/users/${user.id}`, {
+        name: formData.name,
+        email: formData.email,
+        age: parseInt(formData.age, 10),
+      }); // Use the put function
+      setUser(updatedUser);
+      setSuccessMessage("Profile updated successfully!");
+      setIsEditing(false); // Disable editing mode after saving
     } catch (error) {
       console.error("Error updating profile:", error);
       alert("Error updating profile");

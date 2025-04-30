@@ -425,6 +425,9 @@ export default function Success() {
               <strong>Date:</strong> {selectedTransaction.date}
             </p>
             <p>
+              <strong>Hour:</strong> {selectedTransaction.hour || "N/A"}
+            </p>
+            <p>
               <strong>Category:</strong> {selectedTransaction.category}
             </p>
             <p>
