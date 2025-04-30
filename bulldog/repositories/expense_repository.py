@@ -10,7 +10,7 @@ class ExpenseRepository:
 
     @staticmethod
     def get_expenses(page, per_page):
-        pagination = Expense.query.paginate(page=page, per_page=per_page, error_out=False)
+        pagination = Expense.query.order_by(Expense.date.desc()).paginate(page=page, per_page=per_page, error_out=False)
         return pagination.items, pagination.total
 
     @staticmethod
