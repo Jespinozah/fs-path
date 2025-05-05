@@ -270,61 +270,62 @@ export default function Success() {
       <div className="flex flex-wrap p-6">
         {/* Left Side: Dashboard Content */}
         <div className="w-full md:w-1/2 flex flex-col items-center">
-          {/* Total Balance */}
-          <div id="expenses" className="bg-white w-3/4 p-4 rounded-lg shadow-md text-center">
-            <h2 className="text-xl font-semibold text-gray-700">Expenses</h2>
-            <h2 className="text-xl font-semibold text-gray-700">Total Balance</h2>
-            <p className="text-2xl font-bold text-green-600">
-              ${balance.toFixed(2)}
-            </p>
+          {/* Expenses Dashboard */}
+          <div id="expenses" className="bg-white w-3/4 p-6 rounded-lg shadow-md text-center space-y-6">
+            <h2 className="text-2xl font-bold text-gray-800">Expenses Dashboard</h2>
 
-          {/* Recent Transactions */}
-          
-            <h2 className="text-lg font-semibold text-gray-700">
-              Recent Transactions
-            </h2>
-            <ul className="mt-2">
-              {transactions.slice(0, 8).map((t) => (
-                <li
-                  key={t.id}
-                  className="flex justify-between items-center py-2 border-b cursor-pointer"
-                  onClick={() => handleTransactionClick(t.id)}
-                >
-                  <span className="text-gray-500 text-sm">{t.date}</span>
-                  <span className="flex items-center">
-                    <span className="text-xl">{t.icon}</span>
-                    <span className="ml-2 text-gray-700">{t.category}</span>
-                  </span>
-                  <span className="font-medium text-red-500">
-                    - ${t.amount.toFixed(2)}
-                  </span>
-                </li>
-              ))}
-            </ul>
-            <button
-              onClick={() => navigate("/expenses")}
-              className="mt-4 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-500"
-            >
-              See More
-            </button>
+            {/* Total Balance */}
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold text-gray-700">Total Balance</h3>
+              <p className="text-3xl font-bold text-green-600">${balance.toFixed(2)}</p>
+            </div>
 
-          {/* Pie Chart */}
-            <h2 className="text-lg font-semibold text-gray-700">
-              Spending by Category
-            </h2>
-            <div style={{ width: "300px", height: "300px" }}>
-              <Pie
-                data={chartData}
-                options={{
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  plugins: {
-                    legend: {
-                      position: "top",
-                    },
-                  },
-                }}
-              />
+            {/* Recent Transactions */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-700">Recent Transactions</h3>
+              <ul className="mt-2 space-y-2">
+                {transactions.slice(0, 8).map((t) => (
+                  <li
+                    key={t.id}
+                    className="flex justify-between items-center py-2 border-b cursor-pointer"
+                    onClick={() => handleTransactionClick(t.id)}
+                  >
+                    <span className="text-gray-500 text-sm">{t.date}</span>
+                    <span className="flex items-center">
+                      <span className="text-xl">{t.icon}</span>
+                      <span className="ml-2 text-gray-700">{t.category}</span>
+                    </span>
+                    <span className="font-medium text-red-500">- ${t.amount.toFixed(2)}</span>
+                  </li>
+                ))}
+              </ul>
+              <button
+                onClick={() => navigate("/expenses")}
+                className="mt-4 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-500"
+              >
+                See More
+              </button>
+            </div>
+
+            {/* Pie Chart */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-700">Spending by Category</h3>
+              <div className="flex justify-center">
+                <div style={{ width: "300px", height: "300px" }}>
+                  <Pie
+                    data={chartData}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: {
+                          position: "top",
+                        },
+                      },
+                    }}
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>
