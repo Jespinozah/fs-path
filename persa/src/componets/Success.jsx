@@ -15,6 +15,7 @@ export default function Success() {
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [selectedTransaction, setSelectedTransaction] = useState(null); // State for selected transaction
+  const [bankAccounts, setBankAccounts] = useState([]);
 
   useEffect(() => {
     if (initialSuccessMessage) {
@@ -69,6 +70,36 @@ export default function Success() {
     };
 
     fetchExpenses();
+  }, [navigate]);
+
+  useEffect(() => {
+    const fetchBankAccounts = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          console.error("No token found, redirecting to login.");
+          navigate("/login");
+          return;
+        }
+
+        const response = await fetch(`${API_URL}/bank-accounts`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setBankAccounts(data.accounts || []); // Assume 'accounts' key contains the list
+        } else {
+          console.error("Failed to fetch bank accounts:", response.statusText);
+        }
+      } catch (error) {
+        console.error("Error fetching bank accounts:", error);
+      }
+    };
+
+    fetchBankAccounts();
   }, [navigate]);
 
   const getCategoryIcon = (category) => {
@@ -236,32 +267,30 @@ export default function Success() {
       <NavigationBar onLogout={handleLogout} />
 
       {/* Main Content */}
-      <div className="flex flex-col items-center p-6">
-        {/* Total Balance */}
-        <div className="bg-white w-3/4 md:w-1/2 p-4 rounded-lg shadow-md text-center">
-          <h2 className="text-xl font-semibold text-gray-700">Total Balance</h2>
-          <p className="text-2xl font-bold text-green-600">
-            ${balance.toFixed(2)}
-          </p>
-        </div>
+      <div className="flex flex-wrap p-6">
+        {/* Left Side: Dashboard Content */}
+        <div className="w-full md:w-1/2 flex flex-col items-center">
+          {/* Total Balance */}
+          <div className="bg-white w-3/4 p-4 rounded-lg shadow-md text-center">
+            <h2 className="text-xl font-semibold text-gray-700">Total Balance</h2>
+            <p className="text-2xl font-bold text-green-600">
+              ${balance.toFixed(2)}
+            </p>
+          </div>
 
-        {/* Recent Transactions */}
-        <div className="w-3/4 md:w-1/2 bg-white p-4 mt-6 rounded-lg shadow-md">
-          <h2 className="text-lg font-semibold text-gray-700">
-            Recent Transactions
-          </h2>
-          <ul className="mt-2">
-            {transactions.slice(0, 8).map(
-              (
-                t // Show the first 8 most recent transactions
-              ) => (
+          {/* Recent Transactions */}
+          <div className="w-3/4 bg-white p-4 mt-6 rounded-lg shadow-md">
+            <h2 className="text-lg font-semibold text-gray-700">
+              Recent Transactions
+            </h2>
+            <ul className="mt-2">
+              {transactions.slice(0, 8).map((t) => (
                 <li
                   key={t.id}
                   className="flex justify-between items-center py-2 border-b cursor-pointer"
-                  onClick={() => handleTransactionClick(t.id)} // Fetch transaction details on click
+                  onClick={() => handleTransactionClick(t.id)}
                 >
-                  <span className="text-gray-500 text-sm">{t.date}</span>{" "}
-                  {/* Display date first */}
+                  <span className="text-gray-500 text-sm">{t.date}</span>
                   <span className="flex items-center">
                     <span className="text-xl">{t.icon}</span>
                     <span className="ml-2 text-gray-700">{t.category}</span>
@@ -270,48 +299,86 @@ export default function Success() {
                     - ${t.amount.toFixed(2)}
                   </span>
                 </li>
-              )
-            )}
-          </ul>
-          <button
-            onClick={() => navigate("/expenses")} // Redirect to the Expenses page
-            className="mt-4 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-500"
-          >
-            See More
-          </button>
-        </div>
+              ))}
+            </ul>
+            <button
+              onClick={() => navigate("/expenses")}
+              className="mt-4 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-500"
+            >
+              See More
+            </button>
+          </div>
 
-        {/* Pie Chart */}
-        <div className="w-3/4 md:w-1/2 bg-white p-4 mt-6 rounded-lg shadow-md mx-auto flex flex-col items-center">
-          <h2 className="text-lg font-semibold text-gray-700">
-            Spending by Category
-          </h2>
-          <div style={{ width: "300px", height: "300px" }}>
-            <Pie
-              data={chartData}
-              options={{
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                  legend: {
-                    position: "top",
+          {/* Pie Chart */}
+          <div className="w-3/4 bg-white p-4 mt-6 rounded-lg shadow-md mx-auto flex flex-col items-center">
+            <h2 className="text-lg font-semibold text-gray-700">
+              Spending by Category
+            </h2>
+            <div style={{ width: "300px", height: "300px" }}>
+              <Pie
+                data={chartData}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: {
+                      position: "top",
+                    },
                   },
-                },
-              }}
-            />
+                }}
+              />
+            </div>
           </div>
         </div>
 
-        {/* Floating Add Expense Button */}
-        <button
-          onClick={() => setShowAddExpensePopup(true)}
-          className="fixed bottom-6 right-6 bg-blue-600 text-white text-3xl w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:bg-blue-500"
-          title="Add Expense"
-        >
-          <FiPlus />
-        </button>
+        {/* Right Side: Bank Accounts */}
+        <div className="w-full md:w-1/2 bg-white p-4 mt-6 md:mt-0 rounded-lg shadow-md">
+          <h2 className="text-lg font-semibold text-gray-700">
+            Bank Accounts
+          </h2>
+          <table className="w-full mt-4 border-collapse border border-gray-300">
+            <thead>
+              <tr>
+                <th className="border border-gray-300 px-4 py-2 text-left">Account Name</th>
+                <th className="border border-gray-300 px-4 py-2 text-left">Balance</th>
+              </tr>
+            </thead>
+            <tbody>
+              {bankAccounts.length > 0 ? (
+                bankAccounts.map((account) => (
+                  <tr key={account.id}>
+                    <td className="border border-gray-300 px-4 py-2">{account.name}</td>
+                    <td className="border border-gray-300 px-4 py-2">
+                      ${account.balance.toFixed(2)}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td
+                    colSpan="2"
+                    className="border border-gray-300 px-4 py-2 text-center text-gray-500"
+                  >
+                    No accounts available.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
+      {/* Floating Add Expense Button 
+      <button
+        onClick={() => setShowAddExpensePopup(true)}
+        className="fixed bottom-6 right-6 bg-blue-600 text-white text-3xl w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:bg-blue-500"
+        title="Add Expense"
+      >
+        <FiPlus />
+      </button>
+      */}
+
+      
       {/* Add Expense Popup */}
       {showAddExpensePopup && (
         <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center">
