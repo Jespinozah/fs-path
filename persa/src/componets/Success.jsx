@@ -271,15 +271,15 @@ export default function Success() {
         {/* Left Side: Dashboard Content */}
         <div className="w-full md:w-1/2 flex flex-col items-center">
           {/* Total Balance */}
-          <div className="bg-white w-3/4 p-4 rounded-lg shadow-md text-center">
+          <div id="expenses" className="bg-white w-3/4 p-4 rounded-lg shadow-md text-center">
+            <h2 className="text-xl font-semibold text-gray-700">Expenses</h2>
             <h2 className="text-xl font-semibold text-gray-700">Total Balance</h2>
             <p className="text-2xl font-bold text-green-600">
               ${balance.toFixed(2)}
             </p>
-          </div>
 
           {/* Recent Transactions */}
-          <div className="w-3/4 bg-white p-4 mt-6 rounded-lg shadow-md">
+          
             <h2 className="text-lg font-semibold text-gray-700">
               Recent Transactions
             </h2>
@@ -307,10 +307,8 @@ export default function Success() {
             >
               See More
             </button>
-          </div>
 
           {/* Pie Chart */}
-          <div className="w-3/4 bg-white p-4 mt-6 rounded-lg shadow-md mx-auto flex flex-col items-center">
             <h2 className="text-lg font-semibold text-gray-700">
               Spending by Category
             </h2>
