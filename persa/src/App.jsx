@@ -8,6 +8,7 @@ import Profile from "./componets/profile/Profile";
 import AddExpense from "./componets/expenses/AddExpenses";
 import Expenses from "./componets/expenses/Expenses"; // Import the Expenses component
 import EditExpense from "./componets/expenses/EditExpense"; // Import the EditExpense component
+import BankAccounts from "./componets/BankAccounts"; // Import the BankAccounts component
 import { API_URL } from "./config";
 
 function App() {
@@ -84,6 +85,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/expenses" element={<Expenses />} /> {/* Add route for Expenses */}
         <Route path="/expenses/:expenseId" element={<EditExpense />} /> {/* Add route for editing expenses */}
+        <Route path="/bank-accounts" element={<BankAccounts />} /> {/* Add route for BankAccounts */}
       </Routes>
     </Router>
   );
