@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom"; // Import useLocation
-import { FiPlus } from 'react-icons/fi';
+import { FiPlus } from "react-icons/fi";
 import { API_URL } from "../config";
 import NavigationBar from "./NavigationBar";
 import { Pie } from "react-chartjs-2";
@@ -45,7 +45,8 @@ export default function Success() {
           const data = await response.json();
           console.log("Fetched expenses data:", data); // Log the response data
 
-          if (Array.isArray(data.expenses)) { // Access the 'expenses' key
+          if (Array.isArray(data.expenses)) {
+            // Access the 'expenses' key
             setTransactions(
               data.expenses
                 .map((expense) => ({
@@ -121,10 +122,11 @@ export default function Success() {
     labels: [...new Set(transactions.map((t) => t.category))], // Unique categories
     datasets: [
       {
-        data: [...new Set(transactions.map((t) => t.category))].map((category) =>
-          transactions
-            .filter((t) => t.category === category)
-            .reduce((sum, t) => sum + t.amount, 0) // Sum amounts for each category
+        data: [...new Set(transactions.map((t) => t.category))].map(
+          (category) =>
+            transactions
+              .filter((t) => t.category === category)
+              .reduce((sum, t) => sum + t.amount, 0) // Sum amounts for each category
         ),
         backgroundColor: [...new Set(transactions.map((t) => t.category))].map(
           (_, index) => `hsl(${(index * 60) % 360}, 70%, 70%)` // Generate dynamic colors
@@ -165,7 +167,9 @@ export default function Success() {
   const [newExpense, setNewExpense] = useState({
     amount: "",
     category: "",
-    date: new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000)
+    date: new Date(
+      new Date().getTime() - new Date().getTimezoneOffset() * 60000
+    )
       .toISOString()
       .split("T")[0],
     time: new Date().toTimeString().split(" ")[0], // Set current time in HH:mm:ss format
@@ -173,7 +177,12 @@ export default function Success() {
   });
 
   const handleAddExpense = async () => {
-    if (newExpense.amount && newExpense.category && newExpense.date && newExpense.time) {
+    if (
+      newExpense.amount &&
+      newExpense.category &&
+      newExpense.date &&
+      newExpense.time
+    ) {
       try {
         const token = localStorage.getItem("token");
         const userId = localStorage.getItem("userId");
@@ -218,7 +227,13 @@ export default function Success() {
               icon: getCategoryIcon(newExpense.category), // Map category to an icon
             },
           ]);
-          setNewExpense({ amount: "", category: "", date: "", time: "", description: "" });
+          setNewExpense({
+            amount: "",
+            category: "",
+            date: "",
+            time: "",
+            description: "",
+          });
           setSuccessMessage("Expense added successfully!");
           setShowSuccessPopup(true);
           setTimeout(() => setShowSuccessPopup(false), 2000); // Hide success message after 2 seconds
@@ -255,7 +270,10 @@ export default function Success() {
         const data = await response.json();
         setSelectedTransaction(data); // Set the full transaction details, including description
       } else {
-        console.error("Failed to fetch transaction details:", response.statusText);
+        console.error(
+          "Failed to fetch transaction details:",
+          response.statusText
+        );
       }
     } catch (error) {
       console.error("Error fetching transaction details:", error);
@@ -271,18 +289,29 @@ export default function Success() {
         {/* Left Side: Dashboard Content */}
         <div className="w-full md:w-1/2 flex flex-col items-center">
           {/* Expenses Dashboard */}
-          <div id="expenses" className="bg-white w-3/4 p-6 rounded-lg shadow-md text-center space-y-6">
-            <h2 className="text-2xl font-bold text-gray-800">Expenses Dashboard</h2>
+          <div
+            id="expenses"
+            className="bg-white w-3/4 p-6 rounded-lg shadow-md text-center space-y-6"
+          >
+            <h2 className="text-2xl font-bold text-gray-800">
+              Expenses Dashboard
+            </h2>
 
             {/* Total Balance */}
             <div className="space-y-2">
-              <h3 className="text-lg font-semibold text-gray-700">Total Balance</h3>
-              <p className="text-3xl font-bold text-green-600">${balance.toFixed(2)}</p>
+              <h3 className="text-lg font-semibold text-gray-700">
+                Total Balance
+              </h3>
+              <p className="text-3xl font-bold text-green-600">
+                ${balance.toFixed(2)}
+              </p>
             </div>
 
             {/* Recent Transactions */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-700">Recent Transactions</h3>
+              <h3 className="text-lg font-semibold text-gray-700">
+                Recent Transactions
+              </h3>
               <ul className="mt-2 space-y-2">
                 {transactions.slice(0, 8).map((t) => (
                   <li
@@ -295,7 +324,9 @@ export default function Success() {
                       <span className="text-xl">{t.icon}</span>
                       <span className="ml-2 text-gray-700">{t.category}</span>
                     </span>
-                    <span className="font-medium text-red-500">- ${t.amount.toFixed(2)}</span>
+                    <span className="font-medium text-red-500">
+                      - ${t.amount.toFixed(2)}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -309,7 +340,9 @@ export default function Success() {
 
             {/* Pie Chart */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-700">Spending by Category</h3>
+              <h3 className="text-lg font-semibold text-gray-700">
+                Spending by Category
+              </h3>
               <div className="flex justify-center">
                 <div style={{ width: "300px", height: "300px" }}>
                   <Pie
@@ -331,39 +364,50 @@ export default function Success() {
         </div>
 
         {/* Right Side: Bank Accounts */}
-        <div id="banck-accounts" className="w-full md:w-1/2 bg-white p-4 mt-6 md:mt-0 rounded-lg shadow-md">
-          <h2 className="text-lg font-semibold text-gray-700">
-            Bank Accounts
-          </h2>
-          <table className="w-full mt-4 border-collapse border border-gray-300">
-            <thead>
-              <tr>
-                <th className="border border-gray-300 px-4 py-2 text-left">Account Name</th>
-                <th className="border border-gray-300 px-4 py-2 text-left">Balance</th>
-              </tr>
-            </thead>
-            <tbody>
-              {bankAccounts.length > 0 ? (
-                bankAccounts.map((account) => (
-                  <tr key={account.id}>
-                    <td className="border border-gray-300 px-4 py-2">{account.name}</td>
-                    <td className="border border-gray-300 px-4 py-2">
-                      ${account.balance.toFixed(2)}
+        <div className="w-full md:w-1/2 flex flex-col items-center">
+          <div
+            id="banck-accounts"
+            className="bg-white w-3/4 p-6 rounded-lg shadow-md text-center space-y-6"
+          >
+            <h2 className="text-lg font-semibold text-gray-700">
+              Bank Accounts
+            </h2>
+            <table className="w-full mt-4 border-collapse border border-gray-300">
+              <thead>
+                <tr>
+                  <th className="border border-gray-300 px-4 py-2 text-left">
+                    Account Name
+                  </th>
+                  <th className="border border-gray-300 px-4 py-2 text-left">
+                    Balance
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {bankAccounts.length > 0 ? (
+                  bankAccounts.map((account) => (
+                    <tr key={account.id}>
+                      <td className="border border-gray-300 px-4 py-2">
+                        {account.name}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-2">
+                        ${account.balance.toFixed(2)}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan="2"
+                      className="border border-gray-300 px-4 py-2 text-center text-gray-500"
+                    >
+                      No accounts available.
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td
-                    colSpan="2"
-                    className="border border-gray-300 px-4 py-2 text-center text-gray-500"
-                  >
-                    No accounts available.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
