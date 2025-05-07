@@ -46,3 +46,34 @@ class Expense(db.Model):
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None
         }
+
+class BankAccount(db.Model):
+    __tablename__ = "bank_accounts"
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    bank_name = db.Column(db.String(100), nullable=False)
+    account_number = db.Column(db.String(50), nullable=False)
+    routing_number = db.Column(db.String(50), nullable=False)
+    account_type = db.Column(db.String(50), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    alias = db.Column(db.String(100), nullable=True)
+    balance = db.Column(db.Numeric(10, 2), default=0.00, nullable=False)
+
+    # Relationship with the User model
+    user = db.relationship("User", backref=db.backref("bank_accounts", lazy=True))
+
+    # Add the to_dict method
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "bank_name": self.bank_name,
+            "account_number": self.account_number,
+            "routing_number": self.routing_number,
+            "account_type": self.account_type,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+            "alias": self.alias,
+            "balance": float(self.balance)  # Convert Decimal to float for JSON serialization
+        }

@@ -28,3 +28,17 @@ ALTER TABLE expenses ADD COLUMN hour TIME;
 UPDATE expenses SET hour = '00:00:00' WHERE hour IS NULL;
 
 ALTER TABLE expenses ALTER COLUMN hour SET NOT NULL;
+
+
+create table bank_accounts (
+    id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES users(id) ON DELETE CASCADE,
+    bank_name VARCHAR(100) NOT NULL,
+    account_number VARCHAR(50) NOT NULL UNIQUE,
+    routing_number VARCHAR(50) NOT NULL UNIQUE,
+    account_type VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    alias VARCHAR(100),
+    balance NUMERIC(10, 2) DEFAULT 0.00
+);
