@@ -372,16 +372,16 @@ export default function Success() {
             id="banck-accounts"
             className="bg-white w-3/4 p-6 rounded-lg shadow-md text-center space-y-6"
           >
-            <h2 className="text-lg font-semibold text-gray-700">
+            <h2 className="text-2xl font-bold text-gray-800">
               Bank Accounts
             </h2>
-            <table className="w-full mt-4 border-collapse border border-gray-300">
+            <table className="min-w-full divide-y divide-gray-200 dark:divide-neutral-700">
               <thead>
                 <tr>
-                  <th className="border border-gray-300 px-4 py-2 text-left">
+                  <th className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">
                     Account Name
                   </th>
-                  <th className="border border-gray-300 px-4 py-2 text-left">
+                  <th className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">
                     Balance
                   </th>
                 </tr>
@@ -390,10 +390,10 @@ export default function Success() {
                 {bankAccounts.length > 0 ? (
                   bankAccounts.map((account) => (
                     <tr key={account.account_number}>
-                      <td className="border border-gray-300 px-4 py-2">
+                      <td className="px-6 py-3 text-start text-xs font-medium text-gray-500 dark:text-neutral-500">
                         {account.alias || account.bank_name} {/* Display alias or bank name */}
                       </td>
-                      <td className="border border-gray-300 px-4 py-2">
+                      <td className="px-6 py-3 text-start text-xs font-medium text-gray-500 dark:text-neutral-500">
                         ${account.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {/* Format balance */}
                       </td>
                     </tr>
@@ -402,7 +402,7 @@ export default function Success() {
                   <tr>
                     <td
                       colSpan="2"
-                      className="border border-gray-300 px-4 py-2 text-center text-gray-500"
+                      className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-neutral-200"
                     >
                       No accounts available.
                     </td>
