@@ -1,13 +1,14 @@
 import React, { useState } from "react";
+import { API_URL } from "../config";
 
 export default function EditBankAccount({ account, onClose, onEditAccount }) {
   const [formData, setFormData] = useState({
-    name: account.name || "",
-    bank: account.bank || "",
-    routingNumber: account.routingNumber || "",
-    accountNumber: account.accountNumber || "",
-    accountType: account.accountType || "checking",
+    bank_name: account.bank_name || "",
+    routing_number: account.routing_number || "",
+    account_number: account.account_number || "",
+    account_type: account.account_type || "checking",
     alias: account.alias || "",
+    balance: account.balance || "",
   });
 
   const handleInputChange = (e) => {
@@ -15,9 +16,41 @@ export default function EditBankAccount({ account, onClose, onEditAccount }) {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = () => {
-    onEditAccount({ ...formData, id: account.id });
-    onClose();
+  const handleSubmit = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        console.error("No token found, redirecting to login.");
+        return;
+      }
+
+      const response = await fetch(`${API_URL}/bank-accounts/${account.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          bank_name: formData.bank_name,
+          routing_number: formData.routing_number,
+          account_number: formData.account_number,
+          account_type: formData.account_type,
+          alias: formData.alias,
+          balance: parseFloat(formData.balance),
+        }),
+      });
+
+      if (response.ok) {
+        const updatedAccount = await response.json();
+        onEditAccount(updatedAccount); // Pass updated account to parent
+        onClose();
+      } else {
+        console.error("Failed to update account:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error updating account:", error);
+    }
   };
 
   return (
@@ -29,8 +62,8 @@ export default function EditBankAccount({ account, onClose, onEditAccount }) {
           <label className="block text-gray-700">Bank Name</label>
           <input
             type="text"
-            name="bank"
-            value={formData.bank}
+            name="bank_name"
+            value={formData.bank_name}
             onChange={handleInputChange}
             className="w-full p-2 border rounded"
             placeholder="Enter bank name"
@@ -41,8 +74,8 @@ export default function EditBankAccount({ account, onClose, onEditAccount }) {
           <label className="block text-gray-700">Routing Number</label>
           <input
             type="text"
-            name="routingNumber"
-            value={formData.routingNumber}
+            name="routing_number"
+            value={formData.routing_number}
             onChange={handleInputChange}
             className="w-full p-2 border rounded"
             placeholder="Enter routing number"
@@ -53,8 +86,8 @@ export default function EditBankAccount({ account, onClose, onEditAccount }) {
           <label className="block text-gray-700">Account Number</label>
           <input
             type="text"
-            name="accountNumber"
-            value={formData.accountNumber}
+            name="account_number"
+            value={formData.account_number}
             onChange={handleInputChange}
             className="w-full p-2 border rounded"
             placeholder="Enter account number"
@@ -64,8 +97,8 @@ export default function EditBankAccount({ account, onClose, onEditAccount }) {
         <div className="mb-4">
           <label className="block text-gray-700">Account Type</label>
           <select
-            name="accountType"
-            value={formData.accountType}
+            name="account_type"
+            value={formData.account_type}
             onChange={handleInputChange}
             className="w-full p-2 border rounded"
           >
@@ -83,6 +116,23 @@ export default function EditBankAccount({ account, onClose, onEditAccount }) {
             onChange={handleInputChange}
             className="w-full p-2 border rounded"
             placeholder="Enter an alias for the account (optional)"
+          />
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-gray-700">Balance</label>
+          <input
+            type="text"
+            name="balance"
+            value={formData.balance}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (/^\d*\.?\d*$/.test(value)) {
+                setFormData({ ...formData, balance: value });
+              }
+            }}
+            className="w-full p-2 border rounded"
+            placeholder="Enter balance"
           />
         </div>
 

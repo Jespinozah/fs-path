@@ -77,13 +77,15 @@ export default function Success() {
     const fetchBankAccounts = async () => {
       try {
         const token = localStorage.getItem("token");
-        if (!token) {
-          console.error("No token found, redirecting to login.");
+        const userId = localStorage.getItem("userId");
+
+        if (!token || !userId) {
+          console.error("User ID or token not found, redirecting to login.");
           navigate("/login");
           return;
         }
 
-        const response = await fetch(`${API_URL}/bank-accounts`, {
+        const response = await fetch(`${API_URL}/bank-accounts/user/${userId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -91,7 +93,8 @@ export default function Success() {
 
         if (response.ok) {
           const data = await response.json();
-          setBankAccounts(data.accounts || []); // Assume 'accounts' key contains the list
+          console.log("Fetched bank accounts data:", data); // Log the response data
+          setBankAccounts(data.accounts || data); // Adjust based on API response structure
         } else {
           console.error("Failed to fetch bank accounts:", response.statusText);
         }
@@ -386,12 +389,12 @@ export default function Success() {
               <tbody>
                 {bankAccounts.length > 0 ? (
                   bankAccounts.map((account) => (
-                    <tr key={account.id}>
+                    <tr key={account.account_number}>
                       <td className="border border-gray-300 px-4 py-2">
-                        {account.name}
+                        {account.alias || account.bank_name} {/* Display alias or bank name */}
                       </td>
                       <td className="border border-gray-300 px-4 py-2">
-                        ${account.balance.toFixed(2)}
+                        ${account.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {/* Format balance */}
                       </td>
                     </tr>
                   ))
