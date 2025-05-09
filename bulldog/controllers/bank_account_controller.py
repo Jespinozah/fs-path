@@ -34,10 +34,18 @@ def create_bank_account():
     responses:
       201:
         description: Bank account created successfully
+      400:
+        description: Invalid request payload
     """
     data = request.json
-    bank_account = BankAccountService.create_bank_account(data)
-    return jsonify(bank_account.to_dict()), 201
+    if not data or not data.get("user_id") or not data.get("bank_name") or not data.get("account_number") or not data.get("routing_number") or not data.get("account_type"):
+        return jsonify({"error": "Missing required fields"}), 400
+
+    try:
+        bank_account = BankAccountService.create_bank_account(data)
+        return jsonify(bank_account.to_dict()), 201
+    except Exception as e:
+        return jsonify({"error": "Failed to create bank account"}), 500
 
 @bank_account_bp.route("/user/<int:user_id>", methods=["GET"])
 def get_bank_accounts_by_user_id(user_id):

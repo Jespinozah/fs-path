@@ -1,13 +1,14 @@
 import React, { useState } from "react";
+import { API_URL } from "../config";
 
 export default function AddBankAccountPopup({ onClose, onAddAccount }) {
   const [formData, setFormData] = useState({
-    name: "",
     bank: "",
     routingNumber: "",
     accountNumber: "",
     accountType: "checking",
-    alias: "", // Added alias field
+    alias: "",
+    balance: "", // Added balance field
   });
 
   const handleInputChange = (e) => {
@@ -15,9 +16,43 @@ export default function AddBankAccountPopup({ onClose, onAddAccount }) {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = () => {
-    onAddAccount({ ...formData });
-    onClose();
+  const handleSubmit = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
+
+      if (!token || !userId) {
+        console.error("User ID or token not found, redirecting to login.");
+        return;
+      }
+
+      const response = await fetch(`${API_URL}/bank-accounts`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          user_id: parseInt(userId, 10),
+          bank_name: formData.bank,
+          routing_number: formData.routingNumber,
+          account_number: formData.accountNumber,
+          account_type: formData.accountType,
+          alias: formData.alias,
+          balance: parseFloat(formData.balance) || 0,
+        }),
+      });
+
+      if (response.ok) {
+        const newAccount = await response.json();
+        onAddAccount(newAccount); // Pass the new account to the parent component
+        onClose();
+      } else {
+        console.error("Failed to add account:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error adding account:", error);
+    }
   };
 
   return (
@@ -83,6 +118,23 @@ export default function AddBankAccountPopup({ onClose, onAddAccount }) {
             onChange={handleInputChange}
             className="w-full p-2 border rounded"
             placeholder="Enter an alias for the account (optional)"
+          />
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-gray-700">Balance</label>
+          <input
+            type="text"
+            name="balance"
+            value={formData.balance}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (/^\d*\.?\d*$/.test(value)) {
+                setFormData({ ...formData, balance: value }); // Allow only numeric input
+              }
+            }}
+            className="w-full p-2 border rounded"
+            placeholder="Enter initial balance"
           />
         </div>
 

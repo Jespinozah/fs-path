@@ -1,23 +1,50 @@
-import React, { useState } from "react";
-import { FaPlus } from "react-icons/fa"; // Import the FaPlus icon
+import React, { useState, useEffect } from "react";
+import { FaPlus } from "react-icons/fa";
 import NavigationBar from "./NavigationBar";
 import AddBankAccountPopup from "./AddBankAccountPopup";
-import EditBankAccount from "./EditBankAccount"; // Import the EditBankAccount component
+import EditBankAccount from "./EditBankAccount";
+import { API_URL } from "../config";
 
 export default function BankAccounts() {
+  const [accounts, setAccounts] = useState([]);
   const [showAddPopup, setShowAddPopup] = useState(false);
-  const [showEditPopup, setShowEditPopup] = useState(false); // State for showing edit popup
-  const [selectedAccount, setSelectedAccount] = useState(null); // State for selected account
+  const [showEditPopup, setShowEditPopup] = useState(false);
+  const [selectedAccount, setSelectedAccount] = useState(null);
 
-  const accounts = [
-    { id: 1, name: "Savings Account", number: "123456789", bank: "Bank A" },
-    { id: 2, name: "Checking Account", number: "987654321", bank: "Bank B" },
-    { id: 3, name: "Business Account", number: "456789123", bank: "Bank C" },
-  ];
+  useEffect(() => {
+    const fetchAccounts = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const userId = localStorage.getItem("userId");
+
+        if (!token || !userId) {
+          console.error("User ID or token not found, redirecting to login.");
+          return;
+        }
+
+        const response = await fetch(`${API_URL}/bank-accounts/user/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setAccounts(data); // Assume the API returns an array of accounts
+        } else {
+          console.error("Failed to fetch bank accounts:", response.statusText);
+        }
+      } catch (error) {
+        console.error("Error fetching bank accounts:", error);
+      }
+    };
+
+    fetchAccounts();
+  }, []);
 
   const handleAddAccount = (newAccount) => {
     console.log("New Account Added:", newAccount);
-    // Logic to add the new account to the list or backend
+    setAccounts([...accounts, newAccount]); // Add the new account to the list
   };
 
   const handleEdit = (account) => {
@@ -27,12 +54,38 @@ export default function BankAccounts() {
 
   const handleEditAccount = (updatedAccount) => {
     console.log("Updated Account:", updatedAccount);
-    // Logic to update the account in the list or backend
+    setAccounts(
+      accounts.map((account) =>
+        account.id === updatedAccount.id ? updatedAccount : account
+      )
+    );
   };
 
-  const handleDelete = (id) => {
-    console.log("Delete Account ID:", id);
-    // Logic to delete the account
+  const handleDelete = async (id) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        console.error("No token found, redirecting to login.");
+        return;
+      }
+
+      const response = await fetch(`${API_URL}/bank-accounts/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        console.log("Account deleted successfully");
+        setAccounts(accounts.filter((account) => account.id !== id)); // Remove the deleted account from the list
+      } else {
+        console.error("Failed to delete account:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error deleting account:", error);
+    }
   };
 
   return (
@@ -56,11 +109,11 @@ export default function BankAccounts() {
             <tbody>
               {accounts.map((account) => (
                 <tr key={account.id}>
-                  <td className="border border-gray-300 px-4 py-2">{account.name}</td>
+                  <td className="border border-gray-300 px-4 py-2">{account.alias || account.bank_name}</td>
                   <td className="border border-gray-300 px-4 py-2">
-                    {"*".repeat(account.number.length - 4) + account.number.slice(-4)}
+                    {"*".repeat(account.account_number.length - 4) + account.account_number.slice(-4)}
                   </td>
-                  <td className="border border-gray-300 px-4 py-2">{account.bank}</td>
+                  <td className="border border-gray-300 px-4 py-2">{account.bank_name}</td>
                   <td className="border border-gray-300 px-4 py-2">
                     <button
                       onClick={() => handleEdit(account)}
