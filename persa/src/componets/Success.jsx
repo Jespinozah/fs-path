@@ -16,6 +16,7 @@ export default function Success() {
   const [successMessage, setSuccessMessage] = useState("");
   const [selectedTransaction, setSelectedTransaction] = useState(null); // State for selected transaction
   const [bankAccounts, setBankAccounts] = useState([]);
+  const [incomeRecords, setIncomeRecords] = useState([]); // Add state for income
 
   useEffect(() => {
     if (initialSuccessMessage) {
@@ -104,6 +105,27 @@ export default function Success() {
     };
 
     fetchBankAccounts();
+  }, [navigate]);
+
+  useEffect(() => {
+    // Fetch recent income records
+    const fetchIncome = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const userId = localStorage.getItem("userId");
+        if (!token || !userId) return;
+        const response = await fetch(`${API_URL}/income/user/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setIncomeRecords(Array.isArray(data) ? data : data.incomes || []);
+        }
+      } catch (error) {
+        // Optionally handle error
+      }
+    };
+    fetchIncome();
   }, [navigate]);
 
   const getCategoryIcon = (category) => {
@@ -366,8 +388,9 @@ export default function Success() {
           </div>
         </div>
 
-        {/* Right Side: Bank Accounts */}
+        {/* Right Side: Bank Accounts and Income */}
         <div className="w-full md:w-1/2 flex flex-col items-center">
+          {/* Bank Accounts Card */}
           <div
             id="banck-accounts"
             className="bg-white w-3/4 p-6 rounded-lg shadow-md text-center space-y-6"
@@ -405,6 +428,51 @@ export default function Success() {
                       className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-neutral-200"
                     >
                       No accounts available.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Income Card */}
+          <div
+            id="income"
+            className="bg-white w-3/4 p-6 rounded-lg shadow-md text-center space-y-6 mt-6"
+          >
+            <h2 className="text-2xl font-bold text-gray-800">
+              Income
+            </h2>
+            <table className="min-w-full divide-y divide-gray-200 dark:divide-neutral-700">
+              <thead>
+                <tr>
+                  <th className="px-4 py-2 text-xs font-medium text-gray-500 uppercase">Source</th>
+                  <th className="px-4 py-2 text-xs font-medium text-gray-500 uppercase">Amount</th>
+                  <th className="px-4 py-2 text-xs font-medium text-gray-500 uppercase">Date</th>
+                  <th className="px-4 py-2 text-xs font-medium text-gray-500 uppercase">Account</th>
+                </tr>
+              </thead>
+              <tbody>
+                {incomeRecords.length > 0 ? (
+                  incomeRecords
+                    .slice(-5)
+                    .reverse()
+                    .map((income) => (
+                      <tr key={income.id}>
+                        <td className="px-4 py-2 text-sm text-gray-700">{income.source}</td>
+                        <td className="px-4 py-2 text-sm text-green-600 font-semibold">
+                          +${parseFloat(income.amount).toFixed(2)}
+                        </td>
+                        <td className="px-4 py-2 text-sm text-gray-700">{income.date}</td>
+                        <td className="px-4 py-2 text-sm text-gray-700">
+                          {income.bank_account_name || income.bank_account_alias || ""}
+                        </td>
+                      </tr>
+                    ))
+                ) : (
+                  <tr>
+                    <td colSpan="4" className="px-4 py-4 text-gray-500 text-center">
+                      No income records found.
                     </td>
                   </tr>
                 )}

@@ -10,6 +10,8 @@ export default function BankAccounts() {
   const [showAddPopup, setShowAddPopup] = useState(false);
   const [showEditPopup, setShowEditPopup] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false); // Add state for delete confirmation popup
+  const [accountToDelete, setAccountToDelete] = useState(null); // Track which account to delete
 
   useEffect(() => {
     const fetchAccounts = async () => {
@@ -61,7 +63,12 @@ export default function BankAccounts() {
     );
   };
 
-  const handleDelete = async (id) => {
+  const confirmDelete = (accountId) => {
+    setAccountToDelete(accountId);
+    setShowDeleteConfirm(true);
+  };
+
+  const handleDelete = async () => {
     try {
       const token = localStorage.getItem("token");
 
@@ -70,7 +77,7 @@ export default function BankAccounts() {
         return;
       }
 
-      const response = await fetch(`${API_URL}/bank-accounts/${id}`, {
+      const response = await fetch(`${API_URL}/bank-accounts/${accountToDelete}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -79,12 +86,16 @@ export default function BankAccounts() {
 
       if (response.ok) {
         console.log("Account deleted successfully");
-        setAccounts(accounts.filter((account) => account.id !== id)); // Remove the deleted account from the list
+        setAccounts(accounts.filter((account) => account.id !== accountToDelete)); // Remove the deleted account from the list
       } else {
         console.error("Failed to delete account:", response.statusText);
       }
+      setShowDeleteConfirm(false);
+      setAccountToDelete(null);
     } catch (error) {
       console.error("Error deleting account:", error);
+      setShowDeleteConfirm(false);
+      setAccountToDelete(null);
     }
   };
 
@@ -97,41 +108,69 @@ export default function BankAccounts() {
             Bank Accounts
           </h2>
 
-          <table className="w-full border-collapse border border-gray-300">
-            <thead>
-              <tr className="bg-gray-200">
-                <th className="border border-gray-300 px-4 py-2">Account Name</th>
-                <th className="border border-gray-300 px-4 py-2">Account Number</th>
-                <th className="border border-gray-300 px-4 py-2">Bank Name</th>
-                <th className="border border-gray-300 px-4 py-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {accounts.map((account) => (
-                <tr key={account.id}>
-                  <td className="border border-gray-300 px-4 py-2">{account.alias || account.bank_name}</td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    {"*".repeat(account.account_number.length - 4) + account.account_number.slice(-4)}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">{account.bank_name}</td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    <button
-                      onClick={() => handleEdit(account)}
-                      className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500 mr-2"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(account.id)}
-                      className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-500"
-                    >
-                      Delete
-                    </button>
-                  </td>
+          <div className="relative flex flex-col w-full h-full overflow-scroll text-gray-700 bg-white shadow-md rounded-lg bg-clip-border">
+            <table className="w-full text-left table-auto min-w-max">
+              <thead>
+                <tr>
+                  <th className="p-4 border-b border-slate-300 bg-slate-50">
+                    <p className="block text-sm font-normal leading-none text-slate-500">
+                      Account Name
+                    </p>
+                  </th>
+                  <th className="p-4 border-b border-slate-300 bg-slate-50">
+                    <p className="block text-sm font-normal leading-none text-slate-500">
+                      Account Number
+                    </p>
+                  </th>
+                  <th className="p-4 border-b border-slate-300 bg-slate-50">
+                    <p className="block text-sm font-normal leading-none text-slate-500">
+                      Bank Name
+                    </p>
+                  </th>
+                  <th className="p-4 border-b border-slate-300 bg-slate-50">
+                    <p className="block text-sm font-normal leading-none text-slate-500">
+                      Actions
+                    </p>
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {accounts.map((account) => (
+                  <tr key={account.id} className="hover:bg-slate-50">
+                    <td className="p-4 border-b border-slate-200">
+                      <p className="block text-sm text-slate-800">
+                        {account.alias || account.bank_name}
+                      </p>
+                    </td>
+                    <td className="p-4 border-b border-slate-200">
+                      <p className="block text-sm text-slate-800">
+                        {"*".repeat(account.account_number.length - 4) + account.account_number.slice(-4)}
+                      </p>
+                    </td>
+                    <td className="p-4 border-b border-slate-200">
+                      <p className="block text-sm text-slate-800">
+                        {account.bank_name}
+                      </p>
+                    </td>
+                    <td className="p-4 border-b border-slate-200">
+                      <button
+                        onClick={() => handleEdit(account)}
+                        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500 mr-2 text-sm font-semibold"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => confirmDelete(account.id)}
+                        className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-500 text-sm font-semibold"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -156,6 +195,30 @@ export default function BankAccounts() {
           onClose={() => setShowEditPopup(false)}
           onEditAccount={handleEditAccount}
         />
+      )}
+
+      {/* Delete Confirmation Popup */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+            <h3 className="text-lg font-semibold mb-4">Are you sure?</h3>
+            <p className="mb-6">Do you really want to delete this bank account? This action cannot be undone.</p>
+            <div className="flex justify-center">
+              <button
+                onClick={handleDelete}
+                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-500 mr-2"
+              >
+                Yes, Delete
+              </button>
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="bg-transparent text-gray-700 px-4 py-2 rounded hover:bg-gray-100"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

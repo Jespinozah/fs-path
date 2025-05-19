@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { FaPlus } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { API_URL } from "../../config";
 import NavigationBar from "../NavigationBar";
@@ -127,46 +128,80 @@ export default function Expenses() {
             </div>
           )}
 
-          <table className="w-full border-collapse border border-gray-300">
-            <thead>
-              <tr className="bg-gray-200">
-                <th className="border border-gray-300 px-4 py-2">Date</th>
-                <th className="border border-gray-300 px-4 py-2">Category</th>
-                <th className="border border-gray-300 px-4 py-2">Amount</th>
-                <th className="border border-gray-300 px-4 py-2">Description</th>
-                <th className="border border-gray-300 px-4 py-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {expenses.map((expense, index) => (
-                <tr key={expense.id || index}>
-                  <td className="border border-gray-300 px-4 py-2">{expense.date}</td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    <span className="flex items-center">
-                      <span className="text-xl mr-2">{expense.icon}</span>
-                      {expense.category}
-                    </span>
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">${expense.amount.toFixed(2)}</td>
-                  <td className="border border-gray-300 px-4 py-2">{expense.description || "N/A"}</td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    <button
-                      onClick={() => handleEdit(expense.id)}
-                      className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500 mr-2"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => confirmDelete(expense.id)}
-                      className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-500"
-                    >
-                      Delete
-                    </button>
-                  </td>
+          <div className="relative flex flex-col w-full h-full overflow-scroll text-gray-700 bg-white shadow-md rounded-lg bg-clip-border">
+            <table className="w-full text-left table-auto min-w-max">
+              <thead>
+                <tr>
+                  <th className="p-4 border-b border-slate-300 bg-slate-50">
+                    <p className="block text-sm font-normal leading-none text-slate-500">
+                      Date
+                    </p>
+                  </th>
+                  <th className="p-4 border-b border-slate-300 bg-slate-50">
+                    <p className="block text-sm font-normal leading-none text-slate-500">
+                      Category
+                    </p>
+                  </th>
+                  <th className="p-4 border-b border-slate-300 bg-slate-50">
+                    <p className="block text-sm font-normal leading-none text-slate-500">
+                      Amount
+                    </p>
+                  </th>
+                  <th className="p-4 border-b border-slate-300 bg-slate-50">
+                    <p className="block text-sm font-normal leading-none text-slate-500">
+                      Description
+                    </p>
+                  </th>
+                  <th className="p-4 border-b border-slate-300 bg-slate-50">
+                    <p className="block text-sm font-normal leading-none text-slate-500">
+                      Actions
+                    </p>
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {expenses.map((expense, index) => (
+                  <tr key={expense.id || index} className="hover:bg-slate-50">
+                    <td className="p-4 border-b border-slate-200">
+                      <p className="block text-sm text-slate-800">
+                        {expense.date}
+                      </p>
+                    </td>
+                    <td className="p-4 border-b border-slate-200">
+                      <p className="block text-sm text-slate-800 flex items-center">
+                        <span className="text-xl mr-2">{expense.icon}</span>
+                        {expense.category}
+                      </p>
+                    </td>
+                    <td className="p-4 border-b border-slate-200">
+                      <p className="block text-sm text-slate-800">
+                        ${expense.amount.toFixed(2)}
+                      </p>
+                    </td>
+                    <td className="p-4 border-b border-slate-200">
+                      <p className="block text-sm text-slate-800">
+                        {expense.description || "N/A"}
+                      </p>
+                    </td>
+                    <td className="p-4 border-b border-slate-200">
+                      <button
+                        onClick={() => handleEdit(expense.id)}
+                        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500 mr-2 text-sm font-semibold"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => confirmDelete(expense.id)}
+                        className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-500 text-sm font-semibold"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
           {/* Pagination Controls */}
           <div className="flex justify-between items-center mt-4">
@@ -193,11 +228,11 @@ export default function Expenses() {
 
       {/* Floating Add Expense Button */}
       <button
-        onClick={() => setShowAddExpensePopup(true)}
+        onClick={() => setShowAddPopup(true)}
         className="fixed bottom-6 right-6 bg-blue-600 text-white text-3xl w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:bg-blue-500"
-        title="Add Expense"
+        title="Add Bank Account"
       >
-        +
+        <FaPlus />
       </button>
 
       {/* Add Expense Popup */}
