@@ -77,3 +77,32 @@ class BankAccount(db.Model):
             "alias": self.alias,
             "balance": float(self.balance)  # Convert Decimal to float for JSON serialization
         }
+
+
+
+class Income(db.Model):
+    __tablename__ = "incomes"
+    id = db.Column(db.Integer, primary_key=True)
+    bank_account_id = db.Column(db.Integer, db.ForeignKey("bank_accounts.id", ondelete="CASCADE"), nullable=False)
+    amount = db.Column(db.Numeric(10, 2), nullable=False)
+    source = db.Column(db.String(100), nullable=False)
+    date = db.Column(db.Date, nullable=False)
+    notes = db.Column(db.String(100), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    # Relationship with the User model
+    bankAccount = db.relationship("BankAccount", backref=db.backref("incomes", lazy=True))
+
+    # Add the to_dict method
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "bank_account_id": self.bank_account_id,
+            "amout": self.amout,
+            "source": self.source,
+            "date": self.date.isoformat(),  # Convert date to ISO 8601 string
+            "notes": self.notes,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+        }
