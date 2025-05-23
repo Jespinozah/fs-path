@@ -1,4 +1,5 @@
 from models import Income
+from models import BankAccount
 from database import db
 
 class IncomeRepository:
@@ -34,3 +35,7 @@ class IncomeRepository:
             raise ValueError("Income not found.")
         db.session.delete(income)
         db.session.commit()
+
+    @staticmethod
+    def get_incomes_by_user_id(user_id):
+        return Income.query.join(BankAccount).filter(BankAccount.user_id == user_id).all()

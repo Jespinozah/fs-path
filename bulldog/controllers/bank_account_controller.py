@@ -143,3 +143,23 @@ def delete_bank_account(account_id):
     """
     BankAccountService.delete_bank_account(account_id)
     return jsonify({"message": "Bank account deleted successfully"}), 200
+
+@bank_account_bp.route("/users/<int:user_id>/incomes", methods=["GET"])
+def get_incomes_by_user_id(user_id):
+    """
+    Get all incomes for a user by their user ID.
+    ---
+    tags:
+      - Bank Accounts
+    parameters:
+      - in: path
+        name: user_id
+        required: true
+        type: integer
+        description: ID of the user
+    responses:
+      200:
+        description: List of incomes for the user
+    """
+    incomes = BankAccountService.get_incomes_by_user_id(user_id)
+    return jsonify([income.to_dict() for income in incomes]), 200

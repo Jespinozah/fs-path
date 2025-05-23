@@ -1,4 +1,5 @@
 from repositories.bank_account_repository import BankAccountRepository
+from repositories.income_repository import IncomeRepository
 
 class BankAccountService:
     @staticmethod
@@ -20,3 +21,7 @@ class BankAccountService:
     @staticmethod
     def delete_bank_account(account_id):
         BankAccountRepository.delete_bank_account(account_id)
+
+    @staticmethod
+    def get_incomes_by_user_id(user_id):
+        return IncomeRepository.get_incomes_by_user_id(user_id)
