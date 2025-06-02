@@ -2,30 +2,78 @@ import React, { useState, useEffect } from "react";
 import NavigationBar from "../NavigationBar";
 import AddIncomePopup from "./AddIncomePopup";
 import { API_URL } from "../../config";
-import { FaPlus } from "react-icons/fa";
+import { FaPlus, FaEdit, FaTrash } from "react-icons/fa"; // Add icons
+import { useNavigate } from "react-router-dom";
 
 export default function Income() {
   const [incomes, setIncomes] = useState([]);
   const [showAddPopup, setShowAddPopup] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [incomeToDelete, setIncomeToDelete] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchIncomes = async () => {
-      const token = localStorage.getItem("token");
-      const userId = localStorage.getItem("userId");
-      if (!token || !userId) return;
-      const res = await fetch(`${API_URL}/income/user/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setIncomes(Array.isArray(data) ? data : data.incomes || []);
+      try {
+        const token = localStorage.getItem("token");
+        const userId = localStorage.getItem("userId");
+        if (!token || !userId) return;
+        const res = await fetch(`${API_URL}/bank-accounts/users/${userId}/incomes`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          // Support both array and object response
+          let incomeList = [];
+          if (Array.isArray(data)) {
+            incomeList = data;
+          } else if (data.incomes) {
+            incomeList = data.incomes;
+          }
+          setIncomes(incomeList);
+        } else {
+          setIncomes([]);
+        }
+      } catch (e) {
+        setIncomes([]);
       }
     };
     fetchIncomes();
-  }, []);
+  }, [showAddPopup]);
 
   const handleAddIncome = (newIncome) => {
     setIncomes([...incomes, newIncome]);
+  };
+
+  const confirmDelete = (incomeId) => {
+    setIncomeToDelete(incomeId);
+    setShowDeleteConfirm(true);
+  };
+
+  const handleDeleteIncome = async () => {
+    if (!incomeToDelete) return;
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+      const res = await fetch(`${API_URL}/incomes/${incomeToDelete}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        setIncomes(incomes.filter((income) => income.id !== incomeToDelete));
+        setShowDeleteConfirm(false);
+        setIncomeToDelete(null);
+      } else {
+        alert("Failed to delete income.");
+      }
+    } catch (e) {
+      alert("Error deleting income.");
+    }
+  };
+
+  const handleEditIncome = (income) => {
+    // Fix: navigate to the correct route for EditIncome (should match your router path)
+    navigate(`/income/${income.id}`);
   };
 
   return (
@@ -65,6 +113,11 @@ export default function Income() {
                       Notes
                     </p>
                   </th>
+                  <th className="p-4 border-b border-slate-300 bg-slate-50 text-center">
+                    <p className="block text-sm font-normal leading-none text-slate-500">
+                      Actions
+                    </p>
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -77,8 +130,8 @@ export default function Income() {
                         </p>
                       </td>
                       <td className="p-4 border-b border-slate-200">
-                        <p className="block text-sm text-slate-800">
-                          ${parseFloat(income.amount).toFixed(2)}
+                        <p className="block text-sm text-green-700 font-semibold">
+                          +${parseFloat(income.amount).toFixed(2)}
                         </p>
                       </td>
                       <td className="p-4 border-b border-slate-200">
@@ -88,7 +141,10 @@ export default function Income() {
                       </td>
                       <td className="p-4 border-b border-slate-200">
                         <p className="block text-sm text-slate-800">
-                          {income.bank_account_name || income.bank_account_alias || ""}
+                          {income.bank_account_name ||
+                            income.bank_account_alias ||
+                            income.bank_account ||
+                            ""}
                         </p>
                       </td>
                       <td className="p-4 border-b border-slate-200">
@@ -96,11 +152,27 @@ export default function Income() {
                           {income.notes || ""}
                         </p>
                       </td>
+                      <td className="p-4 border-b border-slate-200">
+                        <div className="flex flex-row items-center">
+                          <button
+                            onClick={() => handleEditIncome(income)}
+                            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500 mr-2 text-sm font-semibold"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => confirmDelete(income.id)}
+                            className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-500 text-sm font-semibold"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="5" className="text-center py-4 text-gray-500">
+                    <td colSpan="6" className="text-center py-4 text-gray-500">
                       No income records found.
                     </td>
                   </tr>
@@ -122,6 +194,29 @@ export default function Income() {
           onClose={() => setShowAddPopup(false)}
           onAddIncome={handleAddIncome}
         />
+      )}
+      {/* Delete Confirmation Popup */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+            <h3 className="text-lg font-semibold mb-4">Are you sure?</h3>
+            <p className="mb-6">Do you really want to delete this income? This action cannot be undone.</p>
+            <div className="flex justify-center">
+              <button
+                onClick={handleDeleteIncome}
+                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-500 mr-2"
+              >
+                Yes, Delete
+              </button>
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="bg-transparent text-gray-700 px-4 py-2 rounded hover:bg-gray-100"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

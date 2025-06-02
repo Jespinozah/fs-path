@@ -18,12 +18,15 @@ export default function AddIncomePopup({ onClose, onAddIncome }) {
       const token = localStorage.getItem("token");
       const userId = localStorage.getItem("userId");
       if (!token || !userId) return;
+      // Remove /api/v1 from endpoint
       const res = await fetch(`${API_URL}/bank-accounts/user/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
         const data = await res.json();
         setAccounts(Array.isArray(data) ? data : data.accounts || []);
+      } else {
+        console.error("Failed to fetch accounts", res.status);
       }
     };
     fetchAccounts();
@@ -36,22 +39,29 @@ export default function AddIncomePopup({ onClose, onAddIncome }) {
 
   const handleSubmit = async () => {
     const token = localStorage.getItem("token");
-    const userId = localStorage.getItem("userId");
-    if (!token || !userId) return;
+    if (!token) return;
     if (!formData.source || !formData.amount || !formData.date || !formData.bankAccountId) {
       alert("Please fill out all required fields.");
       return;
     }
+    const amount = parseFloat(formData.amount);
+    const bankAccountId = parseInt(formData.bankAccountId, 10);
+    if (isNaN(amount) || isNaN(bankAccountId)) {
+      alert("Amount and Bank Account are required and must be valid.");
+      return;
+    }
+    // Try both payloads if unsure which field backend expects
     const payload = {
-      user_id: parseInt(userId, 10),
       source: formData.source,
-      amount: parseFloat(formData.amount),
+      amount: amount,
       date: formData.date,
-      bank_account_id: formData.bankAccountId,
+      bank_account_id: bankAccountId,
       notes: formData.notes,
     };
+
+    console.log("Submitting income payload:", payload);
     try {
-      const res = await fetch(`${API_URL}/income`, {
+      const res = await fetch(`${API_URL}/incomes`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -59,14 +69,22 @@ export default function AddIncomePopup({ onClose, onAddIncome }) {
         },
         body: JSON.stringify(payload),
       });
+      const responseText = await res.text();
+      let newIncome = null;
+      try {
+        newIncome = JSON.parse(responseText);
+      } catch {
+        newIncome = responseText;
+      }
       if (res.ok) {
-        const newIncome = await res.json();
-        onAddIncome(newIncome);
+        onAddIncome(newIncome.income || newIncome);
         onClose();
       } else {
-        alert("Failed to add income.");
+        console.error("Failed to add income:", res.status, responseText, "Payload:", payload);
+        alert(`Failed to add income. Server responded with: ${responseText}`);
       }
-    } catch {
+    } catch (e) {
+      console.error("Error adding income:", e, "Payload:", payload);
       alert("Error adding income.");
     }
   };
