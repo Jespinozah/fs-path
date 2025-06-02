@@ -17,6 +17,7 @@ export default function Success() {
   const [selectedTransaction, setSelectedTransaction] = useState(null); // State for selected transaction
   const [bankAccounts, setBankAccounts] = useState([]);
   const [incomeRecords, setIncomeRecords] = useState([]); // Add state for income
+  const [totalBankBalance, setTotalBankBalance] = useState(0); // Add state for total bank balance
 
   useEffect(() => {
     if (initialSuccessMessage) {
@@ -94,8 +95,13 @@ export default function Success() {
 
         if (response.ok) {
           const data = await response.json();
-          console.log("Fetched bank accounts data:", data); // Log the response data
-          setBankAccounts(data.accounts || data); // Adjust based on API response structure
+          const accounts = data.accounts || data;
+          setBankAccounts(accounts); // Adjust based on API response structure
+          // Calculate total bank balance
+          const total = Array.isArray(accounts)
+            ? accounts.reduce((sum, acc) => sum + (parseFloat(acc.balance) || 0), 0)
+            : 0;
+          setTotalBankBalance(total);
         } else {
           console.error("Failed to fetch bank accounts:", response.statusText);
         }
@@ -114,7 +120,7 @@ export default function Success() {
         const token = localStorage.getItem("token");
         const userId = localStorage.getItem("userId");
         if (!token || !userId) return;
-        const response = await fetch(`${API_URL}/income/user/${userId}`, {
+        const response = await fetch(`${API_URL}/bank-accounts/users/${userId}/incomes`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (response.ok) {
@@ -398,6 +404,15 @@ export default function Success() {
             <h2 className="text-2xl font-bold text-gray-800">
               Bank Accounts
             </h2>
+            {/* Total Bank Balance */}
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold text-gray-700">
+                Total Bank Balance
+              </h3>
+              <p className="text-3xl font-bold text-blue-600">
+                ${totalBankBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </p>
+            </div>
             <table className="min-w-full divide-y divide-gray-200 dark:divide-neutral-700">
               <thead>
                 <tr>
@@ -433,6 +448,12 @@ export default function Success() {
                 )}
               </tbody>
             </table>
+            <button
+              onClick={() => navigate("/bank-accounts")}
+              className="mt-4 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-500"
+            >
+              See More
+            </button>
           </div>
 
           {/* Income Card */}
@@ -478,6 +499,12 @@ export default function Success() {
                 )}
               </tbody>
             </table>
+            <button
+              onClick={() => navigate("/income")}
+              className="mt-4 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-500"
+            >
+              See More
+            </button>
           </div>
         </div>
       </div>

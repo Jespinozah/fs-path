@@ -10,8 +10,9 @@ export default function BankAccounts() {
   const [showAddPopup, setShowAddPopup] = useState(false);
   const [showEditPopup, setShowEditPopup] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState(null);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false); // Add state for delete confirmation popup
-  const [accountToDelete, setAccountToDelete] = useState(null); // Track which account to delete
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [accountToDelete, setAccountToDelete] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(""); // Success message state
 
   useEffect(() => {
     const fetchAccounts = async () => {
@@ -45,8 +46,9 @@ export default function BankAccounts() {
   }, []);
 
   const handleAddAccount = (newAccount) => {
-    console.log("New Account Added:", newAccount);
-    setAccounts([...accounts, newAccount]); // Add the new account to the list
+    setAccounts([...accounts, newAccount]);
+    setSuccessMessage("Bank account added successfully!");
+    setTimeout(() => setSuccessMessage(""), 2000);
   };
 
   const handleEdit = (account) => {
@@ -55,12 +57,13 @@ export default function BankAccounts() {
   };
 
   const handleEditAccount = (updatedAccount) => {
-    console.log("Updated Account:", updatedAccount);
     setAccounts(
       accounts.map((account) =>
         account.id === updatedAccount.id ? updatedAccount : account
       )
     );
+    setSuccessMessage("Bank account updated successfully!");
+    setTimeout(() => setSuccessMessage(""), 2000);
   };
 
   const confirmDelete = (accountId) => {
@@ -107,6 +110,13 @@ export default function BankAccounts() {
           <h2 className="text-2xl font-semibold text-gray-700 mb-4">
             Bank Accounts
           </h2>
+
+          {/* Success Message */}
+          {successMessage && (
+            <div className="bg-green-100 text-green-700 p-4 mb-4 rounded-lg text-center">
+              {successMessage}
+            </div>
+          )}
 
           <div className="relative flex flex-col w-full h-full overflow-scroll text-gray-700 bg-white shadow-md rounded-lg bg-clip-border">
             <table className="w-full text-left table-auto min-w-max">
