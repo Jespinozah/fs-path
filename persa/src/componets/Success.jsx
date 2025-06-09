@@ -1,31 +1,18 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom"; // Import useLocation
-import { FiPlus } from "react-icons/fi";
+import "chart.js/auto";
+import { useEffect, useState } from "react";
+import { Pie } from "react-chartjs-2";
+import { useNavigate } from "react-router-dom"; // Import useLocation
 import { API_URL } from "../config";
 import NavigationBar from "./NavigationBar";
-import { Pie } from "react-chartjs-2";
-import "chart.js/auto";
 
 export default function Success() {
   const navigate = useNavigate();
-  const location = useLocation(); // Access location state
-  const initialSuccessMessage = location.state?.message; // Get success message if available
   const [balance, setBalance] = useState(0);
   const [transactions, setTransactions] = useState([]);
-  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
   const [selectedTransaction, setSelectedTransaction] = useState(null); // State for selected transaction
   const [bankAccounts, setBankAccounts] = useState([]);
   const [incomeRecords, setIncomeRecords] = useState([]); // Add state for income
   const [totalBankBalance, setTotalBankBalance] = useState(0); // Add state for total bank balance
-
-  useEffect(() => {
-    if (initialSuccessMessage) {
-      setShowSuccessPopup(true);
-      const timer = setTimeout(() => setShowSuccessPopup(false), 2000); // Hide after 2 seconds
-      return () => clearTimeout(timer); // Cleanup timer
-    }
-  }, [location.state?.message]);
 
   useEffect(() => {
     const fetchExpenses = async () => {
@@ -87,11 +74,14 @@ export default function Success() {
           return;
         }
 
-        const response = await fetch(`${API_URL}/bank-accounts/user/${userId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await fetch(
+          `${API_URL}/bank-accounts/user/${userId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         if (response.ok) {
           const data = await response.json();
@@ -99,7 +89,10 @@ export default function Success() {
           setBankAccounts(accounts); // Adjust based on API response structure
           // Calculate total bank balance
           const total = Array.isArray(accounts)
-            ? accounts.reduce((sum, acc) => sum + (parseFloat(acc.balance) || 0), 0)
+            ? accounts.reduce(
+                (sum, acc) => sum + (parseFloat(acc.balance) || 0),
+                0
+              )
             : 0;
           setTotalBankBalance(total);
         } else {
@@ -120,14 +113,18 @@ export default function Success() {
         const token = localStorage.getItem("token");
         const userId = localStorage.getItem("userId");
         if (!token || !userId) return;
-        const response = await fetch(`${API_URL}/bank-accounts/users/${userId}/incomes`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await fetch(
+          `${API_URL}/bank-accounts/users/${userId}/incomes`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         if (response.ok) {
           const data = await response.json();
           setIncomeRecords(Array.isArray(data) ? data : data.incomes || []);
         }
       } catch (error) {
+        console.error("Error fetching income records:", error);
         // Optionally handle error
       }
     };
@@ -191,94 +188,6 @@ export default function Success() {
       }
     } catch (error) {
       console.error("Error during logout:", error);
-    }
-  };
-
-  const [showAddExpensePopup, setShowAddExpensePopup] = useState(false);
-  const [newExpense, setNewExpense] = useState({
-    amount: "",
-    category: "",
-    date: new Date(
-      new Date().getTime() - new Date().getTimezoneOffset() * 60000
-    )
-      .toISOString()
-      .split("T")[0],
-    time: new Date().toTimeString().split(" ")[0], // Set current time in HH:mm:ss format
-    description: "",
-  });
-
-  const handleAddExpense = async () => {
-    if (
-      newExpense.amount &&
-      newExpense.category &&
-      newExpense.date &&
-      newExpense.time
-    ) {
-      try {
-        const token = localStorage.getItem("token");
-        const userId = localStorage.getItem("userId");
-
-        if (!token || !userId) {
-          console.error("User ID or token not found, redirecting to login.");
-          navigate("/login");
-          return;
-        }
-
-        const expenseData = {
-          user_id: parseInt(userId, 10), // Include user_id
-          amount: parseFloat(newExpense.amount),
-          category: newExpense.category,
-          date: newExpense.date, // Send only the date part
-          hour: newExpense.time, // Send the time part as 'hour'
-          description: newExpense.description,
-        };
-
-        console.log("Payload being sent:", expenseData); // Log the payload
-
-        const response = await fetch(`${API_URL}/expenses`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(expenseData),
-        });
-
-        if (response.ok) {
-          const result = await response.json();
-          console.log("Expense Saved:", result);
-          setTransactions([
-            ...transactions,
-            {
-              ...newExpense,
-              id: result.id, // Use the ID returned from the backend
-              amount: parseFloat(newExpense.amount),
-              category: newExpense.category,
-              date: newExpense.date,
-              icon: getCategoryIcon(newExpense.category), // Map category to an icon
-            },
-          ]);
-          setNewExpense({
-            amount: "",
-            category: "",
-            date: "",
-            time: "",
-            description: "",
-          });
-          setSuccessMessage("Expense added successfully!");
-          setShowSuccessPopup(true);
-          setTimeout(() => setShowSuccessPopup(false), 2000); // Hide success message after 2 seconds
-        } else {
-          const errorText = await response.text();
-          console.error("Failed to add expense:", errorText);
-          alert("Failed to add expense: " + errorText);
-        }
-      } catch (error) {
-        console.error("Error adding expense:", error);
-        alert("Error adding expense");
-      }
-    } else {
-      alert("Please fill out all required fields.");
     }
   };
 
@@ -401,16 +310,18 @@ export default function Success() {
             id="banck-accounts"
             className="bg-white w-3/4 p-6 rounded-lg shadow-md text-center space-y-6"
           >
-            <h2 className="text-2xl font-bold text-gray-800">
-              Bank Accounts
-            </h2>
+            <h2 className="text-2xl font-bold text-gray-800">Bank Accounts</h2>
             {/* Total Bank Balance */}
             <div className="space-y-2">
               <h3 className="text-lg font-semibold text-gray-700">
                 Total Bank Balance
               </h3>
               <p className="text-3xl font-bold text-blue-600">
-                ${totalBankBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                $
+                {totalBankBalance.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
               </p>
             </div>
             <table className="min-w-full divide-y divide-gray-200 dark:divide-neutral-700">
@@ -429,10 +340,16 @@ export default function Success() {
                   bankAccounts.map((account) => (
                     <tr key={account.account_number}>
                       <td className="px-6 py-3 text-start text-xs font-medium text-gray-500 dark:text-neutral-500">
-                        {account.alias || account.bank_name} {/* Display alias or bank name */}
+                        {account.alias || account.bank_name}{" "}
+                        {/* Display alias or bank name */}
                       </td>
                       <td className="px-6 py-3 text-start text-xs font-medium text-gray-500 dark:text-neutral-500">
-                        ${account.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {/* Format balance */}
+                        $
+                        {account.balance.toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}{" "}
+                        {/* Format balance */}
                       </td>
                     </tr>
                   ))
@@ -461,16 +378,22 @@ export default function Success() {
             id="income"
             className="bg-white w-3/4 p-6 rounded-lg shadow-md text-center space-y-6 mt-6"
           >
-            <h2 className="text-2xl font-bold text-gray-800">
-              Income
-            </h2>
+            <h2 className="text-2xl font-bold text-gray-800">Income</h2>
             <table className="min-w-full divide-y divide-gray-200 dark:divide-neutral-700">
               <thead>
                 <tr>
-                  <th className="px-4 py-2 text-xs font-medium text-gray-500 uppercase">Source</th>
-                  <th className="px-4 py-2 text-xs font-medium text-gray-500 uppercase">Amount</th>
-                  <th className="px-4 py-2 text-xs font-medium text-gray-500 uppercase">Date</th>
-                  <th className="px-4 py-2 text-xs font-medium text-gray-500 uppercase">Account</th>
+                  <th className="px-4 py-2 text-xs font-medium text-gray-500 uppercase">
+                    Source
+                  </th>
+                  <th className="px-4 py-2 text-xs font-medium text-gray-500 uppercase">
+                    Amount
+                  </th>
+                  <th className="px-4 py-2 text-xs font-medium text-gray-500 uppercase">
+                    Date
+                  </th>
+                  <th className="px-4 py-2 text-xs font-medium text-gray-500 uppercase">
+                    Account
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -480,19 +403,28 @@ export default function Success() {
                     .reverse()
                     .map((income) => (
                       <tr key={income.id}>
-                        <td className="px-4 py-2 text-sm text-gray-700">{income.source}</td>
+                        <td className="px-4 py-2 text-sm text-gray-700">
+                          {income.source}
+                        </td>
                         <td className="px-4 py-2 text-sm text-green-600 font-semibold">
                           +${parseFloat(income.amount).toFixed(2)}
                         </td>
-                        <td className="px-4 py-2 text-sm text-gray-700">{income.date}</td>
                         <td className="px-4 py-2 text-sm text-gray-700">
-                          {income.bank_account_name || income.bank_account_alias || ""}
+                          {income.date}
+                        </td>
+                        <td className="px-4 py-2 text-sm text-gray-700">
+                          {income.bank_account_name ||
+                            income.bank_account_alias ||
+                            ""}
                         </td>
                       </tr>
                     ))
                 ) : (
                   <tr>
-                    <td colSpan="4" className="px-4 py-4 text-gray-500 text-center">
+                    <td
+                      colSpan="4"
+                      className="px-4 py-4 text-gray-500 text-center"
+                    >
                       No income records found.
                     </td>
                   </tr>

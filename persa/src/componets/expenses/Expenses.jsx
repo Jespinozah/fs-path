@@ -207,7 +207,11 @@ export default function Expenses() {
           <div className="flex justify-between items-center mt-4">
             <button
               onClick={() => handlePageChange(currentPage - 1)}
-              className={`px-4 py-2 rounded ${currentPage === 1 ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-blue-600 text-white hover:bg-blue-500"}`}
+              className={`px-4 py-2 rounded ${
+                currentPage === 1
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-blue-600 text-white hover:bg-blue-500"
+              }`}
               disabled={currentPage === 1}
             >
               Previous
@@ -217,7 +221,11 @@ export default function Expenses() {
             </span>
             <button
               onClick={() => handlePageChange(currentPage + 1)}
-              className={`px-4 py-2 rounded ${currentPage === totalPages ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-blue-600 text-white hover:bg-blue-500"}`}
+              className={`px-4 py-2 rounded ${
+                currentPage === totalPages
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-blue-600 text-white hover:bg-blue-500"
+              }`}
               disabled={currentPage === totalPages}
             >
               Next
@@ -228,7 +236,7 @@ export default function Expenses() {
 
       {/* Floating Add Expense Button */}
       <button
-        onClick={() => setShowAddPopup(true)}
+        onClick={() => setShowAddExpensePopup(true)}
         className="fixed bottom-6 right-6 bg-blue-600 text-white text-3xl w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:bg-blue-500"
         title="Add Bank Account"
       >
@@ -248,7 +256,10 @@ export default function Expenses() {
         <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg shadow-lg text-center">
             <h3 className="text-lg font-semibold mb-4">Are you sure?</h3>
-            <p className="mb-6">Do you really want to delete this expense? This action cannot be undone.</p>
+            <p className="mb-6">
+              Do you really want to delete this expense? This action cannot be
+              undone.
+            </p>
             <div className="flex justify-center">
               <button
                 onClick={handleDelete}
