@@ -18,9 +18,12 @@ export default function Income() {
         const token = localStorage.getItem("token");
         const userId = localStorage.getItem("userId");
         if (!token || !userId) return;
-        const res = await fetch(`${API_URL}/bank-accounts/users/${userId}/incomes`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await fetch(
+          `${API_URL}/bank-accounts/users/${userId}/incomes`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         if (res.ok) {
           const data = await res.json();
           // Support both array and object response
@@ -35,6 +38,7 @@ export default function Income() {
           setIncomes([]);
         }
       } catch (e) {
+        console.error("Error fetching incomes:", e);
         setIncomes([]);
       }
     };
@@ -67,6 +71,7 @@ export default function Income() {
         alert("Failed to delete income.");
       }
     } catch (e) {
+      console.error("Error deleting income:", e);
       alert("Error deleting income.");
     }
   };
@@ -81,9 +86,7 @@ export default function Income() {
       <NavigationBar />
       <div className="flex flex-col items-center p-6">
         <div className="w-full md:w-3/4 bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-2xl font-semibold text-gray-700 mb-4">
-            Income
-          </h2>
+          <h2 className="text-2xl font-semibold text-gray-700 mb-4">Income</h2>
           <div className="relative flex flex-col w-full h-full overflow-scroll text-gray-700 bg-white shadow-md rounded-lg bg-clip-border">
             <table className="w-full text-left table-auto min-w-max">
               <thead>
@@ -200,7 +203,10 @@ export default function Income() {
         <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg shadow-lg text-center">
             <h3 className="text-lg font-semibold mb-4">Are you sure?</h3>
-            <p className="mb-6">Do you really want to delete this income? This action cannot be undone.</p>
+            <p className="mb-6">
+              Do you really want to delete this income? This action cannot be
+              undone.
+            </p>
             <div className="flex justify-center">
               <button
                 onClick={handleDeleteIncome}

@@ -25,11 +25,14 @@ export default function BankAccounts() {
           return;
         }
 
-        const response = await fetch(`${API_URL}/bank-accounts/user/${userId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await fetch(
+          `${API_URL}/bank-accounts/user/${userId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         if (response.ok) {
           const data = await response.json();
@@ -80,16 +83,21 @@ export default function BankAccounts() {
         return;
       }
 
-      const response = await fetch(`${API_URL}/bank-accounts/${accountToDelete}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `${API_URL}/bank-accounts/${accountToDelete}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (response.ok) {
         console.log("Account deleted successfully");
-        setAccounts(accounts.filter((account) => account.id !== accountToDelete)); // Remove the deleted account from the list
+        setAccounts(
+          accounts.filter((account) => account.id !== accountToDelete)
+        ); // Remove the deleted account from the list
       } else {
         console.error("Failed to delete account:", response.statusText);
       }
@@ -154,7 +162,8 @@ export default function BankAccounts() {
                     </td>
                     <td className="p-4 border-b border-slate-200">
                       <p className="block text-sm text-slate-800">
-                        {"*".repeat(account.account_number.length - 4) + account.account_number.slice(-4)}
+                        {"*".repeat(account.account_number.length - 4) +
+                          account.account_number.slice(-4)}
                       </p>
                     </td>
                     <td className="p-4 border-b border-slate-200">
@@ -212,7 +221,10 @@ export default function BankAccounts() {
         <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg shadow-lg text-center">
             <h3 className="text-lg font-semibold mb-4">Are you sure?</h3>
-            <p className="mb-6">Do you really want to delete this bank account? This action cannot be undone.</p>
+            <p className="mb-6">
+              Do you really want to delete this bank account? This action cannot
+              be undone.
+            </p>
             <div className="flex justify-center">
               <button
                 onClick={handleDelete}

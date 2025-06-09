@@ -55,6 +55,7 @@ export default function EditIncome() {
           alert("Error fetching income details.");
         }
       } catch (error) {
+        console.error("Error fetching income details:", error);
         alert("Error fetching income details.");
       }
     };
@@ -90,6 +91,7 @@ export default function EditIncome() {
         alert("Error updating income.");
       }
     } catch (error) {
+      console.error("Error updating income:", error);
       alert("Error updating income.");
     }
   };
@@ -109,7 +111,10 @@ export default function EditIncome() {
           )}
           <form onSubmit={handleSave} className="space-y-4">
             <div className="flex flex-col">
-              <label htmlFor="source" className="mb-1 font-medium text-gray-700">
+              <label
+                htmlFor="source"
+                className="mb-1 font-medium text-gray-700"
+              >
                 Source
               </label>
               <input
@@ -126,7 +131,10 @@ export default function EditIncome() {
               />
             </div>
             <div className="flex flex-col">
-              <label htmlFor="amount" className="mb-1 font-medium text-gray-700">
+              <label
+                htmlFor="amount"
+                className="mb-1 font-medium text-gray-700"
+              >
                 Amount
               </label>
               <input
@@ -153,15 +161,16 @@ export default function EditIncome() {
                 id="date"
                 name="date"
                 value={income.date}
-                onChange={(e) =>
-                  setIncome({ ...income, date: e.target.value })
-                }
+                onChange={(e) => setIncome({ ...income, date: e.target.value })}
                 className="border p-2 bg-gray-50 text-gray-700 rounded"
                 required
               />
             </div>
             <div className="flex flex-col">
-              <label htmlFor="bank_account_id" className="mb-1 font-medium text-gray-700">
+              <label
+                htmlFor="bank_account_id"
+                className="mb-1 font-medium text-gray-700"
+              >
                 Bank Account
               </label>
               <select

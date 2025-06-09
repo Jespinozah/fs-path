@@ -5,7 +5,9 @@ export default function AddIncomePopup({ onClose, onAddIncome }) {
   const [formData, setFormData] = useState({
     source: "",
     amount: "",
-    date: new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000)
+    date: new Date(
+      new Date().getTime() - new Date().getTimezoneOffset() * 60000
+    )
       .toISOString()
       .split("T")[0],
     bankAccountId: "",
@@ -40,7 +42,12 @@ export default function AddIncomePopup({ onClose, onAddIncome }) {
   const handleSubmit = async () => {
     const token = localStorage.getItem("token");
     if (!token) return;
-    if (!formData.source || !formData.amount || !formData.date || !formData.bankAccountId) {
+    if (
+      !formData.source ||
+      !formData.amount ||
+      !formData.date ||
+      !formData.bankAccountId
+    ) {
       alert("Please fill out all required fields.");
       return;
     }
@@ -80,7 +87,13 @@ export default function AddIncomePopup({ onClose, onAddIncome }) {
         onAddIncome(newIncome.income || newIncome);
         onClose();
       } else {
-        console.error("Failed to add income:", res.status, responseText, "Payload:", payload);
+        console.error(
+          "Failed to add income:",
+          res.status,
+          responseText,
+          "Payload:",
+          payload
+        );
         alert(`Failed to add income. Server responded with: ${responseText}`);
       }
     } catch (e) {
