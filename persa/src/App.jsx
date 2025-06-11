@@ -1,11 +1,16 @@
 import "./App.css";
-import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+} from "react-router-dom";
 import Login from "./componets/auth/Login";
 import Signup from "./componets/auth/Signup";
 import Success from "./componets/Success";
 import Failure from "./componets/auth/Failure";
 import Profile from "./componets/profile/Profile";
-import AddExpense from "./componets/expenses/AddExpenses";
+import AddExpense from "./componets/expenses/AddExpensePopup"; // Import the AddExpense component
 import Expenses from "./componets/expenses/Expenses"; // Import the Expenses component
 import EditExpense from "./componets/expenses/EditExpense"; // Import the EditExpense component
 import BankAccounts from "./componets/BankAccounts"; // Import the BankAccounts component
@@ -14,7 +19,6 @@ import EditIncome from "./componets/income/EditIncome"; // Import the EditIncome
 import { API_URL } from "./config";
 
 function App() {
-
   console.log("API_URL:", API_URL);
   const handleLogin = async (email, password, navigate) => {
     try {
@@ -61,7 +65,9 @@ function App() {
       if (response.ok) {
         console.log("Sign up successful:", data);
         // Redirect to the success page
-        navigate("/login", { state: { message: "Signup successful! Please log in." } });
+        navigate("/login", {
+          state: { message: "Signup successful! Please log in." },
+        });
       } else {
         console.error("Sign up failed:", data.error);
         navigate("/failure");
@@ -77,19 +83,16 @@ function App() {
       <Routes>
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<Login onLogin={handleLogin} />} />
-        <Route
-          path="/signup"
-          element={<Signup onSignUp={handleSignUp} />}
-        />
+        <Route path="/signup" element={<Signup onSignUp={handleSignUp} />} />
         <Route path="/success" element={<Success />} />
         <Route path="/add-expense" element={<AddExpense />} />
         <Route path="/failure" element={<Failure />} />
         <Route path="/profile" element={<Profile />} />
-        <Route path="/expenses" element={<Expenses />} /> {/* Add route for Expenses */}
-        <Route path="/expenses/:expenseId" element={<EditExpense />} /> {/* Add route for editing expenses */}
-        <Route path="/bank-accounts" element={<BankAccounts />} /> {/* Add route for BankAccounts */}
-        <Route path="/income" element={<Income />} /> {/* Add route for Income */}
-        <Route path="/income/:incomeId" element={<EditIncome />} /> {/* Add route for editing income */}
+        <Route path="/expenses" element={<Expenses />} />
+        <Route path="/expenses/:expenseId" element={<EditExpense />} />
+        <Route path="/bank-accounts" element={<BankAccounts />} />
+        <Route path="/income" element={<Income />} />
+        <Route path="/income/:incomeId" element={<EditIncome />} />
       </Routes>
     </Router>
   );

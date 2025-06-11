@@ -21,9 +21,17 @@ export default function Expenses() {
     const fetchExpenses = async () => {
       try {
         const data = await get(`/expenses?page=${currentPage}&per_page=10`);
-        setExpenses(
-          data.expenses.sort((a, b) => new Date(b.date) - new Date(a.date))
-        );
+        // Map backend 'hour' to 'time' for consistent sorting
+        const expensesWithTime = data.expenses.map((exp) => ({
+          ...exp,
+          time: exp.hour || "00:00:00",
+        }));
+        expensesWithTime.sort((a, b) => {
+          const dateA = new Date(`${a.date}T${a.time}`);
+          const dateB = new Date(`${b.date}T${b.time}`);
+          return dateB - dateA;
+        });
+        setExpenses(expensesWithTime);
         setTotalPages(Math.ceil(data.total / data.per_page));
       } catch (error) {
         console.error("Error fetching expenses:", error);
@@ -45,11 +53,17 @@ export default function Expenses() {
 
   const handleAddExpense = async (newExpense) => {
     try {
-      const userId = localStorage.getItem("userId"); // Retrieve userId from localStorage
+      const userId = localStorage.getItem("userId");
       if (!userId) {
         console.error("User ID not found, redirecting to login.");
         navigate("/login");
         return;
+      }
+
+      // Ensure time is in HH:MM:SS format
+      let formattedTime = newExpense.time;
+      if (formattedTime && formattedTime.length === 5) {
+        formattedTime += ":00";
       }
 
       const expenseData = {
@@ -57,18 +71,29 @@ export default function Expenses() {
         amount: parseFloat(newExpense.amount),
         category: newExpense.category,
         date: newExpense.date,
+        hour: formattedTime, // Include time field as 'hour'
         description: newExpense.description,
       };
 
       const result = await post("/expenses", expenseData);
-      setExpenses([
+      // Add the new expense and sort from newest to oldest
+      const updatedExpenses = [
         {
           ...newExpense,
           id: result.id,
           amount: parseFloat(newExpense.amount),
+          icon: getCategoryIcon(newExpense.category),
+          date: newExpense.date,
+          time: formattedTime,
         },
         ...expenses,
-      ]);
+      ].sort((a, b) => {
+        // Combine date and time for accurate sorting
+        const dateA = new Date(`${a.date}T${a.time || "00:00:00"}`);
+        const dateB = new Date(`${b.date}T${b.time || "00:00:00"}`);
+        return dateB - dateA;
+      });
+      setExpenses(updatedExpenses);
       setShowAddExpensePopup(false);
       setSuccessMessage("Expense added successfully!");
       setTimeout(() => setSuccessMessage(""), 2000);
@@ -169,7 +194,9 @@ export default function Expenses() {
                     </td>
                     <td className="p-4 border-b border-slate-200">
                       <p className="block text-sm text-slate-800 flex items-center">
-                        <span className="text-xl mr-2">{expense.icon}</span>
+                        <span className="text-xl mr-2">
+                          {getCategoryIcon(expense.category)}
+                        </span>
                         {expense.category}
                       </p>
                     </td>

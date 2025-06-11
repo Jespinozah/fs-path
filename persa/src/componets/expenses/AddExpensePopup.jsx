@@ -1,56 +1,34 @@
 import React, { useState } from "react";
-import { post } from "../../utils/Api"; // Import the post function
 
 export default function AddExpensePopup({ onClose, onAddExpense }) {
   const [newExpense, setNewExpense] = useState({
     amount: "",
     category: "",
-    date: new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000)
+    date: new Date(
+      new Date().getTime() - new Date().getTimezoneOffset() * 60000
+    )
       .toISOString()
       .split("T")[0],
-    time: new Date().toTimeString().split(" ")[0], // Add time field
+    time: new Date().toTimeString().split(" ")[0],
     description: "",
   });
 
-  const handleAddExpense = async () => {
-    const userId = localStorage.getItem("userId"); // Retrieve userId from localStorage
-
-    if (!userId) {
-      console.error("User ID not found, redirecting to login.");
-      alert("Please log in to add an expense.");
-      return;
-    }
-
-    if (newExpense.amount && newExpense.category && newExpense.date && newExpense.time) {
-      try {
-
-        // Ensure time is in HH:MM:SS format
-        let formattedTime = newExpense.time;
-        if (formattedTime.length === 5) {
-          formattedTime += ":00";
-        }
-        const expenseData = {
-          user_id: parseInt(userId, 10), // Include user_id
-          amount: parseFloat(newExpense.amount),
-          category: newExpense.category,
-          date: newExpense.date,
-          hour: formattedTime, // Include time field
-          description: newExpense.description,
-        };
-
-        console.log("Payload being sent:", expenseData); // Log the payload
-
-        const result = await post("/expenses", expenseData); // Use the post function
-        onAddExpense({
-          ...newExpense,
-          id: result.id,
-        });
-        setNewExpense({ amount: "", category: "", date: "", time: "", description: "" });
-        onClose();
-      } catch (error) {
-        console.error("Error adding expense:", error.message); // Log the error message
-        alert("Error adding expense.");
-      }
+  const handleAddExpense = () => {
+    if (
+      newExpense.amount &&
+      newExpense.category &&
+      newExpense.date &&
+      newExpense.time
+    ) {
+      onAddExpense(newExpense);
+      setNewExpense({
+        amount: "",
+        category: "",
+        date: "",
+        time: "",
+        description: "",
+      });
+      onClose();
     } else {
       alert("Please fill out all required fields, including time.");
     }
@@ -59,7 +37,9 @@ export default function AddExpensePopup({ onClose, onAddExpense }) {
   return (
     <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center">
       <div className="bg-white p-6 rounded-lg shadow-lg w-3/4 md:w-1/3">
-        <h2 className="text-lg font-semibold text-gray-700 mb-4">Add Expense</h2>
+        <h2 className="text-lg font-semibold text-gray-700 mb-4">
+          Add Expense
+        </h2>
         <div className="mb-4">
           <label className="block text-gray-700">Amount</label>
           <input
