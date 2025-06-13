@@ -99,6 +99,7 @@ class Income(db.Model):
         return {
             "id": self.id,
             "bank_account_id": self.bank_account_id,
+            "bank_account_name": self.bankAccount.bank_name if self.bankAccount else None,
             "amount": self.amount,
             "source": self.source,
             "date": self.date.isoformat(),  # Convert date to ISO 8601 string
