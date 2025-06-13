@@ -1,9 +1,14 @@
 from repositories.income_repository import IncomeRepository
+from repositories.bank_account_repository import BankAccountRepository
 
 class IncomeService:
     @staticmethod
     def create_income(data):
-        return IncomeRepository.create_income(data)
+        income = IncomeRepository.create_income(data)
+        from decimal import Decimal
+        updatedBalance = income.bankAccount.balance + Decimal(str(data['amount']))
+        BankAccountRepository.update_bank_account(income.bank_account_id, {'balance': updatedBalance})
+        return  income
 
     @staticmethod
     def get_incomes_by_bank_account_id(bank_account_id):
