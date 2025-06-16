@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { API_URL } from "../../config";
+import { del, get, post } from "../../utils/Api"; // Import the get function from utils/api
 import NavigationBar from "../NavigationBar";
 import AddExpensePopup from "./AddExpensePopup";
-import { get, post, del } from "../../utils/Api"; // Import the get function from utils/api
 
 export default function Expenses() {
   const [expenses, setExpenses] = useState([]);

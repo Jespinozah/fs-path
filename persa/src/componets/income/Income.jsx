@@ -144,10 +144,7 @@ export default function Income() {
                       </td>
                       <td className="p-4 border-b border-slate-200">
                         <p className="block text-sm text-slate-800">
-                          {income.bank_account_name ||
-                            income.bank_account_alias ||
-                            income.bank_account ||
-                            ""}
+                          {income.bank_account_name || ""}
                         </p>
                       </td>
                       <td className="p-4 border-b border-slate-200">

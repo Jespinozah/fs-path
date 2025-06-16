@@ -207,8 +207,8 @@ export default function Success() {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        setSelectedTransaction(data); // Set the full transaction details, including description
+        const data = await response.json(); // Some APIs return { expense: {...} }, others just {...}
+        setSelectedTransaction(data.expense || data); // Set the full transaction details, including description
       } else {
         console.error(
           "Failed to fetch transaction details:",
@@ -224,6 +224,48 @@ export default function Success() {
     <div className="min-h-screen bg-gray-100">
       <NavigationBar onLogout={handleLogout} />
 
+      {/* Show selected transaction details as a modal/card */}
+      {selectedTransaction && (
+        <div
+          className="fixed inset-0 flex items-center justify-center z-50"
+          style={{ background: "rgba(255,255,255,0.6)" }}
+        >
+          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
+            <button
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+              onClick={() => setSelectedTransaction(null)}
+              aria-label="Close"
+            >
+              &times;
+            </button>
+            <h3 className="text-xl font-bold mb-4 text-gray-800">
+              Transaction Details
+            </h3>
+            <div className="space-y-2">
+              <div>
+                <span className="font-semibold">Date:</span>{" "}
+                {selectedTransaction.date}
+              </div>
+              <div>
+                <span className="font-semibold">Category:</span>{" "}
+                {selectedTransaction.category}
+              </div>
+              <div>
+                <span className="font-semibold">Amount:</span> $
+                {parseFloat(selectedTransaction.amount).toFixed(2)}
+              </div>
+              {selectedTransaction.description && (
+                <div>
+                  <span className="font-semibold">Description:</span>{" "}
+                  {selectedTransaction.description}
+                </div>
+              )}
+              {/* Add more fields as needed */}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main Content */}
       <div className="flex flex-wrap p-6">
         {/* Left Side: Dashboard Content */}
@@ -231,7 +273,7 @@ export default function Success() {
           {/* Expenses Dashboard */}
           <div
             id="expenses"
-            className="bg-white w-3/4 p-6 rounded-lg shadow-md text-center space-y-6"
+            className="bg-white w-5/6 p-6 rounded-lg shadow-md text-center space-y-6"
           >
             <h2 className="text-2xl font-bold text-gray-800">
               Expenses Dashboard
@@ -308,7 +350,7 @@ export default function Success() {
           {/* Bank Accounts Card */}
           <div
             id="banck-accounts"
-            className="bg-white w-3/4 p-6 rounded-lg shadow-md text-center space-y-6"
+            className="bg-white w-5/6 p-6 rounded-lg shadow-md text-center space-y-6"
           >
             <h2 className="text-2xl font-bold text-gray-800">Bank Accounts</h2>
             {/* Total Bank Balance */}
@@ -376,7 +418,7 @@ export default function Success() {
           {/* Income Card */}
           <div
             id="income"
-            className="bg-white w-3/4 p-6 rounded-lg shadow-md text-center space-y-6 mt-6"
+            className="bg-white w-5/6 p-6 rounded-lg shadow-md text-center space-y-6 mt-6"
           >
             <h2 className="text-2xl font-bold text-gray-800">Income</h2>
             <table className="min-w-full divide-y divide-gray-200 dark:divide-neutral-700">
