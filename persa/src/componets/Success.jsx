@@ -45,7 +45,7 @@ export default function Success() {
                   date: expense.date, // Add date field
                   icon: getCategoryIcon(expense.category), // Map category to an icon
                 }))
-                .sort((a, b) => new Date(b.date) - new Date(a.date)) // Sort by date (descending)
+                .sort((a, b) => new Date(b.date) - new Date(a.date)), // Sort by date (descending)
             );
           } else {
             console.error("Unexpected data format:", data);
@@ -80,7 +80,7 @@ export default function Success() {
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          }
+          },
         );
 
         if (response.ok) {
@@ -91,7 +91,7 @@ export default function Success() {
           const total = Array.isArray(accounts)
             ? accounts.reduce(
                 (sum, acc) => sum + (parseFloat(acc.balance) || 0),
-                0
+                0,
               )
             : 0;
           setTotalBankBalance(total);
@@ -117,7 +117,7 @@ export default function Success() {
           `${API_URL}/bank-accounts/users/${userId}/incomes`,
           {
             headers: { Authorization: `Bearer ${token}` },
-          }
+          },
         );
         if (response.ok) {
           const data = await response.json();
@@ -154,10 +154,10 @@ export default function Success() {
           (category) =>
             transactions
               .filter((t) => t.category === category)
-              .reduce((sum, t) => sum + t.amount, 0) // Sum amounts for each category
+              .reduce((sum, t) => sum + t.amount, 0), // Sum amounts for each category
         ),
         backgroundColor: [...new Set(transactions.map((t) => t.category))].map(
-          (_, index) => `hsl(${(index * 60) % 360}, 70%, 70%)` // Generate dynamic colors
+          (_, index) => `hsl(${(index * 60) % 360}, 70%, 70%)`, // Generate dynamic colors
         ),
       },
     ],
@@ -212,7 +212,7 @@ export default function Success() {
       } else {
         console.error(
           "Failed to fetch transaction details:",
-          response.statusText
+          response.statusText,
         );
       }
     } catch (error) {
@@ -227,10 +227,10 @@ export default function Success() {
       {/* Show selected transaction details as a modal/card */}
       {selectedTransaction && (
         <div
-          className="fixed inset-0 flex items-center justify-center z-50"
+          className="fixed inset-0 z-50 flex items-center justify-center"
           style={{ background: "rgba(255,255,255,0.6)" }}
         >
-          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
+          <div className="relative w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
             <button
               className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
               onClick={() => setSelectedTransaction(null)}
@@ -238,7 +238,7 @@ export default function Success() {
             >
               &times;
             </button>
-            <h3 className="text-xl font-bold mb-4 text-gray-800">
+            <h3 className="mb-4 text-xl font-bold text-gray-800">
               Transaction Details
             </h3>
             <div className="space-y-2">
@@ -267,13 +267,13 @@ export default function Success() {
       )}
 
       {/* Main Content */}
-      <div className="flex flex-wrap p-6">
+      <div className="flex flex-wrap px-4 py-6">
         {/* Left Side: Dashboard Content */}
-        <div className="w-full md:w-1/2 flex flex-col items-center">
+        <div className="flex w-full flex-col items-center md:w-1/2">
           {/* Expenses Dashboard */}
           <div
             id="expenses"
-            className="bg-white w-5/6 p-6 rounded-lg shadow-md text-center space-y-6"
+            className="w-11/12 space-y-6 rounded-lg bg-white p-6 text-center shadow-md"
           >
             <h2 className="text-2xl font-bold text-gray-800">
               Expenses Dashboard
@@ -298,10 +298,10 @@ export default function Success() {
                 {transactions.slice(0, 8).map((t) => (
                   <li
                     key={t.id}
-                    className="flex justify-between items-center py-2 border-b cursor-pointer"
+                    className="flex cursor-pointer items-center justify-between border-b py-2"
                     onClick={() => handleTransactionClick(t.id)}
                   >
-                    <span className="text-gray-500 text-sm">{t.date}</span>
+                    <span className="text-sm text-gray-500">{t.date}</span>
                     <span className="flex items-center">
                       <span className="text-xl">{t.icon}</span>
                       <span className="ml-2 text-gray-700">{t.category}</span>
@@ -314,7 +314,7 @@ export default function Success() {
               </ul>
               <button
                 onClick={() => navigate("/expenses")}
-                className="mt-4 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-500"
+                className="mt-4 w-full rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
               >
                 See More
               </button>
@@ -346,11 +346,11 @@ export default function Success() {
         </div>
 
         {/* Right Side: Bank Accounts and Income */}
-        <div className="w-full md:w-1/2 flex flex-col items-center">
+        <div className="flex w-full flex-col items-center md:w-1/2">
           {/* Bank Accounts Card */}
           <div
             id="banck-accounts"
-            className="bg-white w-5/6 p-6 rounded-lg shadow-md text-center space-y-6"
+            className="w-11/12 space-y-6 rounded-lg bg-white p-6 text-center shadow-md"
           >
             <h2 className="text-2xl font-bold text-gray-800">Bank Accounts</h2>
             {/* Total Bank Balance */}
@@ -399,7 +399,7 @@ export default function Success() {
                   <tr>
                     <td
                       colSpan="2"
-                      className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-neutral-200"
+                      className="px-6 py-4 text-sm font-medium whitespace-nowrap text-gray-800 dark:text-neutral-200"
                     >
                       No accounts available.
                     </td>
@@ -409,7 +409,7 @@ export default function Success() {
             </table>
             <button
               onClick={() => navigate("/bank-accounts")}
-              className="mt-4 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-500"
+              className="mt-4 w-full rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
             >
               See More
             </button>
@@ -418,7 +418,7 @@ export default function Success() {
           {/* Income Card */}
           <div
             id="income"
-            className="bg-white w-5/6 p-6 rounded-lg shadow-md text-center space-y-6 mt-6"
+            className="mt-6 w-11/12 space-y-6 rounded-lg bg-white p-6 text-center shadow-md"
           >
             <h2 className="text-2xl font-bold text-gray-800">Income</h2>
             <table className="min-w-full divide-y divide-gray-200 dark:divide-neutral-700">
@@ -448,16 +448,14 @@ export default function Success() {
                         <td className="px-4 py-2 text-sm text-gray-700">
                           {income.source}
                         </td>
-                        <td className="px-4 py-2 text-sm text-green-600 font-semibold">
+                        <td className="px-4 py-2 text-sm font-semibold text-green-600">
                           +${parseFloat(income.amount).toFixed(2)}
                         </td>
                         <td className="px-4 py-2 text-sm text-gray-700">
                           {income.date}
                         </td>
                         <td className="px-4 py-2 text-sm text-gray-700">
-                          {income.bank_account_name ||
-                            income.bank_account_alias ||
-                            ""}
+                          {income.bank_account_name || ""}
                         </td>
                       </tr>
                     ))
@@ -465,7 +463,7 @@ export default function Success() {
                   <tr>
                     <td
                       colSpan="4"
-                      className="px-4 py-4 text-gray-500 text-center"
+                      className="px-4 py-4 text-center text-gray-500"
                     >
                       No income records found.
                     </td>
@@ -475,7 +473,7 @@ export default function Success() {
             </table>
             <button
               onClick={() => navigate("/income")}
-              className="mt-4 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-500"
+              className="mt-4 w-full rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
             >
               See More
             </button>
