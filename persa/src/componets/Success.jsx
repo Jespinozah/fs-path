@@ -260,6 +260,15 @@ export default function Success() {
                   {selectedTransaction.description}
                 </div>
               )}
+              {/* Add bank name if available */}
+              {(selectedTransaction.bank_account_name ||
+                selectedTransaction.bank_name) && (
+                <div>
+                  <span className="font-semibold">Bank Account:</span>{" "}
+                  {selectedTransaction.bank_account_name ||
+                    selectedTransaction.bank_name}
+                </div>
+              )}
               {/* Add more fields as needed */}
             </div>
           </div>
@@ -314,7 +323,7 @@ export default function Success() {
               </ul>
               <button
                 onClick={() => navigate("/expenses")}
-                className="mt-4 w-full rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+                className="mt-4 w-full rounded-md bg-indigo-500 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-600"
               >
                 See More
               </button>
@@ -409,7 +418,7 @@ export default function Success() {
             </table>
             <button
               onClick={() => navigate("/bank-accounts")}
-              className="mt-4 w-full rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+              className="mt-4 w-full rounded-md bg-indigo-500 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-600"
             >
               See More
             </button>
@@ -473,7 +482,7 @@ export default function Success() {
             </table>
             <button
               onClick={() => navigate("/income")}
-              className="mt-4 w-full rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+              className="mt-4 w-full rounded-md bg-indigo-500 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-600"
             >
               See More
             </button>
