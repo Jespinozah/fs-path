@@ -6,7 +6,7 @@ export default function AddIncomePopup({ onClose, onAddIncome }) {
     source: "",
     amount: "",
     date: new Date(
-      new Date().getTime() - new Date().getTimezoneOffset() * 60000
+      new Date().getTime() - new Date().getTimezoneOffset() * 60000,
     )
       .toISOString()
       .split("T")[0],
@@ -92,7 +92,7 @@ export default function AddIncomePopup({ onClose, onAddIncome }) {
           res.status,
           responseText,
           "Payload:",
-          payload
+          payload,
         );
         alert(`Failed to add income. Server responded with: ${responseText}`);
       }
@@ -103,9 +103,9 @@ export default function AddIncomePopup({ onClose, onAddIncome }) {
   };
 
   return (
-    <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-3/4 md:w-1/3">
-        <h2 className="text-lg font-semibold text-gray-700 mb-4">Add Income</h2>
+    <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm">
+      <div className="w-3/4 rounded-lg bg-white p-6 shadow-lg md:w-1/3">
+        <h2 className="mb-4 text-lg font-semibold text-gray-700">Add Income</h2>
         <div className="mb-4">
           <label className="block text-gray-700">Income Source</label>
           <input
@@ -113,7 +113,7 @@ export default function AddIncomePopup({ onClose, onAddIncome }) {
             name="source"
             value={formData.source}
             onChange={handleChange}
-            className="w-full p-2 border rounded"
+            className="w-full rounded border p-2"
             placeholder='e.g., "Salary", "Freelance"'
             required
           />
@@ -130,7 +130,7 @@ export default function AddIncomePopup({ onClose, onAddIncome }) {
                 setFormData((prev) => ({ ...prev, amount: value }));
               }
             }}
-            className="w-full p-2 border rounded"
+            className="w-full rounded border p-2"
             placeholder="Enter amount"
             required
           />
@@ -142,7 +142,7 @@ export default function AddIncomePopup({ onClose, onAddIncome }) {
             name="date"
             value={formData.date}
             onChange={handleChange}
-            className="w-full p-2 border rounded"
+            className="w-full rounded border p-2"
             required
           />
         </div>
@@ -152,13 +152,13 @@ export default function AddIncomePopup({ onClose, onAddIncome }) {
             name="bankAccountId"
             value={formData.bankAccountId}
             onChange={handleChange}
-            className="w-full p-2 border rounded"
+            className="w-full rounded border p-2"
             required
           >
             <option value="">Select Account</option>
             {accounts.map((acc) => (
               <option key={acc.id} value={acc.id}>
-                {acc.alias || acc.bank_name}
+                {acc.bank_name}
               </option>
             ))}
           </select>
@@ -169,20 +169,20 @@ export default function AddIncomePopup({ onClose, onAddIncome }) {
             name="notes"
             value={formData.notes}
             onChange={handleChange}
-            className="w-full p-2 border rounded"
+            className="w-full rounded border p-2"
             placeholder="Add any notes here..."
           ></textarea>
         </div>
         <div className="flex justify-end">
           <button
             onClick={onClose}
-            className="bg-gray-300 text-gray-700 px-4 py-2 rounded mr-2"
+            className="mr-2 rounded bg-gray-300 px-4 py-2 text-gray-700"
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
-            className="bg-blue-600 text-white px-4 py-2 rounded"
+            className="rounded bg-blue-600 px-4 py-2 text-white"
           >
             Add Income
           </button>

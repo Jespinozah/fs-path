@@ -72,6 +72,7 @@ export default function Expenses() {
         date: newExpense.date,
         hour: formattedTime, // Include time field as 'hour'
         description: newExpense.description,
+        bank_account_id: newExpense.bank_account_id, // Pass bank account
       };
 
       const result = await post("/expenses", expenseData);
@@ -135,49 +136,54 @@ export default function Expenses() {
     <div className="min-h-screen bg-gray-100">
       <NavigationBar onLogout={() => navigate("/login")} />
       <div className="flex flex-col items-center p-6">
-        <div className="w-full md:w-3/4 bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-2xl font-semibold text-gray-700 mb-4">
+        <div className="w-full rounded-lg bg-white p-6 shadow-md md:w-3/4">
+          <h2 className="mb-4 text-2xl font-semibold text-gray-700">
             All Expenses
           </h2>
 
           {/* Display success messages */}
           {successMessage && (
-            <div className="bg-green-100 text-green-700 p-4 mb-4 rounded-lg text-center">
+            <div className="mb-4 rounded-lg bg-green-100 p-4 text-center text-green-700">
               {successMessage}
             </div>
           )}
           {deleteSuccessMessage && (
-            <div className="bg-green-100 text-green-700 p-4 mb-4 rounded-lg text-center">
+            <div className="mb-4 rounded-lg bg-green-100 p-4 text-center text-green-700">
               {deleteSuccessMessage}
             </div>
           )}
 
-          <div className="relative flex flex-col w-full h-full overflow-scroll text-gray-700 bg-white shadow-md rounded-lg bg-clip-border">
-            <table className="w-full text-left table-auto min-w-max">
+          <div className="relative flex h-full w-full flex-col overflow-scroll rounded-lg bg-white bg-clip-border text-gray-700 shadow-md">
+            <table className="w-full min-w-max table-auto text-left">
               <thead>
                 <tr>
-                  <th className="p-4 border-b border-slate-300 bg-slate-50">
-                    <p className="block text-sm font-normal leading-none text-slate-500">
+                  <th className="border-b border-slate-300 bg-slate-50 p-4">
+                    <p className="block text-sm leading-none font-normal text-slate-500">
                       Date
                     </p>
                   </th>
-                  <th className="p-4 border-b border-slate-300 bg-slate-50">
-                    <p className="block text-sm font-normal leading-none text-slate-500">
+                  <th className="border-b border-slate-300 bg-slate-50 p-4">
+                    <p className="block text-sm leading-none font-normal text-slate-500">
                       Category
                     </p>
                   </th>
-                  <th className="p-4 border-b border-slate-300 bg-slate-50">
-                    <p className="block text-sm font-normal leading-none text-slate-500">
+                  <th className="border-b border-slate-300 bg-slate-50 p-4">
+                    <p className="block text-sm leading-none font-normal text-slate-500">
                       Amount
                     </p>
                   </th>
-                  <th className="p-4 border-b border-slate-300 bg-slate-50">
-                    <p className="block text-sm font-normal leading-none text-slate-500">
+                  <th className="border-b border-slate-300 bg-slate-50 p-4">
+                    <p className="block text-sm leading-none font-normal text-slate-500">
                       Description
                     </p>
                   </th>
-                  <th className="p-4 border-b border-slate-300 bg-slate-50">
-                    <p className="block text-sm font-normal leading-none text-slate-500">
+                  <th className="border-b border-slate-300 bg-slate-50 p-4">
+                    <p className="block text-sm leading-none font-normal text-slate-500">
+                      Bank Account
+                    </p>
+                  </th>
+                  <th className="border-b border-slate-300 bg-slate-50 p-4">
+                    <p className="block text-sm leading-none font-normal text-slate-500">
                       Actions
                     </p>
                   </th>
@@ -186,39 +192,47 @@ export default function Expenses() {
               <tbody>
                 {expenses.map((expense, index) => (
                   <tr key={expense.id || index} className="hover:bg-slate-50">
-                    <td className="p-4 border-b border-slate-200">
+                    <td className="border-b border-slate-200 p-4">
                       <p className="block text-sm text-slate-800">
                         {expense.date}
                       </p>
                     </td>
-                    <td className="p-4 border-b border-slate-200">
-                      <p className="block text-sm text-slate-800 flex items-center">
-                        <span className="text-xl mr-2">
+                    <td className="border-b border-slate-200 p-4">
+                      <p className="flex items-center text-sm text-slate-800">
+                        <span className="mr-2 text-xl">
                           {getCategoryIcon(expense.category)}
                         </span>
                         {expense.category}
                       </p>
                     </td>
-                    <td className="p-4 border-b border-slate-200">
+                    <td className="border-b border-slate-200 p-4">
                       <p className="block text-sm text-slate-800">
                         ${expense.amount.toFixed(2)}
                       </p>
                     </td>
-                    <td className="p-4 border-b border-slate-200">
+                    <td className="border-b border-slate-200 p-4">
                       <p className="block text-sm text-slate-800">
                         {expense.description || "N/A"}
                       </p>
                     </td>
-                    <td className="p-4 border-b border-slate-200">
+                    <td className="border-b border-slate-200 p-4">
+                      <p className="block text-sm text-slate-800">
+                        {/* Show bank account name if available, else ID, else N/A */}
+                        {expense.bank_account_name ||
+                          expense.bank_account_id ||
+                          "N/A"}
+                      </p>
+                    </td>
+                    <td className="border-b border-slate-200 p-4">
                       <button
                         onClick={() => handleEdit(expense.id)}
-                        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500 mr-2 text-sm font-semibold"
+                        className="mr-2 rounded bg-indigo-500 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-600"
                       >
                         Edit
                       </button>
                       <button
                         onClick={() => confirmDelete(expense.id)}
-                        className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-500 text-sm font-semibold"
+                        className="rounded bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-500"
                       >
                         Delete
                       </button>
@@ -230,13 +244,13 @@ export default function Expenses() {
           </div>
 
           {/* Pagination Controls */}
-          <div className="flex justify-between items-center mt-4">
+          <div className="mt-4 flex items-center justify-between">
             <button
               onClick={() => handlePageChange(currentPage - 1)}
-              className={`px-4 py-2 rounded ${
+              className={`rounded px-4 py-2 ${
                 currentPage === 1
-                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-blue-600 text-white hover:bg-blue-500"
+                  ? "cursor-not-allowed bg-gray-300 text-gray-500"
+                  : "bg-indigo-500 text-white hover:bg-indigo-600"
               }`}
               disabled={currentPage === 1}
             >
@@ -247,10 +261,10 @@ export default function Expenses() {
             </span>
             <button
               onClick={() => handlePageChange(currentPage + 1)}
-              className={`px-4 py-2 rounded ${
+              className={`rounded px-4 py-2 ${
                 currentPage === totalPages
-                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-blue-600 text-white hover:bg-blue-500"
+                  ? "cursor-not-allowed bg-gray-300 text-gray-500"
+                  : "bg-indigo-500 text-white hover:bg-indigo-600"
               }`}
               disabled={currentPage === totalPages}
             >
@@ -263,7 +277,7 @@ export default function Expenses() {
       {/* Floating Add Expense Button */}
       <button
         onClick={() => setShowAddExpensePopup(true)}
-        className="fixed bottom-6 right-6 bg-blue-600 text-white text-3xl w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:bg-blue-500"
+        className="fixed right-6 bottom-6 flex h-14 w-14 items-center justify-center rounded-full bg-indigo-500 text-3xl text-white shadow-lg hover:bg-indigo-600"
         title="Add Bank Account"
       >
         <FaPlus />
@@ -279,9 +293,9 @@ export default function Expenses() {
 
       {/* Delete Confirmation Popup */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg text-center">
-            <h3 className="text-lg font-semibold mb-4">Are you sure?</h3>
+        <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm">
+          <div className="rounded-lg bg-white p-6 text-center shadow-lg">
+            <h3 className="mb-4 text-lg font-semibold">Are you sure?</h3>
             <p className="mb-6">
               Do you really want to delete this expense? This action cannot be
               undone.
@@ -289,13 +303,13 @@ export default function Expenses() {
             <div className="flex justify-center">
               <button
                 onClick={handleDelete}
-                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-500 mr-2"
+                className="mr-2 rounded bg-red-600 px-4 py-2 text-white hover:bg-red-500"
               >
                 Yes, Delete
               </button>
               <button
                 onClick={() => setShowDeleteConfirm(false)}
-                className="bg-transparent text-gray-700 px-4 py-2 rounded hover:bg-gray-100"
+                className="rounded bg-transparent px-4 py-2 text-gray-700 hover:bg-gray-100"
               >
                 Cancel
               </button>

@@ -22,7 +22,7 @@ export default function Income() {
           `${API_URL}/bank-accounts/users/${userId}/incomes`,
           {
             headers: { Authorization: `Bearer ${token}` },
-          }
+          },
         );
         if (res.ok) {
           const data = await res.json();
@@ -85,39 +85,39 @@ export default function Income() {
     <div className="min-h-screen bg-gray-100">
       <NavigationBar />
       <div className="flex flex-col items-center p-6">
-        <div className="w-full md:w-3/4 bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-2xl font-semibold text-gray-700 mb-4">Income</h2>
-          <div className="relative flex flex-col w-full h-full overflow-scroll text-gray-700 bg-white shadow-md rounded-lg bg-clip-border">
-            <table className="w-full text-left table-auto min-w-max">
+        <div className="w-full rounded-lg bg-white p-6 shadow-md md:w-3/4">
+          <h2 className="mb-4 text-2xl font-semibold text-gray-700">Income</h2>
+          <div className="relative flex h-full w-full flex-col overflow-scroll rounded-lg bg-white bg-clip-border text-gray-700 shadow-md">
+            <table className="w-full min-w-max table-auto text-left">
               <thead>
                 <tr>
-                  <th className="p-4 border-b border-slate-300 bg-slate-50">
-                    <p className="block text-sm font-normal leading-none text-slate-500">
+                  <th className="border-b border-slate-300 bg-slate-50 p-4">
+                    <p className="block text-sm leading-none font-normal text-slate-500">
                       Source
                     </p>
                   </th>
-                  <th className="p-4 border-b border-slate-300 bg-slate-50">
-                    <p className="block text-sm font-normal leading-none text-slate-500">
+                  <th className="border-b border-slate-300 bg-slate-50 p-4">
+                    <p className="block text-sm leading-none font-normal text-slate-500">
                       Amount
                     </p>
                   </th>
-                  <th className="p-4 border-b border-slate-300 bg-slate-50">
-                    <p className="block text-sm font-normal leading-none text-slate-500">
+                  <th className="border-b border-slate-300 bg-slate-50 p-4">
+                    <p className="block text-sm leading-none font-normal text-slate-500">
                       Date Received
                     </p>
                   </th>
-                  <th className="p-4 border-b border-slate-300 bg-slate-50">
-                    <p className="block text-sm font-normal leading-none text-slate-500">
+                  <th className="border-b border-slate-300 bg-slate-50 p-4">
+                    <p className="block text-sm leading-none font-normal text-slate-500">
                       Bank Account
                     </p>
                   </th>
-                  <th className="p-4 border-b border-slate-300 bg-slate-50">
-                    <p className="block text-sm font-normal leading-none text-slate-500">
+                  <th className="border-b border-slate-300 bg-slate-50 p-4">
+                    <p className="block text-sm leading-none font-normal text-slate-500">
                       Notes
                     </p>
                   </th>
-                  <th className="p-4 border-b border-slate-300 bg-slate-50 text-center">
-                    <p className="block text-sm font-normal leading-none text-slate-500">
+                  <th className="border-b border-slate-300 bg-slate-50 p-4 text-center">
+                    <p className="block text-sm leading-none font-normal text-slate-500">
                       Actions
                     </p>
                   </th>
@@ -127,42 +127,42 @@ export default function Income() {
                 {incomes.length > 0 ? (
                   incomes.map((income) => (
                     <tr key={income.id} className="hover:bg-slate-50">
-                      <td className="p-4 border-b border-slate-200">
+                      <td className="border-b border-slate-200 p-4">
                         <p className="block text-sm text-slate-800">
                           {income.source}
                         </p>
                       </td>
-                      <td className="p-4 border-b border-slate-200">
-                        <p className="block text-sm text-green-700 font-semibold">
+                      <td className="border-b border-slate-200 p-4">
+                        <p className="block text-sm font-semibold text-green-700">
                           +${parseFloat(income.amount).toFixed(2)}
                         </p>
                       </td>
-                      <td className="p-4 border-b border-slate-200">
+                      <td className="border-b border-slate-200 p-4">
                         <p className="block text-sm text-slate-800">
                           {income.date}
                         </p>
                       </td>
-                      <td className="p-4 border-b border-slate-200">
+                      <td className="border-b border-slate-200 p-4">
                         <p className="block text-sm text-slate-800">
                           {income.bank_account_name || ""}
                         </p>
                       </td>
-                      <td className="p-4 border-b border-slate-200">
+                      <td className="border-b border-slate-200 p-4">
                         <p className="block text-sm text-slate-800">
                           {income.notes || ""}
                         </p>
                       </td>
-                      <td className="p-4 border-b border-slate-200">
+                      <td className="border-b border-slate-200 p-4">
                         <div className="flex flex-row items-center">
                           <button
                             onClick={() => handleEditIncome(income)}
-                            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500 mr-2 text-sm font-semibold"
+                            className="mr-2 rounded bg-indigo-500 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-600"
                           >
                             Edit
                           </button>
                           <button
                             onClick={() => confirmDelete(income.id)}
-                            className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-500 text-sm font-semibold"
+                            className="rounded bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-500"
                           >
                             Delete
                           </button>
@@ -172,7 +172,7 @@ export default function Income() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="6" className="text-center py-4 text-gray-500">
+                    <td colSpan="6" className="py-4 text-center text-gray-500">
                       No income records found.
                     </td>
                   </tr>
@@ -184,7 +184,7 @@ export default function Income() {
       </div>
       <button
         onClick={() => setShowAddPopup(true)}
-        className="fixed bottom-6 right-6 bg-blue-600 text-white text-3xl w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:bg-blue-500"
+        className="fixed right-6 bottom-6 flex h-14 w-14 items-center justify-center rounded-full bg-indigo-500 text-3xl text-white shadow-lg hover:bg-indigo-600"
         title="Add Income"
       >
         <FaPlus />
@@ -197,9 +197,9 @@ export default function Income() {
       )}
       {/* Delete Confirmation Popup */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg text-center">
-            <h3 className="text-lg font-semibold mb-4">Are you sure?</h3>
+        <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm">
+          <div className="rounded-lg bg-white p-6 text-center shadow-lg">
+            <h3 className="mb-4 text-lg font-semibold">Are you sure?</h3>
             <p className="mb-6">
               Do you really want to delete this income? This action cannot be
               undone.
@@ -207,13 +207,13 @@ export default function Income() {
             <div className="flex justify-center">
               <button
                 onClick={handleDeleteIncome}
-                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-500 mr-2"
+                className="mr-2 rounded bg-red-600 px-4 py-2 text-white hover:bg-red-500"
               >
                 Yes, Delete
               </button>
               <button
                 onClick={() => setShowDeleteConfirm(false)}
-                className="bg-transparent text-gray-700 px-4 py-2 rounded hover:bg-gray-100"
+                className="rounded bg-transparent px-4 py-2 text-gray-700 hover:bg-gray-100"
               >
                 Cancel
               </button>
