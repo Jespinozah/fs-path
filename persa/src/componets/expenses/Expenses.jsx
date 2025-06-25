@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { del, get, post } from "../../utils/Api"; // Import the get function from utils/api
 import NavigationBar from "../NavigationBar";
 import AddExpensePopup from "./AddExpensePopup";
+import sortExpenses from "../../utils/Date";
 
 export default function Expenses() {
   const [expenses, setExpenses] = useState([]);
@@ -25,11 +26,7 @@ export default function Expenses() {
           ...exp,
           time: exp.hour || "00:00:00",
         }));
-        expensesWithTime.sort((a, b) => {
-          const dateA = new Date(`${a.date}T${a.time}`);
-          const dateB = new Date(`${b.date}T${b.time}`);
-          return dateB - dateA;
-        });
+        expensesWithTime.sort(() => sortExpenses);
         setExpenses(expensesWithTime);
         setTotalPages(Math.ceil(data.total / data.per_page));
       } catch (error) {
@@ -87,12 +84,7 @@ export default function Expenses() {
           time: formattedTime,
         },
         ...expenses,
-      ].sort((a, b) => {
-        // Combine date and time for accurate sorting
-        const dateA = new Date(`${a.date}T${a.time || "00:00:00"}`);
-        const dateB = new Date(`${b.date}T${b.time || "00:00:00"}`);
-        return dateB - dateA;
-      });
+      ].sort(() => sortExpenses);
       setExpenses(updatedExpenses);
       setShowAddExpensePopup(false);
       setSuccessMessage("Expense added successfully!");
