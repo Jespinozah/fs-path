@@ -42,3 +42,9 @@ create table bank_accounts (
     alias VARCHAR(100),
     balance NUMERIC(10, 2) DEFAULT 0.00
 );
+
+ALTER TABLE expenses
+ADD COLUMN bank_account_id INTEGER;
+
+alter table expenses
+drop column user_id;
