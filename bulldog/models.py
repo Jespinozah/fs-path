@@ -21,7 +21,7 @@ class User(db.Model):
 class Expense(db.Model):
     __tablename__ = "expenses"
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    bank_account_id = db.Column(db.Integer, db.ForeignKey("bank_accounts.id", ondelete="CASCADE"), nullable=False)
     amount = db.Column(db.Numeric(10, 2), nullable=False)
     category = db.Column(db.String(50), nullable=False)
     date = db.Column(db.Date, nullable=False)
@@ -31,13 +31,14 @@ class Expense(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
     # Relationship with the User model
-    user = db.relationship("User", backref=db.backref("expenses", lazy=True))
+    bankAccount = db.relationship("BankAccount", backref=db.backref("expenses", lazy=True))
 
     # Add the to_dict method
     def to_dict(self):
         return {
             "id": self.id,
-            "user_id": self.user_id,
+            "bank_account_id": self.bank_account_id,
+            "bank_account_name": self.bankAccount.bank_name if self.bankAccount else None,
             "amount": float(self.amount),  # Convert Decimal to float for JSON serialization
             "category": self.category,
             "date": self.date.isoformat(),  # Convert date to ISO 8601 string

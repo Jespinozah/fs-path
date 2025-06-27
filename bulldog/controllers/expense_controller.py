@@ -17,8 +17,6 @@ def create_expense():
         schema:
           type: object
           properties:
-            user_id:
-              type: integer
             amount:
               type: number
             category:
@@ -45,7 +43,7 @@ def create_expense():
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
     except Exception as e:
-        return jsonify({"error": "Failed to create expense"}), 500
+        return jsonify({"error": str(e)}), 500
 
 
 @expense_bp.route("", methods=["GET"])

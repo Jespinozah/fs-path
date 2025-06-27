@@ -7,6 +7,7 @@ class ExpenseRepository:
         expense = Expense(**data)
         db.session.add(expense)
         db.session.commit()
+        return expense
 
     @staticmethod
     def get_expenses(page, per_page):
