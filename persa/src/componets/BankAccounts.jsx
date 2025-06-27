@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaPlus } from "react-icons/fa";
+import { FaPlus, FaSearch } from "react-icons/fa";
 import NavigationBar from "./NavigationBar";
 import AddBankAccountPopup from "./AddBankAccountPopup";
 import EditBankAccount from "./EditBankAccount";
@@ -13,6 +13,7 @@ export default function BankAccounts() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [accountToDelete, setAccountToDelete] = useState(null);
   const [successMessage, setSuccessMessage] = useState(""); // Success message state
+  const [filter, setFilter] = useState(""); // Add filter state
 
   useEffect(() => {
     const fetchAccounts = async () => {
@@ -110,6 +111,21 @@ export default function BankAccounts() {
     }
   };
 
+  // Filtered accounts based on filter input
+  const filteredAccounts = accounts.filter((account) => {
+    const search = filter.trim().toLowerCase();
+    if (!search) return true;
+    const alias = (account.alias || "").toLowerCase();
+    const bankName = (account.bank_name || "").toLowerCase();
+    const accountNumber = account.account_number || "";
+    // Match alias, bank name, or last 4 digits of account number
+    return (
+      alias.includes(search) ||
+      bankName.includes(search) ||
+      accountNumber.slice(-4).includes(search)
+    );
+  });
+
   return (
     <div className="min-h-screen bg-gray-100">
       <NavigationBar />
@@ -118,6 +134,31 @@ export default function BankAccounts() {
           <h2 className="mb-4 text-2xl font-semibold text-gray-700">
             Bank Accounts
           </h2>
+
+          {/* Filter Input with Search Icon and Reset Button */}
+          <div className="mb-4 flex items-center gap-2">
+            <div className="relative w-full">
+              <span className="absolute top-1/2 left-3 -translate-y-1/2 text-slate-400">
+                <FaSearch />
+              </span>
+              <input
+                type="text"
+                placeholder="Search by account name, bank, or last 4 digits"
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+                className="w-full rounded border border-slate-300 p-2 pl-10 text-gray-700"
+              />
+            </div>
+            {filter && (
+              <button
+                type="button"
+                className="rounded bg-gray-200 px-3 py-2 text-sm text-gray-700 hover:bg-gray-300"
+                onClick={() => setFilter("")}
+              >
+                Reset
+              </button>
+            )}
+          </div>
 
           {/* Success Message */}
           {successMessage && (
@@ -153,7 +194,7 @@ export default function BankAccounts() {
                 </tr>
               </thead>
               <tbody>
-                {accounts.map((account) => (
+                {filteredAccounts.map((account) => (
                   <tr key={account.id} className="hover:bg-slate-50">
                     <td className="border-b border-slate-200 p-4">
                       <p className="block text-sm text-slate-800">
