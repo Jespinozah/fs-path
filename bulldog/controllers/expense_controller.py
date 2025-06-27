@@ -38,8 +38,8 @@ def create_expense():
         return jsonify({"error": "Invalid request payload"}), 400
 
     try:
-        ExpenseService.create_expense(data)
-        return jsonify({"message": "Expense created successfully"}), 201
+        expense = ExpenseService.create_expense(data)
+        return jsonify(expense.to_dict()), 201
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
     except Exception as e:

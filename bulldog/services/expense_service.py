@@ -10,6 +10,7 @@ class ExpenseService:
         from decimal import Decimal
         updated_balance = expense.bankAccount.balance - Decimal(str(data['amount']))
         BankAccountRepository.update_bank_account(expense.bank_account_id, {'balance': updated_balance})
+        return expense
 
     @staticmethod
     def get_expenses(page, per_page):
