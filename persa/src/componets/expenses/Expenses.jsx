@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FaPlus } from "react-icons/fa";
+import { FaPlus, FaSearch } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { del, get, post } from "../../utils/Api"; // Import the get function from utils/api
 import NavigationBar from "../NavigationBar";
@@ -15,6 +15,11 @@ export default function Expenses() {
   const [deleteSuccessMessage, setDeleteSuccessMessage] = useState(""); // State for delete success message
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false); // State for delete confirmation popup
   const [expenseToDelete, setExpenseToDelete] = useState(null); // State for expense to delete
+  const [search, setSearch] = useState(""); // General search bar
+  const [filterDate, setFilterDate] = useState(""); // Date filter
+  const [filterCategory, setFilterCategory] = useState(""); // Category filter
+  const [filterBank, setFilterBank] = useState(""); // Bank filter
+  const [bankOptions, setBankOptions] = useState([]); // For bank dropdown
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -37,6 +42,60 @@ export default function Expenses() {
 
     fetchExpenses();
   }, [currentPage]);
+
+  // Fetch bank accounts for filter dropdown
+  useEffect(() => {
+    const fetchBanks = async () => {
+      try {
+        const userId = localStorage.getItem("userId");
+        const token = localStorage.getItem("token");
+        if (!userId || !token) return;
+        const res = await fetch(`/api/bank-accounts/user/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setBankOptions(data);
+        }
+      } catch {
+        // ignore
+      }
+    };
+    fetchBanks();
+  }, []);
+
+  // Filtered expenses based on all filters
+  const filteredExpenses = expenses.filter((expense) => {
+    // General search (description, category, bank name, amount)
+    const searchLower = search.trim().toLowerCase();
+    let matchesSearch = true;
+    if (searchLower) {
+      matchesSearch =
+        (expense.description || "").toLowerCase().includes(searchLower) ||
+        (expense.category || "").toLowerCase().includes(searchLower) ||
+        (expense.bank_account_name || "").toLowerCase().includes(searchLower) ||
+        (expense.amount + "").includes(searchLower);
+    }
+    // Date filter (YYYY-MM-DD)
+    let matchesDate = true;
+    if (filterDate) {
+      matchesDate = expense.date === filterDate;
+    }
+    // Category filter
+    let matchesCategory = true;
+    if (filterCategory) {
+      matchesCategory = expense.category === filterCategory;
+    }
+    // Bank filter (by id or name)
+    let matchesBank = true;
+    if (filterBank) {
+      matchesBank =
+        (expense.bank_account_id &&
+          expense.bank_account_id.toString() === filterBank) ||
+        (expense.bank_account_name && expense.bank_account_name === filterBank);
+    }
+    return matchesSearch && matchesDate && matchesCategory && matchesBank;
+  });
 
   const getCategoryIcon = (category) => {
     const icons = {
@@ -133,6 +192,71 @@ export default function Expenses() {
             All Expenses
           </h2>
 
+          {/* Search and Filters */}
+          <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-center">
+            {/* Search Bar */}
+            <div className="relative w-full md:w-1/3">
+              <span className="absolute top-1/2 left-3 -translate-y-1/2 text-slate-400">
+                <FaSearch />
+              </span>
+              <input
+                type="text"
+                placeholder="Search description, category, bank, amount"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full rounded border border-slate-300 p-2 pl-10 text-gray-700"
+              />
+            </div>
+            {/* Date Filter */}
+            <input
+              type="date"
+              value={filterDate}
+              onChange={(e) => setFilterDate(e.target.value)}
+              className="rounded border border-slate-300 p-2 text-gray-700 md:w-auto"
+              placeholder="Date"
+            />
+            {/* Category Filter */}
+            <select
+              value={filterCategory}
+              onChange={(e) => setFilterCategory(e.target.value)}
+              className="rounded border border-slate-300 p-2 text-gray-700 md:w-auto"
+            >
+              <option value="">All Categories</option>
+              <option value="Food">Food</option>
+              <option value="Travel">Travel</option>
+              <option value="Bills">Bills</option>
+              {/* Add more categories as needed */}
+            </select>
+            {/* Bank Filter */}
+            <select
+              value={filterBank}
+              onChange={(e) => setFilterBank(e.target.value)}
+              className="rounded border border-slate-300 p-2 text-gray-700 md:w-auto"
+            >
+              <option value="">All Banks</option>
+              {bankOptions.map((bank) => (
+                <option key={bank.id} value={bank.id}>
+                  {bank.alias || bank.bank_name}
+                </option>
+              ))}
+            </select>
+            {/* Reset Filters Button */}
+            {(search || filterDate || filterCategory || filterBank) && (
+              <button
+                type="button"
+                className="rounded bg-gray-200 px-3 py-2 text-sm text-gray-700 hover:bg-gray-300"
+                onClick={() => {
+                  setSearch("");
+                  setFilterDate("");
+                  setFilterCategory("");
+                  setFilterBank("");
+                }}
+              >
+                Reset
+              </button>
+            )}
+          </div>
+
           {/* Display success messages */}
           {successMessage && (
             <div className="mb-4 rounded-lg bg-green-100 p-4 text-center text-green-700">
@@ -182,7 +306,7 @@ export default function Expenses() {
                 </tr>
               </thead>
               <tbody>
-                {expenses.map((expense, index) => (
+                {filteredExpenses.map((expense, index) => (
                   <tr key={expense.id || index} className="hover:bg-slate-50">
                     <td className="border-b border-slate-200 p-4">
                       <p className="block text-sm text-slate-800">
