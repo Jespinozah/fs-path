@@ -5,6 +5,7 @@ import { del, get, post } from "../../utils/Api"; // Import the get function fro
 import NavigationBar from "../NavigationBar";
 import AddExpensePopup from "./AddExpensePopup";
 import sortExpenses from "../../utils/Date";
+import { API_URL } from "../../config";
 
 export default function Expenses() {
   const [expenses, setExpenses] = useState([]);
@@ -16,10 +17,12 @@ export default function Expenses() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false); // State for delete confirmation popup
   const [expenseToDelete, setExpenseToDelete] = useState(null); // State for expense to delete
   const [search, setSearch] = useState(""); // General search bar
-  const [filterDate, setFilterDate] = useState(""); // Date filter
+  const [filterDateFrom, setFilterDateFrom] = useState(""); // Date from
+  const [filterDateTo, setFilterDateTo] = useState(""); // Date to
   const [filterCategory, setFilterCategory] = useState(""); // Category filter
   const [filterBank, setFilterBank] = useState(""); // Bank filter
   const [bankOptions, setBankOptions] = useState([]); // For bank dropdown
+  const [filtersApplied, setFiltersApplied] = useState(false); // Track if search was clicked
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,7 +34,12 @@ export default function Expenses() {
           ...exp,
           time: exp.hour || "00:00:00",
         }));
-        expensesWithTime.sort(() => sortExpenses);
+        // Sort by date (desc), then by time (desc)
+        expensesWithTime.sort((a, b) => {
+          const dateA = a.date + "T" + (a.time || "00:00:00");
+          const dateB = b.date + "T" + (b.time || "00:00:00");
+          return dateB.localeCompare(dateA); // Newest first
+        });
         setExpenses(expensesWithTime);
         setTotalPages(Math.ceil(data.total / data.per_page));
       } catch (error) {
@@ -50,7 +58,7 @@ export default function Expenses() {
         const userId = localStorage.getItem("userId");
         const token = localStorage.getItem("token");
         if (!userId || !token) return;
-        const res = await fetch(`/api/bank-accounts/user/${userId}`, {
+        const res = await fetch(`${API_URL}/bank-accounts/user/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {
@@ -64,10 +72,27 @@ export default function Expenses() {
     fetchBanks();
   }, []);
 
-  // Filtered expenses based on all filters
+  // Store filter values to apply on search
+  const [appliedFilters, setAppliedFilters] = useState({
+    search: "",
+    filterDateFrom: "",
+    filterDateTo: "",
+    filterCategory: "",
+    filterBank: "",
+  });
+
+  // Filtered expenses based on all filters (use appliedFilters, not live state)
   const filteredExpenses = expenses.filter((expense) => {
+    const {
+      search: appliedSearch,
+      filterDateFrom: appliedDateFrom,
+      filterDateTo: appliedDateTo,
+      filterCategory: appliedCategory,
+      filterBank: appliedBank,
+    } = appliedFilters;
+
     // General search (description, category, bank name, amount)
-    const searchLower = search.trim().toLowerCase();
+    const searchLower = appliedSearch.trim().toLowerCase();
     let matchesSearch = true;
     if (searchLower) {
       matchesSearch =
@@ -76,23 +101,29 @@ export default function Expenses() {
         (expense.bank_account_name || "").toLowerCase().includes(searchLower) ||
         (expense.amount + "").includes(searchLower);
     }
-    // Date filter (YYYY-MM-DD)
+    // Date range filter
     let matchesDate = true;
-    if (filterDate) {
-      matchesDate = expense.date === filterDate;
+    if (appliedDateFrom && appliedDateTo) {
+      matchesDate =
+        expense.date >= appliedDateFrom && expense.date <= appliedDateTo;
+    } else if (appliedDateFrom) {
+      matchesDate = expense.date >= appliedDateFrom;
+    } else if (appliedDateTo) {
+      matchesDate = expense.date <= appliedDateTo;
     }
     // Category filter
     let matchesCategory = true;
-    if (filterCategory) {
-      matchesCategory = expense.category === filterCategory;
+    if (appliedCategory) {
+      matchesCategory = expense.category === appliedCategory;
     }
     // Bank filter (by id or name)
     let matchesBank = true;
-    if (filterBank) {
+    if (appliedBank) {
       matchesBank =
         (expense.bank_account_id &&
-          expense.bank_account_id.toString() === filterBank) ||
-        (expense.bank_account_name && expense.bank_account_name === filterBank);
+          expense.bank_account_id.toString() === appliedBank) ||
+        (expense.bank_account_name &&
+          expense.bank_account_name === appliedBank);
     }
     return matchesSearch && matchesDate && matchesCategory && matchesBank;
   });
@@ -122,7 +153,6 @@ export default function Expenses() {
       }
 
       const expenseData = {
-        user_id: parseInt(userId, 10),
         amount: parseFloat(newExpense.amount),
         category: newExpense.category,
         date: newExpense.date,
@@ -132,6 +162,15 @@ export default function Expenses() {
       };
 
       const result = await post("/expenses", expenseData);
+
+      // Find the bank account name from bankOptions
+      const bank = bankOptions.find(
+        (b) =>
+          b.id === newExpense.bank_account_id ||
+          b.id === Number(newExpense.bank_account_id),
+      );
+      const bank_account_name = bank ? bank.alias || bank.bank_name : undefined;
+
       // Add the new expense and sort from newest to oldest
       const updatedExpenses = [
         {
@@ -141,6 +180,7 @@ export default function Expenses() {
           icon: getCategoryIcon(newExpense.category),
           date: newExpense.date,
           time: formattedTime,
+          bank_account_name, // Add the bank account name for immediate display
         },
         ...expenses,
       ].sort(() => sortExpenses);
@@ -207,13 +247,22 @@ export default function Expenses() {
                 className="w-full rounded border border-slate-300 p-2 pl-10 text-gray-700"
               />
             </div>
-            {/* Date Filter */}
+            {/* Date Range Filter */}
+            <span className="mx-1 text-gray-500">From</span>
             <input
               type="date"
-              value={filterDate}
-              onChange={(e) => setFilterDate(e.target.value)}
+              value={filterDateFrom}
+              onChange={(e) => setFilterDateFrom(e.target.value)}
               className="rounded border border-slate-300 p-2 text-gray-700 md:w-auto"
-              placeholder="Date"
+              placeholder="From"
+            />
+            <span className="mx-1 text-gray-500">to</span>
+            <input
+              type="date"
+              value={filterDateTo}
+              onChange={(e) => setFilterDateTo(e.target.value)}
+              className="rounded border border-slate-300 p-2 text-gray-700 md:w-auto"
+              placeholder="To"
             />
             {/* Category Filter */}
             <select
@@ -240,19 +289,45 @@ export default function Expenses() {
                 </option>
               ))}
             </select>
-            {/* Reset Filters Button */}
-            {(search || filterDate || filterCategory || filterBank) && (
+            {/* Search Button */}
+            <button
+              type="button"
+              className="rounded bg-indigo-500 px-3 py-2 text-sm text-white hover:bg-indigo-600"
+              onClick={() => {
+                setAppliedFilters({
+                  search,
+                  filterDateFrom,
+                  filterDateTo,
+                  filterCategory,
+                  filterBank,
+                });
+                setFiltersApplied(true);
+              }}
+            >
+              Search
+            </button>
+            {/* Clear Button */}
+            {filtersApplied && (
               <button
                 type="button"
                 className="rounded bg-gray-200 px-3 py-2 text-sm text-gray-700 hover:bg-gray-300"
                 onClick={() => {
                   setSearch("");
-                  setFilterDate("");
+                  setFilterDateFrom("");
+                  setFilterDateTo("");
                   setFilterCategory("");
                   setFilterBank("");
+                  setAppliedFilters({
+                    search: "",
+                    filterDateFrom: "",
+                    filterDateTo: "",
+                    filterCategory: "",
+                    filterBank: "",
+                  });
+                  setFiltersApplied(false);
                 }}
               >
-                Reset
+                Clear
               </button>
             )}
           </div>
@@ -334,9 +409,7 @@ export default function Expenses() {
                     <td className="border-b border-slate-200 p-4">
                       <p className="block text-sm text-slate-800">
                         {/* Show bank account name if available, else ID, else N/A */}
-                        {expense.bank_account_name ||
-                          expense.bank_account_id ||
-                          "N/A"}
+                        {expense.bank_account_name || "N/A"}
                       </p>
                     </td>
                     <td className="border-b border-slate-200 p-4">

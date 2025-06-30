@@ -11,11 +11,21 @@ export default function Income() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [incomeToDelete, setIncomeToDelete] = useState(null);
   const [search, setSearch] = useState(""); // General search bar
-  const [filterDate, setFilterDate] = useState(""); // Date filter
-  const [filterSource, setFilterSource] = useState(""); // Source/category filter
+  const [filterDateFrom, setFilterDateFrom] = useState(""); // Date from
+  const [filterDateTo, setFilterDateTo] = useState(""); // Date to
+  //const [filterSource, setFilterSource] = useState(""); // Source/category filter
   const [filterBank, setFilterBank] = useState(""); // Bank filter
   const [bankOptions, setBankOptions] = useState([]); // For bank dropdown
+  const [filtersApplied, setFiltersApplied] = useState(false); // Track if search was clicked
   const navigate = useNavigate();
+
+  // Store filter values to apply on search
+  const [appliedFilters, setAppliedFilters] = useState({
+    search: "",
+    filterDateFrom: "",
+    filterDateTo: "",
+    filterBank: "",
+  });
 
   useEffect(() => {
     const fetchIncomes = async () => {
@@ -71,10 +81,17 @@ export default function Income() {
     fetchBanks();
   }, []);
 
-  // Filtered incomes based on all filters
+  // Filtered incomes based on all filters (use appliedFilters, not live state)
   const filteredIncomes = incomes.filter((income) => {
+    const {
+      search: appliedSearch,
+      filterDateFrom: appliedDateFrom,
+      filterDateTo: appliedDateTo,
+      filterBank: appliedBank,
+    } = appliedFilters;
+
     // General search (source, notes, bank name, amount)
-    const searchLower = search.trim().toLowerCase();
+    const searchLower = appliedSearch.trim().toLowerCase();
     let matchesSearch = true;
     if (searchLower) {
       matchesSearch =
@@ -83,25 +100,25 @@ export default function Income() {
         (income.bank_account_name || "").toLowerCase().includes(searchLower) ||
         (income.amount + "").includes(searchLower);
     }
-    // Date filter (YYYY-MM-DD)
+    // Date range filter
     let matchesDate = true;
-    if (filterDate) {
-      matchesDate = income.date === filterDate;
-    }
-    // Source/category filter
-    let matchesSource = true;
-    if (filterSource) {
-      matchesSource = income.source === filterSource;
+    if (appliedDateFrom && appliedDateTo) {
+      matchesDate =
+        income.date >= appliedDateFrom && income.date <= appliedDateTo;
+    } else if (appliedDateFrom) {
+      matchesDate = income.date >= appliedDateFrom;
+    } else if (appliedDateTo) {
+      matchesDate = income.date <= appliedDateTo;
     }
     // Bank filter (by id or name)
     let matchesBank = true;
-    if (filterBank) {
+    if (appliedBank) {
       matchesBank =
         (income.bank_account_id &&
-          income.bank_account_id.toString() === filterBank) ||
-        (income.bank_account_name && income.bank_account_name === filterBank);
+          income.bank_account_id.toString() === appliedBank) ||
+        (income.bank_account_name && income.bank_account_name === appliedBank);
     }
-    return matchesSearch && matchesDate && matchesSource && matchesBank;
+    return matchesSearch && matchesDate && matchesBank;
   });
 
   const handleAddIncome = (newIncome) => {
@@ -156,36 +173,29 @@ export default function Income() {
               </span>
               <input
                 type="text"
-                placeholder="Search source, notes, bank, amount"
+                placeholder="Search notes, bank, amount"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="w-full rounded border border-slate-300 p-2 pl-10 text-gray-700"
               />
             </div>
-            {/* Date Filter */}
+            {/* Date Range Filter */}
+            <span className="mx-1 text-gray-500">From</span>
             <input
               type="date"
-              value={filterDate}
-              onChange={(e) => setFilterDate(e.target.value)}
+              value={filterDateFrom}
+              onChange={(e) => setFilterDateFrom(e.target.value)}
               className="rounded border border-slate-300 p-2 text-gray-700 md:w-auto"
-              placeholder="Date"
+              placeholder="From"
             />
-            {/* Source/Category Filter */}
-            <select
-              value={filterSource}
-              onChange={(e) => setFilterSource(e.target.value)}
+            <span className="mx-1 text-gray-500">to</span>
+            <input
+              type="date"
+              value={filterDateTo}
+              onChange={(e) => setFilterDateTo(e.target.value)}
               className="rounded border border-slate-300 p-2 text-gray-700 md:w-auto"
-            >
-              <option value="">All Sources</option>
-              {/* Dynamically list unique sources */}
-              {[...new Set(incomes.map((i) => i.source).filter(Boolean))].map(
-                (src) => (
-                  <option key={src} value={src}>
-                    {src}
-                  </option>
-                ),
-              )}
-            </select>
+              placeholder="To"
+            />
             {/* Bank Filter */}
             <select
               value={filterBank}
@@ -199,19 +209,42 @@ export default function Income() {
                 </option>
               ))}
             </select>
-            {/* Reset Filters Button */}
-            {(search || filterDate || filterSource || filterBank) && (
+            {/* Search Button */}
+            <button
+              type="button"
+              className="rounded bg-indigo-500 px-3 py-2 text-sm text-white hover:bg-indigo-600"
+              onClick={() => {
+                setAppliedFilters({
+                  search,
+                  filterDateFrom,
+                  filterDateTo,
+                  filterBank,
+                });
+                setFiltersApplied(true);
+              }}
+            >
+              Search
+            </button>
+            {/* Clear Button */}
+            {filtersApplied && (
               <button
                 type="button"
                 className="rounded bg-gray-200 px-3 py-2 text-sm text-gray-700 hover:bg-gray-300"
                 onClick={() => {
                   setSearch("");
-                  setFilterDate("");
-                  setFilterSource("");
+                  setFilterDateFrom("");
+                  setFilterDateTo("");
                   setFilterBank("");
+                  setAppliedFilters({
+                    search: "",
+                    filterDateFrom: "",
+                    filterDateTo: "",
+                    filterBank: "",
+                  });
+                  setFiltersApplied(false);
                 }}
               >
-                Reset
+                Clear
               </button>
             )}
           </div>
