@@ -130,7 +130,7 @@ export default function BankAccounts() {
     <div className="min-h-screen bg-gray-100">
       <NavigationBar />
       <div className="flex flex-col items-center p-6">
-        <div className="w-full rounded-lg bg-white p-6 shadow-md md:w-3/4">
+        <div className="w-full rounded-lg bg-white p-6 shadow-md md:w-5/6">
           <h2 className="mb-4 text-2xl font-semibold text-gray-700">
             Bank Accounts
           </h2>
@@ -188,6 +188,11 @@ export default function BankAccounts() {
                   </th>
                   <th className="border-b border-slate-300 bg-slate-50 p-4">
                     <p className="block text-sm leading-none font-normal text-slate-500">
+                      Balance
+                    </p>
+                  </th>
+                  <th className="border-b border-slate-300 bg-slate-50 p-4">
+                    <p className="block text-sm leading-none font-normal text-slate-500">
                       Actions
                     </p>
                   </th>
@@ -210,6 +215,13 @@ export default function BankAccounts() {
                     <td className="border-b border-slate-200 p-4">
                       <p className="block text-sm text-slate-800">
                         {account.bank_name}
+                      </p>
+                    </td>
+                    <td className="border-b border-slate-200 p-4">
+                      <p className="block text-sm text-slate-800">
+                        {account.balance !== undefined
+                          ? `$${Number(account.balance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                          : "--"}
                       </p>
                     </td>
                     <td className="border-b border-slate-200 p-4">

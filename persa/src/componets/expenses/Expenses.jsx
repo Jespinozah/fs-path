@@ -227,7 +227,7 @@ export default function Expenses() {
     <div className="min-h-screen bg-gray-100">
       <NavigationBar onLogout={() => navigate("/login")} />
       <div className="flex flex-col items-center p-6">
-        <div className="w-full rounded-lg bg-white p-6 shadow-md md:w-3/4">
+        <div className="w-full rounded-lg bg-white p-6 shadow-md md:w-5/6">
           <h2 className="mb-4 text-2xl font-semibold text-gray-700">
             All Expenses
           </h2>

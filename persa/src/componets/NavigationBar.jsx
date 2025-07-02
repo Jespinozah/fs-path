@@ -22,15 +22,15 @@ export default function NavigationBar({ onLogout }) {
         </button>
         <button
           className="rounded-md bg-transparent px-4 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
-          onClick={() => navigate("/bank-accounts")}
-        >
-          Bank Accounts
-        </button>
-        <button
-          className="rounded-md bg-transparent px-4 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
           onClick={() => navigate("/income")}
         >
           Income
+        </button>
+        <button
+          className="rounded-md bg-transparent px-4 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+          onClick={() => navigate("/bank-accounts")}
+        >
+          Bank Accounts
         </button>
       </div>
       <div className="flex items-center space-x-4">
