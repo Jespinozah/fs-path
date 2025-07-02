@@ -7,6 +7,7 @@ const variantClasses = {
   secondary: "bg-gray-200 text-gray-700 hover:bg-gray-300",
   outline: "border border-indigo-500 text-indigo-500 bg-white hover:bg-indigo-50",
   danger: "bg-red-500 text-white hover:bg-red-600",
+  show: "bg-green-500 text-white hover:bg-green-600",
 };
 
 const sizeClasses = {
