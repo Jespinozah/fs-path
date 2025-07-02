@@ -4,6 +4,7 @@ import { Pie } from "react-chartjs-2";
 import { useNavigate } from "react-router-dom"; // Import useLocation
 import { API_URL } from "../config";
 import NavigationBar from "./NavigationBar";
+import Button from "./shared/Button";
 
 export default function Success() {
   const navigate = useNavigate();
@@ -321,12 +322,13 @@ export default function Success() {
                   </li>
                 ))}
               </ul>
-              <button
+              <Button
                 onClick={() => navigate("/expenses")}
-                className="mt-4 w-full rounded-md bg-indigo-500 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-600"
-              >
-                See More
-              </button>
+                variant="primary"
+                fullWidth={true}
+                >
+                See More    
+              </Button>    
             </div>
 
             {/* Pie Chart */}
@@ -416,12 +418,13 @@ export default function Success() {
                 )}
               </tbody>
             </table>
-            <button
-              onClick={() => navigate("/bank-accounts")}
-              className="mt-4 w-full rounded-md bg-indigo-500 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-600"
-            >
-              See More
-            </button>
+              <Button
+                onClick={() => navigate("/bank-accounts")}
+                variant="primary"
+                fullWidth={true}
+                >
+                See More    
+              </Button>    
           </div>
 
           {/* Income Card */}
@@ -480,12 +483,13 @@ export default function Success() {
                 )}
               </tbody>
             </table>
-            <button
-              onClick={() => navigate("/income")}
-              className="mt-4 w-full rounded-md bg-indigo-500 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-600"
-            >
-              See More
-            </button>
+              <Button
+                onClick={() => navigate("/income")}
+                variant="primary"
+                fullWidth={true}
+                >
+                See More    
+              </Button>    
           </div>
         </div>
       </div>
