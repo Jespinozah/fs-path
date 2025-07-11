@@ -6,6 +6,7 @@ import NavigationBar from "../NavigationBar";
 import AddExpensePopup from "./AddExpensePopup";
 import sortExpenses from "../../utils/Date";
 import { API_URL } from "../../config";
+import Button from "../shared/Button";
 
 export default function Expenses() {
   const [expenses, setExpenses] = useState([]);
@@ -344,7 +345,7 @@ export default function Expenses() {
             </div>
           )}
 
-          <div className="relative flex h-full w-full flex-col overflow-scroll rounded-lg bg-white bg-clip-border text-gray-700 shadow-md">
+          <div className="relative flex h-full w-full flex-col rounded-lg bg-white bg-clip-border text-gray-700 shadow-md">
             <table className="w-full min-w-max table-auto text-left">
               <thead>
                 <tr>
@@ -374,7 +375,7 @@ export default function Expenses() {
                     </p>
                   </th>
                   <th className="border-b border-slate-300 bg-slate-50 p-4">
-                    <p className="block text-sm leading-none font-normal text-slate-500">
+                    <p className="block text-sm leading-none font-normal text-slate-500 text-center">
                       Actions
                     </p>
                   </th>
@@ -412,19 +413,23 @@ export default function Expenses() {
                         {expense.bank_account_name || "N/A"}
                       </p>
                     </td>
-                    <td className="border-b border-slate-200 p-4">
-                      <button
+                    <td className="border-b flex border-slate-200 p-4">
+                      <Button
                         onClick={() => handleEdit(expense.id)}
-                        className="mr-2 rounded bg-indigo-500 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-600"
+                        variant="primary"
+                        size="medium"
+                        className="mr-2 flex-auto"
                       >
                         Edit
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         onClick={() => confirmDelete(expense.id)}
-                        className="rounded bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-500"
-                      >
+                        variant="danger"  
+                        size="medium"
+                        className="mr-2 flex-auto"
+                        >
                         Delete
-                      </button>
+                      </Button>
                     </td>
                   </tr>
                 ))}

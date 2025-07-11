@@ -10,6 +10,8 @@ const variantClasses = {
   show: "bg-green-500 text-white hover:bg-green-600",
 };
 
+
+
 const sizeClasses = {
   small: "px-3 py-1 text-xs",
   medium: "px-4 py-2 text-sm",
@@ -37,7 +39,7 @@ const Button = ({
   const isDisabled = disabled || loading;
 
   const classes = [
-    "rounded-md font-medium transition-colors duration-150 flex items-center justify-center",
+    "rounded-md font-medium transition-colors duration-150 justify-center",
     variantClasses[variant],
     sizeClasses[size],
     fullWidth ? fullWidthClass : "",
