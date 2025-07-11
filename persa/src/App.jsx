@@ -16,6 +16,7 @@ import EditExpense from "./componets/expenses/EditExpense"; // Import the EditEx
 import BankAccounts from "./componets/BankAccounts"; // Import the BankAccounts component
 import Income from "./componets/income/Income"; // Import the Income page
 import EditIncome from "./componets/income/EditIncome"; // Import the EditIncome component
+import ViewBankAccount from "./componets/ViewBankAccount";
 import { API_URL } from "./config";
 
 function App() {
@@ -93,6 +94,7 @@ function App() {
         <Route path="/bank-accounts" element={<BankAccounts />} />
         <Route path="/income" element={<Income />} />
         <Route path="/income/:incomeId" element={<EditIncome />} />
+        <Route path="/bank-accounts/:id/view" element={<ViewBankAccount />} />
       </Routes>
     </Router>
   );

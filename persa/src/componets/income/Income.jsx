@@ -4,6 +4,7 @@ import AddIncomePopup from "./AddIncomePopup";
 import { API_URL } from "../../config";
 import { FaPlus, FaEdit, FaTrash, FaSearch } from "react-icons/fa"; // Add FaSearch
 import { useNavigate } from "react-router-dom";
+import Button from "../shared/Button";
 
 export default function Income() {
   const [incomes, setIncomes] = useState([]);
@@ -249,7 +250,7 @@ export default function Income() {
             )}
           </div>
 
-          <div className="relative flex h-full w-full flex-col overflow-scroll rounded-lg bg-white bg-clip-border text-gray-700 shadow-md">
+          <div className="relative flex h-full w-full flex-col rounded-lg bg-white bg-clip-border text-gray-700 shadow-md">
             <table className="w-full min-w-max table-auto text-left">
               <thead>
                 <tr>
@@ -316,18 +317,22 @@ export default function Income() {
                       </td>
                       <td className="border-b border-slate-200 p-4">
                         <div className="flex flex-row items-center">
-                          <button
-                            onClick={() => handleEditIncome(income)}
-                            className="mr-2 rounded bg-indigo-500 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-600"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => confirmDelete(income.id)}
-                            className="rounded bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-500"
-                          >
-                            Delete
-                          </button>
+                      <Button
+                        onClick={() => handleEditIncome(income)}
+                        variant="primary"
+                        size="medium"
+                        className="mr-2 flex-auto"
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        onClick={() => confirmDelete(income.id)}
+                        variant="danger"  
+                        size="medium"
+                        className="mr-2 flex-auto"
+                        >
+                        Delete
+                      </Button>                          
                         </div>
                       </td>
                     </tr>

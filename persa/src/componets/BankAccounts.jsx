@@ -4,6 +4,8 @@ import NavigationBar from "./NavigationBar";
 import AddBankAccountPopup from "./AddBankAccountPopup";
 import EditBankAccount from "./EditBankAccount";
 import { API_URL } from "../config";
+import { useNavigate } from "react-router-dom";
+import Button from "./shared/Button";
 
 export default function BankAccounts() {
   const [accounts, setAccounts] = useState([]);
@@ -14,6 +16,7 @@ export default function BankAccounts() {
   const [accountToDelete, setAccountToDelete] = useState(null);
   const [successMessage, setSuccessMessage] = useState(""); // Success message state
   const [filter, setFilter] = useState(""); // Add filter state
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchAccounts = async () => {
@@ -167,7 +170,7 @@ export default function BankAccounts() {
             </div>
           )}
 
-          <div className="relative flex h-full w-full flex-col overflow-scroll rounded-lg bg-white bg-clip-border text-gray-700 shadow-md">
+          <div className="relative flex h-full w-full flex-col rounded-lg bg-white bg-clip-border text-gray-700 shadow-md">
             <table className="w-full min-w-max table-auto text-left">
               <thead>
                 <tr>
@@ -225,18 +228,32 @@ export default function BankAccounts() {
                       </p>
                     </td>
                     <td className="border-b border-slate-200 p-4">
-                      <button
+                      <div className="flex flex-row items-center">
+                      <Button
+                        onClick={() => navigate(`/bank-accounts/${account.id}/view`)}
+                        variant="show"
+                        size="medium"
+                        className="mr-2 flex-auto"
+                      >
+                        View
+                      </Button>                     
+                      <Button
                         onClick={() => handleEdit(account)}
-                        className="mr-2 rounded bg-indigo-500 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-600"
+                        variant="primary"
+                        size="medium"
+                        className="mr-2 flex-auto"
                       >
                         Edit
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         onClick={() => confirmDelete(account.id)}
-                        className="rounded bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-500"
-                      >
+                        variant="danger"  
+                        size="medium"
+                        className="mr-2 flex-auto"
+                        >
                         Delete
-                      </button>
+                      </Button>    
+                      </div>                   
                     </td>
                   </tr>
                 ))}
