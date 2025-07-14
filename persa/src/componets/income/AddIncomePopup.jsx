@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { API_URL } from "../../config";
+import PopUpForm from "../shared/PopUpForm";
 
 export default function AddIncomePopup({ onClose, onAddIncome }) {
   const [formData, setFormData] = useState({
@@ -102,92 +103,29 @@ export default function AddIncomePopup({ onClose, onAddIncome }) {
     }
   };
 
+const fields = [
+  { name: "source", label: "Income Source", type: "text", required: true, placeholder: "e.g., Salary" },
+  { name: "amount", label: "Amount", type: "number", required: true, placeholder: "Enter amount", min: 0 },
+  { name: "date", label: "Date Received", type: "date", required: true },
+  {
+    name: "bankAccountId",
+    label: "Bank Account",
+    type: "select",
+    required: true,
+    options: accounts.map(acc => ({ value: acc.id, label: acc.bank_name })),
+    placeholder: "Select Account"
+  },
+  { name: "notes", label: "Notes (optional)", type: "textarea", required: false, placeholder: "Add any notes..." }
+];
   return (
-    <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm">
-      <div className="w-3/4 rounded-lg bg-white p-6 shadow-lg md:w-1/3">
-        <h2 className="mb-4 text-lg font-semibold text-gray-700">Add Income</h2>
-        <div className="mb-4">
-          <label className="block text-gray-700">Income Source</label>
-          <input
-            type="text"
-            name="source"
-            value={formData.source}
-            onChange={handleChange}
-            className="w-full rounded border p-2"
-            placeholder='e.g., "Salary", "Freelance"'
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700">Amount</label>
-          <input
-            type="text"
-            name="amount"
-            value={formData.amount}
-            onChange={(e) => {
-              const value = e.target.value;
-              if (/^\d*\.?\d*$/.test(value)) {
-                setFormData((prev) => ({ ...prev, amount: value }));
-              }
-            }}
-            className="w-full rounded border p-2"
-            placeholder="Enter amount"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700">Date Received</label>
-          <input
-            type="date"
-            name="date"
-            value={formData.date}
-            onChange={handleChange}
-            className="w-full rounded border p-2"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700">Bank Account</label>
-          <select
-            name="bankAccountId"
-            value={formData.bankAccountId}
-            onChange={handleChange}
-            className="w-full rounded border p-2"
-            required
-          >
-            <option value="">Select Account</option>
-            {accounts.map((acc) => (
-              <option key={acc.id} value={acc.id}>
-                {acc.bank_name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700">Notes (optional)</label>
-          <textarea
-            name="notes"
-            value={formData.notes}
-            onChange={handleChange}
-            className="w-full rounded border p-2"
-            placeholder="Add any notes here..."
-          ></textarea>
-        </div>
-        <div className="flex justify-end">
-          <button
-            onClick={onClose}
-            className="mr-2 rounded bg-gray-300 px-4 py-2 text-gray-700"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSubmit}
-            className="rounded bg-blue-600 px-4 py-2 text-white"
-          >
-            Add Income
-          </button>
-        </div>
-      </div>
-    </div>
+    <PopUpForm
+      fields={fields}
+      formData={formData}
+      onChange={handleChange}
+      onSubmit={handleSubmit}
+      onCancel={onClose}
+      submitLabel="Add Income"
+      header ="Add Income"
+    />
   );
 }

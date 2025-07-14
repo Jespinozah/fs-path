@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { API_URL } from "../../config";
+import PopUpForm from "../shared/PopUpForm";
 
 export default function AddExpensePopup({ onClose, onAddExpense }) {
   const [newExpense, setNewExpense] = useState({
@@ -36,6 +37,11 @@ export default function AddExpensePopup({ onClose, onAddExpense }) {
     fetchAccounts();
   }, []);
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setNewExpense((prev) => ({ ...prev, [name]: value }));
+  };
+  
   const handleAddExpense = () => {
     if (
       newExpense.amount &&
@@ -61,113 +67,45 @@ export default function AddExpensePopup({ onClose, onAddExpense }) {
     }
   };
 
+  const fields = [
+    { name: "amount", label: "Amount", type: "number", required: true, placeholder: "Enter amount", min: 0 },
+    {
+      name: "category",
+      label: "Category",
+      type: "select",
+      required: true,
+      options: [
+        { value: "Food", label: "🍔 Food" },
+        { value: "Travel", label: "✈️ Travel" },
+        { value: "Bills", label: "💡 Bills" },
+      ],
+      placeholder: "Select Category",
+    },
+    { name: "date", label: "Date", type: "date", required: true },
+    { name: "time", label: "Time", type: "time", required: true },
+    { name: "description", label: "Description", type: "textarea", required: false, placeholder: "Add any description here..." },
+    {
+      name: "bank_account_id",
+      label: "Bank Account",
+      type: "select",
+      required: true,
+      options: accounts.map(acc => ({
+        value: acc.id,
+        label: acc.bank_name || `Account #${acc.id}`,
+      })),
+      placeholder: "Select Bank Account",
+    },
+  ];
+
   return (
-    <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm">
-      <div className="w-3/4 rounded-lg bg-white p-6 shadow-lg md:w-1/3">
-        <h2 className="mb-4 text-lg font-semibold text-gray-700">
-          Add Expense
-        </h2>
-        <div className="mb-4">
-          <label className="block text-gray-700">Amount</label>
-          <input
-            type="text"
-            value={newExpense.amount}
-            onChange={(e) => {
-              const value = e.target.value;
-              if (/^\d*\.?\d*$/.test(value)) {
-                setNewExpense({ ...newExpense, amount: value });
-              }
-            }}
-            className="w-full rounded border p-2"
-            placeholder="Enter amount"
-            required
-            inputMode="decimal"
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700">Category</label>
-          <select
-            value={newExpense.category}
-            onChange={(e) =>
-              setNewExpense({ ...newExpense, category: e.target.value })
-            }
-            className="w-full rounded border p-2"
-            required
-          >
-            <option value="">Select Category</option>
-            <option value="Food">🍔 Food</option>
-            <option value="Travel">✈️ Travel</option>
-            <option value="Bills">💡 Bills</option>
-          </select>
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700">Date</label>
-          <input
-            type="date"
-            value={newExpense.date}
-            onChange={(e) =>
-              setNewExpense({ ...newExpense, date: e.target.value })
-            }
-            className="w-full rounded border p-2"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700">Time</label>
-          <input
-            type="time"
-            value={newExpense.time || ""}
-            onChange={(e) =>
-              setNewExpense({ ...newExpense, time: e.target.value })
-            }
-            className="w-full rounded border p-2"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700">Description</label>
-          <textarea
-            value={newExpense.description}
-            onChange={(e) =>
-              setNewExpense({ ...newExpense, description: e.target.value })
-            }
-            className="w-full rounded border p-2"
-            placeholder="Add any description here..."
-          ></textarea>
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700">Bank Account</label>
-          <select
-            value={newExpense.bank_account_id}
-            onChange={(e) =>
-              setNewExpense({ ...newExpense, bank_account_id: e.target.value })
-            }
-            className="w-full rounded border p-2"
-            required
-          >
-            <option value="">Select Bank Account</option>
-            {accounts.map((acc) => (
-              <option key={acc.id} value={acc.id}>
-                {acc.bank_name || `Account #${acc.id}`}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="flex justify-end">
-          <button
-            onClick={onClose}
-            className="mr-2 rounded bg-gray-300 px-4 py-2 text-gray-700"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleAddExpense}
-            className="rounded bg-blue-600 px-4 py-2 text-white"
-          >
-            Add
-          </button>
-        </div>
-      </div>
-    </div>
+    <PopUpForm
+      fields={fields}
+      formData={newExpense}
+      onChange={handleChange}
+      onSubmit={handleAddExpense}
+      onCancel={onClose}
+      submitLabel="Add"
+      header="Add Expense"
+    />
   );
 }
