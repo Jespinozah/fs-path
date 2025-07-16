@@ -1,5 +1,3 @@
-import { API_URL } from "../config";
-
 const getAuthHeaders = () => {
     const token = localStorage.getItem("token");
     return token ? { Authorization: `Bearer ${token}` } : {};
@@ -12,7 +10,7 @@ const api = async (endpoint, options = {}) => {
         ...options.headers,
     };
 
-    const response = await fetch(`${API_URL}${endpoint}`, {
+    const response = await fetch(`/api/v1${endpoint}`, {
         ...options,
         headers,
     });

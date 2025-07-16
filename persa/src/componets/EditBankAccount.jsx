@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { API_URL } from "../config";
 
 export default function EditBankAccount({ account, onClose, onEditAccount }) {
   const [formData, setFormData] = useState({
@@ -43,7 +42,7 @@ export default function EditBankAccount({ account, onClose, onEditAccount }) {
         return;
       }
 
-      const response = await fetch(`${API_URL}/bank-accounts/${account.id}`, {
+      const response = await fetch(`/api/v1/bank-accounts/${account.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

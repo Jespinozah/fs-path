@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { API_URL } from "../../config";
 import PopUpForm from "../shared/PopUpForm";
 
 export default function AddIncomePopup({ onClose, onAddIncome }) {
@@ -22,7 +21,7 @@ export default function AddIncomePopup({ onClose, onAddIncome }) {
       const userId = localStorage.getItem("userId");
       if (!token || !userId) return;
       // Remove /api/v1 from endpoint
-      const res = await fetch(`${API_URL}/bank-accounts/user/${userId}`, {
+      const res = await fetch(`/api/v1/bank-accounts/user/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
@@ -69,7 +68,7 @@ export default function AddIncomePopup({ onClose, onAddIncome }) {
 
     console.log("Submitting income payload:", payload);
     try {
-      const res = await fetch(`${API_URL}/incomes`, {
+      const res = await fetch(`/api/v1/incomes`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -3,7 +3,6 @@ import { FaPlus, FaSearch } from "react-icons/fa";
 import NavigationBar from "./NavigationBar";
 import AddBankAccountPopup from "./AddBankAccountPopup";
 import EditBankAccount from "./EditBankAccount";
-import { API_URL } from "../config";
 import { useNavigate } from "react-router-dom";
 import Button from "./shared/Button";
 
@@ -30,7 +29,7 @@ export default function BankAccounts() {
         }
 
         const response = await fetch(
-          `${API_URL}/bank-accounts/user/${userId}`,
+          `/api/v1/bank-accounts/user/${userId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -88,7 +87,7 @@ export default function BankAccounts() {
       }
 
       const response = await fetch(
-        `${API_URL}/bank-accounts/${accountToDelete}`,
+        `/api/v1/bank-accounts/${accountToDelete}`,
         {
           method: "DELETE",
           headers: {

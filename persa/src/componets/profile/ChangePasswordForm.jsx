@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { API_URL } from "../../config";
 
 export default function ChangePasswordForm({ setSuccessMessage }) {
   const [currentPassword, setCurrentPassword] = useState("");
@@ -18,7 +17,7 @@ export default function ChangePasswordForm({ setSuccessMessage }) {
       const token = localStorage.getItem("token");
       const userId = localStorage.getItem("userId");
 
-      const response = await fetch(`${API_URL}/users/${userId}`, {
+      const response = await fetch(`/api/v1/users/${userId}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,

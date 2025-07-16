@@ -2,7 +2,6 @@ import "chart.js/auto";
 import { useEffect, useState } from "react";
 import { Pie } from "react-chartjs-2";
 import { useNavigate } from "react-router-dom"; // Import useLocation
-import { API_URL } from "../config";
 import NavigationBar from "./NavigationBar";
 import Button from "./shared/Button";
 
@@ -25,7 +24,7 @@ export default function Success() {
           return;
         }
 
-        const response = await fetch(`${API_URL}/expenses?page=1&per_page=10`, {
+        const response = await fetch(`/api/v1/expenses?page=1&per_page=10`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -76,7 +75,7 @@ export default function Success() {
         }
 
         const response = await fetch(
-          `${API_URL}/bank-accounts/user/${userId}`,
+          `/api/v1/bank-accounts/user/${userId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -115,7 +114,7 @@ export default function Success() {
         const userId = localStorage.getItem("userId");
         if (!token || !userId) return;
         const response = await fetch(
-          `${API_URL}/bank-accounts/users/${userId}/incomes`,
+          `/api/v1/bank-accounts/users/${userId}/incomes`,
           {
             headers: { Authorization: `Bearer ${token}` },
           },
@@ -172,7 +171,7 @@ export default function Success() {
         return;
       }
 
-      const response = await fetch(`${API_URL}/auth/logout`, {
+      const response = await fetch(`/api/v1/auth/logout`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -201,7 +200,7 @@ export default function Success() {
         return;
       }
 
-      const response = await fetch(`${API_URL}/expenses/${transactionId}`, {
+      const response = await fetch(`/api/v1/expenses/${transactionId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
