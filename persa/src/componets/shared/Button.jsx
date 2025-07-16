@@ -61,9 +61,9 @@ const Button = ({
         <span className="btn-spinner" aria-label="Loading..." />
       ) : (
         <>
-          {icon && iconPosition === "left" && <span className="btn-icon mr-2">{icon}</span>}
+          {icon && iconPosition === "left" && <span>{icon}</span>}
           <span>{children}</span>
-          {icon && iconPosition === "right" && <span className="btn-icon ml-2">{icon}</span>}
+          {icon && iconPosition === "right" && <span>{icon}</span>}
         </>
       )}
     </Component>

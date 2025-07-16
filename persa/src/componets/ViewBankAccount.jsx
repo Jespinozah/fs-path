@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import NavigationBar from "./NavigationBar";
 import { API_URL } from "../config";
+import Button from "./shared/Button";
+import { ArrowUturnLeftIcon } from '@heroicons/react/24/solid'
 
 // Helper to get icon for a category
 const getCategoryIcon = (category) => {
@@ -68,12 +70,14 @@ export default function ViewBankAccount() {
       <NavigationBar />
       <div className="flex flex-col items-center p-6">
         <div className="w-full rounded-lg bg-white p-6 shadow-md md:w-2/3">
-          <button
-            className="mb-4 rounded bg-gray-200 px-4 py-2 text-gray-700 hover:bg-gray-300"
+          <Button
+            variant="outline"
+            size="small"
             onClick={() => navigate("/bank-accounts")}
+            icon={<ArrowUturnLeftIcon className="size-4" />}
+            iconPosition="left"
           >
-            &larr; Back to Bank Accounts
-          </button>
+          </Button>
           <h2 className="mb-4 text-2xl font-semibold text-gray-700">
             Bank Account Details
           </h2>
