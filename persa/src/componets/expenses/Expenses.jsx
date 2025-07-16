@@ -5,8 +5,8 @@ import { del, get, post } from "../../utils/Api"; // Import the get function fro
 import NavigationBar from "../NavigationBar";
 import AddExpensePopup from "./AddExpensePopup";
 import sortExpenses from "../../utils/Date";
-import { API_URL } from "../../config";
 import Button from "../shared/Button";
+import { ChevronDownIcon } from "@heroicons/react/20/solid";
 
 export default function Expenses() {
   const [expenses, setExpenses] = useState([]);
@@ -59,7 +59,7 @@ export default function Expenses() {
         const userId = localStorage.getItem("userId");
         const token = localStorage.getItem("token");
         if (!userId || !token) return;
-        const res = await fetch(`${API_URL}/bank-accounts/user/${userId}`, {
+        const res = await fetch(`/api/v1/bank-accounts/user/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {
@@ -266,30 +266,40 @@ export default function Expenses() {
               placeholder="To"
             />
             {/* Category Filter */}
-            <select
-              value={filterCategory}
-              onChange={(e) => setFilterCategory(e.target.value)}
-              className="rounded border border-slate-300 p-2 text-gray-700 md:w-auto"
-            >
-              <option value="">All Categories</option>
-              <option value="Food">Food</option>
-              <option value="Travel">Travel</option>
-              <option value="Bills">Bills</option>
-              {/* Add more categories as needed */}
-            </select>
-            {/* Bank Filter */}
-            <select
-              value={filterBank}
-              onChange={(e) => setFilterBank(e.target.value)}
-              className="rounded border border-slate-300 p-2 text-gray-700 md:w-auto"
-            >
-              <option value="">All Banks</option>
-              {bankOptions.map((bank) => (
-                <option key={bank.id} value={bank.id}>
-                  {bank.alias || bank.bank_name}
-                </option>
-              ))}
-            </select>
+            <div className="relative md:w-auto">
+              <select
+                value={filterCategory}
+                onChange={(e) => setFilterCategory(e.target.value)}
+                className="appearance-none rounded border border-slate-300 p-2 pr-8 text-gray-700 md:w-auto"
+              >
+                <option value="">All Categories</option>
+                <option value="Food">Food</option>
+                <option value="Travel">Travel</option>
+                <option value="Bills">Bills</option>
+              </select>
+              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 flex items-center">
+                <ChevronDownIcon className="h-5 w-5 text-gray-700" />
+              </span>
+            </div>
+            {/* Bank Filter */} 
+            <div className="relative w-full md:w-auto">
+              <select
+                value={filterBank}
+                 onChange={(e) => setFilterBank(e.target.value)}
+                 className="w-full appearance-none rounded border border-slate-300 bg-white p-2 pr-10 text-gray-700 md:w-auto"
+              >
+                <option value="">All Banks</option>
+                {bankOptions.map((bank) => (
+                  <option key={bank.id} value={bank.id}>
+                    {bank.alias || bank.bank_name}
+                  </option>
+                ))}
+              </select>
+
+              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 flex items-center">
+              <ChevronDownIcon className="h-5 w-5 text-gray-500" />
+              </span>
+            </div>
             {/* Search Button */}
             <button
               type="button"

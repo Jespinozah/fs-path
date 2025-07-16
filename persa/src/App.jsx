@@ -17,13 +17,11 @@ import BankAccounts from "./componets/BankAccounts"; // Import the BankAccounts 
 import Income from "./componets/income/Income"; // Import the Income page
 import EditIncome from "./componets/income/EditIncome"; // Import the EditIncome component
 import ViewBankAccount from "./componets/ViewBankAccount";
-import { API_URL } from "./config";
 
 function App() {
-  console.log("API_URL:", API_URL);
   const handleLogin = async (email, password, navigate) => {
     try {
-      const response = await fetch(`${API_URL}/auth/login`, {
+      const response = await fetch(`/api/v1/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -53,7 +51,7 @@ function App() {
 
   const handleSignUp = async (name, email, age, password, navigate) => {
     try {
-      const response = await fetch(`${API_URL}/users`, {
+      const response = await fetch(`/api/v1/users`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

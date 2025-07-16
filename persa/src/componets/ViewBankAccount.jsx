@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import NavigationBar from "./NavigationBar";
-import { API_URL } from "../config";
 import Button from "./shared/Button";
 import { ArrowUturnLeftIcon } from '@heroicons/react/24/solid'
 
@@ -34,14 +33,14 @@ export default function ViewBankAccount() {
           return;
         }
         // Fetch account details
-        const accRes = await fetch(`${API_URL}/bank-accounts/${id}`, {
+        const accRes = await fetch(`/api/v1/bank-accounts/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (accRes.ok) {
           setAccount(await accRes.json());
         }
         // Fetch transactions (expenses)
-        const expRes = await fetch(`${API_URL}/expenses?bank_account_id=${id}`, {
+        const expRes = await fetch(`/api/v1/expenses?bank_account_id=${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (expRes.ok) {
@@ -49,7 +48,7 @@ export default function ViewBankAccount() {
           setExpenses(Array.isArray(data.expenses) ? data.expenses : []);
         }
         // Fetch incomes
-        const incRes = await fetch(`${API_URL}/incomes?bank_account_id=${id}`, {
+        const incRes = await fetch(`/api/v1/incomes?bank_account_id=${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (incRes.ok) {

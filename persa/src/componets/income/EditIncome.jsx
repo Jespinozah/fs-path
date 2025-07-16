@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import NavigationBar from "../NavigationBar";
-import { API_URL } from "../../config";
 
 export default function EditIncome() {
   const { incomeId } = useParams();
@@ -22,7 +21,7 @@ export default function EditIncome() {
       const token = localStorage.getItem("token");
       const userId = localStorage.getItem("userId");
       if (!token || !userId) return;
-      const res = await fetch(`${API_URL}/bank-accounts/user/${userId}`, {
+      const res = await fetch(`/api/v1/bank-accounts/user/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
@@ -39,7 +38,7 @@ export default function EditIncome() {
       try {
         const token = localStorage.getItem("token");
         if (!token) return;
-        const res = await fetch(`${API_URL}/incomes/${incomeId}`, {
+        const res = await fetch(`/api/v1/incomes/${incomeId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {
@@ -67,7 +66,7 @@ export default function EditIncome() {
     try {
       const token = localStorage.getItem("token");
       if (!token) return;
-      const res = await fetch(`${API_URL}/incomes/${incomeId}`, {
+      const res = await fetch(`/api/v1/incomes/${incomeId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { API_URL } from "../../config";
 import PopUpForm from "../shared/PopUpForm";
 
 export default function AddExpensePopup({ onClose, onAddExpense }) {
@@ -24,7 +23,7 @@ export default function AddExpensePopup({ onClose, onAddExpense }) {
       const token = localStorage.getItem("token");
       const userId = localStorage.getItem("userId");
       if (!token || !userId) return;
-      const res = await fetch(`${API_URL}/bank-accounts/user/${userId}`, {
+      const res = await fetch(`/api/v1/bank-accounts/user/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
