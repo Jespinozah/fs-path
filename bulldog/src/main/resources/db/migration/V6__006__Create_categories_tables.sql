@@ -1,0 +1,41 @@
+CREATE TABLE IF NOT EXISTS bulldog.income_categories (
+                                                         id BIGSERIAL PRIMARY KEY,
+                                                         user_id BIGINT,
+                                                         category_name VARCHAR(100) NOT NULL,
+    icon VARCHAR(50),
+    color VARCHAR(7),
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                             CONSTRAINT fk_income_categories_user_id
+                             FOREIGN KEY (user_id)
+    REFERENCES bulldog.users(id)
+                         ON DELETE CASCADE,
+    CONSTRAINT unique_income_category
+    UNIQUE(user_id, category_name)
+    );
+
+CREATE TABLE IF NOT EXISTS bulldog.expense_categories (
+                                                          id BIGSERIAL PRIMARY KEY,
+                                                          user_id BIGINT,
+                                                          category_name VARCHAR(100) NOT NULL,
+    icon VARCHAR(50),
+    color VARCHAR(7),
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                             CONSTRAINT fk_expense_categories_user_id
+                             FOREIGN KEY (user_id)
+    REFERENCES bulldog.users(id)
+                         ON DELETE CASCADE,
+    CONSTRAINT unique_expense_category
+    UNIQUE(user_id, category_name)
+    );
+
+-- Create indices
+CREATE INDEX idx_income_categories_user_id ON bulldog.income_categories(user_id);
+CREATE INDEX idx_income_categories_is_active ON bulldog.income_categories(is_active);
+CREATE INDEX idx_expense_categories_user_id ON bulldog.expense_categories(user_id);
+CREATE INDEX idx_expense_categories_is_active ON bulldog.expense_categories(is_active);
+
+-- Add comments
+COMMENT ON TABLE bulldog.income_categories IS 'User-defined income categories';
+COMMENT ON TABLE bulldog.expense_categories IS 'User-defined expense categories';

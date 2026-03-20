@@ -823,7 +823,7 @@ POST   /api/v1/categories/expense      # Create expense category
 docker build -t bulldog-api:1.0.0 ./bulldog-api
 
 # Run all services
-docker-compose -f docker-compose.yml up -d
+docker-compose -f docker-docker-compose.yaml up -d
 
 # Check service status
 docker-compose ps
