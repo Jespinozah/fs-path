@@ -29,7 +29,7 @@
 Bulldog is a personal finance management platform that allows users to:
 
 - **Multi-Account Management**: Connect and manage multiple bank accounts
-- **Transaction Tracking**: Record and categorize all transactions
+- **Transaction Tracking**: Record and categorize all transactionEntities
 - **Money Transfers**: Transfer funds between personal accounts
 - **Financial Analytics**: View detailed reports and spending analytics
 - **Budget Management**: Create and track budgets across categories
@@ -583,7 +583,7 @@ npm run preview
 
 ## 📊 Data Flow Example: Creating a Transaction
 
-### Backend Flow: POST /api/v1/transactions
+### Backend Flow: POST /api/v1/transactionEntities
 
 ```
 1. REST Controller (Adapter In)
@@ -647,12 +647,12 @@ Response JSON:
        └─→ If valid, calls service
 
 4. Service Layer (transactionService.ts)
-   └─→ axios.post('/transactions', data)
+   └─→ axios.post('/transactionEntities', data)
        └─→ Includes JWT token in header
        └─→ Interceptor adds Authorization header
 
 5. HTTP Request
-   └─→ POST http://localhost:8080/api/v1/transactions
+   └─→ POST http://localhost:8080/api/v1/transactionEntities
        └─→ Request sent to backend
 
 6. Response Handling
@@ -756,15 +756,15 @@ npm run test:ui       # UI mode
 
 ```
 POST   /api/v1/auth/login              # Login with email & password
-POST   /api/v1/auth/register           # Create new user account
+POST   /api/v1/auth/register           # Create new userEntity account
 POST   /api/v1/auth/refresh            # Refresh JWT token
-POST   /api/v1/auth/logout             # Logout user
+POST   /api/v1/auth/logout             # Logout userEntity
 ```
 
 ### Accounts
 
 ```
-GET    /api/v1/accounts                # List all user accounts
+GET    /api/v1/accounts                # List all userEntity accounts
 POST   /api/v1/accounts                # Create new bank account
 GET    /api/v1/accounts/{id}           # Get account details
 PUT    /api/v1/accounts/{id}           # Update account
@@ -775,21 +775,21 @@ GET    /api/v1/accounts/{id}/balance   # Get current balance
 ### Transactions
 
 ```
-GET    /api/v1/transactions            # List user transactions (paginated)
-POST   /api/v1/transactions            # Create new transaction
-GET    /api/v1/transactions/{id}       # Get transaction details
-PUT    /api/v1/transactions/{id}       # Update transaction
-DELETE /api/v1/transactions/{id}       # Delete transaction (if pending)
-GET    /api/v1/accounts/{id}/transactions  # Get account transactions
+GET    /api/v1/transactionEntities            # List userEntity transactionEntities (paginated)
+POST   /api/v1/transactionEntities            # Create new transaction
+GET    /api/v1/transactionEntities/{id}       # Get transaction details
+PUT    /api/v1/transactionEntities/{id}       # Update transaction
+DELETE /api/v1/transactionEntities/{id}       # Delete transaction (if pending)
+GET    /api/v1/accounts/{id}/transactionEntities  # Get account transactionEntities
 ```
 
 ### Transfers
 
 ```
-GET    /api/v1/transfers               # List user transfers
-POST   /api/v1/transfers               # Create new transfer
-GET    /api/v1/transfers/{id}          # Get transfer details
-PUT    /api/v1/transfers/{id}          # Update transfer (if pending)
+GET    /api/v1/transferEntities               # List userEntity transferEntities
+POST   /api/v1/transferEntities               # Create new transfer
+GET    /api/v1/transferEntities/{id}          # Get transfer details
+PUT    /api/v1/transferEntities/{id}          # Update transfer (if pending)
 ```
 
 ### Reports
