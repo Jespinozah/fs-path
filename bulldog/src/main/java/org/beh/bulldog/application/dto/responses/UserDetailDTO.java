@@ -1,26 +1,25 @@
-package org.beh.bulldog.domain.entities;
+package org.beh.bulldog.application.dto.responses;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import org.beh.bulldog.domain.value_objects.Email;
-import org.beh.bulldog.domain.value_objects.Password;
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.util.List;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+@Builder
+public class UserDetailDTO {
     private Long id;
     private String name;
-    private Email email;
-    private Password password;
+    private String email;
     private Integer age;
     private Boolean isActive;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private Set<BankAccount> bankAccounts;
+    private List<BankAccountDTO> bankAccounts;
+    private Integer totalAccounts;
 }
+
