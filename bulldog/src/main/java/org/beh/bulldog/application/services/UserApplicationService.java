@@ -52,4 +52,24 @@ public class UserApplicationService {
     public List<UserDTO> getAllActiveUsers() {
         return userRepository.findAll().stream().map(userMapper::toDTO).collect(Collectors.toList());
     }
+
+    public UserDTO updateUserProfile(Long userId, UpdateUserRequest request) {
+        // TODO: Implement update logic
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    public void changePassword(Long userId, ChangePasswordRequest request) {
+        // TODO: Implement password change logic
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    public void deactivateUser(Long userId) {
+        // TODO: Implement deactivate logic
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    public void activateUser(Long userId) {
+        // TODO: Implement activate logic
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
 }
