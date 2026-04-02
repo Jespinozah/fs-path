@@ -1,1123 +1,531 @@
-# 💰 Bulldog Personal Finance Application
+# Java 21 Backend - Hexagonal Architecture Dependencies
 
-> A modern, full-stack personal finance management system built with Java 21 (Hexagonal Architecture) and React 18 (TypeScript).
-
-**Live Demo:** Coming soon  
-**Documentation:** [Full API Docs](./docs/API.md)  
-**Status:** 🚀 In Development
+**Java Version:** 21 LTS  
+**Spring Boot Version:** 3.2.0+  
+**Build Tool:** Maven
 
 ---
 
-## 📋 Table of Contents
-
-- [Overview](#overview)
-- [Tech Stack](#tech-stack)
-- [Architecture](#architecture)
-  - [Backend Architecture](#backend-architecture)
-  - [Frontend Architecture](#frontend-architecture)
-- [Project Structure](#project-structure)
-- [Getting Started](#getting-started)
-- [Development](#development)
-- [Deployment](#deployment)
-- [API Documentation](#api-documentation)
-- [Contributing](#contributing)
-
----
-
-## 🎯 Overview
-
-Bulldog is a personal finance management platform that allows users to:
-
-- **Multi-Account Management**: Connect and manage multiple bank accounts
-- **Transaction Tracking**: Record and categorize all transactionEntities
-- **Money Transfers**: Transfer funds between personal accounts
-- **Financial Analytics**: View detailed reports and spending analytics
-- **Budget Management**: Create and track budgets across categories
-- **Secure Authentication**: JWT-based authentication with refresh tokens
-- **Dark Mode**: Modern dark mode support for comfortable viewing
-
-### Key Features
-
-```
-✅ Multi-account support (Checking, Savings, Money Market, IRA, Credit Card)
-✅ Transaction management (Deposits, Withdrawals, Transfers, Fees, Interest)
-✅ Real-time balance calculation
-✅ Monthly summaries and analytics
-✅ Secure JWT authentication
-✅ Role-based access control
-✅ Audit logging for compliance
-✅ Redis caching for performance
-✅ RESTful API with comprehensive documentation
-✅ Responsive UI (Desktop, Tablet, Mobile)
-✅ Dark mode support
-✅ Professional fintech aesthetic
-```
-
----
-
-## 🛠 Tech Stack
-
-### Backend Stack
-
-| Layer            | Technology                       | Version     |
-| ---------------- | -------------------------------- | ----------- |
-| **Language**     | Java                             | 21 LTS      |
-| **Framework**    | Spring Boot                      | 3.2.0+      |
-| **Architecture** | Hexagonal (Ports & Adapters)     | -           |
-| **Database**     | PostgreSQL                       | 15+         |
-| **Cache**        | Redis                            | 7+          |
-| **ORM**          | Hibernate/JPA                    | 6.0+        |
-| **Migration**    | Flyway                           | 9.22.3+     |
-| **Security**     | Spring Security + JWT            | JJWT 0.12.3 |
-| **API Docs**     | SpringDoc OpenAPI                | 2.1.0       |
-| **Build Tool**   | Maven                            | 3.8+        |
-| **Testing**      | JUnit 5, Mockito, TestContainers | Latest      |
-
-### Frontend Stack
-
-| Layer                | Technology            | Version |
-| -------------------- | --------------------- | ------- |
-| **Language**         | TypeScript            | 5.3+    |
-| **Framework**        | React                 | 18.2+   |
-| **Build Tool**       | Vite                  | 5.0+    |
-| **UI Library**       | Shadcn/ui             | Latest  |
-| **Styling**          | TailwindCSS           | 3.4+    |
-| **State Management** | Zustand               | 4.4+    |
-| **HTTP Client**      | Axios                 | 1.6+    |
-| **Routing**          | React Router          | 6.20+   |
-| **Charts**           | Recharts              | 2.10+   |
-| **Forms**            | React Hook Form + Zod | Latest  |
-| **Icons**            | Lucide React          | Latest  |
-| **Utilities**        | date-fns, clsx        | Latest  |
-
----
-
-## 🏗️ Architecture
-
-### Backend Architecture (Hexagonal/Clean)
+## Project Structure
 
 ```
 bulldog-api/
+├── domain/                          # Core business logic (no dependencies)
+│   ├── entities/                    # Domain entities
+│   ├── value-objects/               # Value objects
+│   ├── repositories/                # Repository interfaces
+│   ├── services/                    # Domain services
+│   └── exceptions/                  # Domain exceptions
 │
-├── 📁 domain/                          # Core Business Logic (No Dependencies)
-│   ├── entities/
-│   │   ├── User.java
-│   │   ├── BankAccount.java
-│   │   ├── Transaction.java
-│   │   └── Transfer.java
-│   │
-│   ├── value-objects/
-│   │   ├── Money.java
-│   │   ├── TransactionType.java
-│   │   └── AccountStatus.java
-│   │
-│   ├── repositories/                   # Interface Definitions (Ports)
-│   │   ├── UserRepository.java
-│   │   ├── BankAccountRepository.java
-│   │   └── TransactionRepository.java
-│   │
-│   ├── services/
-│   │   ├── AccountBalanceService.java
-│   │   ├── TransactionValidationService.java
-│   │   └── TransferService.java
-│   │
-│   └── exceptions/
-│       ├── DomainException.java
-│       ├── InsufficientFundsException.java
-│       └── InvalidTransactionException.java
+├── application/                     # Use cases & application logic
+│   ├── dto/                         # Data Transfer Objects
+│   ├── mappers/                     # DTOs mapping
+│   ├── services/                    # Application services
+│   ├── use-cases/                   # Use case implementations
+│   └── ports/                       # Port interfaces
 │
-├── 📁 application/                     # Use Cases & Application Logic
-│   ├── dto/                            # Data Transfer Objects
-│   │   ├── requests/
-│   │   │   ├── CreateTransactionRequest.java
-│   │   │   ├── CreateTransferRequest.java
-│   │   │   └── LoginRequest.java
-│   │   │
-│   │   └── responses/
-│   │       ├── TransactionDTO.java
-│   │       ├── AccountDTO.java
-│   │       └── TransferDTO.java
+├── adapters/
+│   ├── in/                          # Input adapters
+│   │   ├── rest/                    # REST Controllers
+│   │   ├── config/                  # REST configuration
+│   │   └── exception-handlers/      # Global exception handling
 │   │
-│   ├── mappers/
-│   │   ├── TransactionMapper.java
-│   │   ├── AccountMapper.java
-│   │   └── UserMapper.java
-│   │
-│   ├── services/
-│   │   ├── UserApplicationService.java
-│   │   ├── TransactionApplicationService.java
-│   │   ├── TransferApplicationService.java
-│   │   └── ReportApplicationService.java
-│   │
-│   ├── use-cases/
-│   │   ├── CreateTransactionUseCase.java
-│   │   ├── GetAccountTransactionsUseCase.java
-│   │   ├── TransferMoneyUseCase.java
-│   │   └── GenerateReportUseCase.java
-│   │
-│   └── ports/
-│       ├── UserPasswordEncoder.java    # Port Definitions
-│       ├── EmailService.java
-│       └── NotificationService.java
+│   └── out/                         # Output adapters
+│       ├── persistence/             # JPA Repositories
+│       ├── entities/                # JPA Entities
+│       └── mappers/                 # Entity to Domain mappers
 │
-├── 📁 adapters/
-│   │
-│   ├── 📁 in/                          # Input Adapters (Controllers)
-│   │   ├── rest/
-│   │   │   ├── AuthController.java
-│   │   │   ├── AccountController.java
-│   │   │   ├── TransactionController.java
-│   │   │   └── ReportController.java
-│   │   │
-│   │   ├── config/
-│   │   │   ├── CorsConfig.java
-│   │   │   ├── MvcConfig.java
-│   │   │   └── SwaggerConfig.java
-│   │   │
-│   │   └── exception-handlers/
-│   │       ├── GlobalExceptionHandler.java
-│   │       └── ValidationErrorHandler.java
-│   │
-│   └── 📁 out/                         # Output Adapters (Persistence)
-│       ├── persistence/
-│       │   ├── UserJpaRepository.java
-│       │   ├── BankAccountJpaRepository.java
-│       │   ├── TransactionJpaRepository.java
-│       │   └── TransferJpaRepository.java
-│       │
-│       ├── entities/                   # JPA Entities (Database Models)
-│       │   ├── UserEntity.java
-│       │   ├── BankAccountEntity.java
-│       │   ├── TransactionEntity.java
-│       │   └── TransferEntity.java
-│       │
-│       └── mappers/
-│           ├── UserEntityMapper.java
-│           ├── AccountEntityMapper.java
-│           └── TransactionEntityMapper.java
-│
-├── 📁 config/                          # Spring Configuration
-│   ├── DatabaseConfig.java
-│   ├── CacheConfig.java
+├── config/                          # Spring configuration
 │   ├── SecurityConfig.java
-│   └── AsyncConfig.java
+│   ├── CacheConfig.java
+│   ├── DatabaseConfig.java
+│   └── SwaggerConfig.java
 │
-├── BulldogApplication.java             # Main Spring Boot Application
+├── BulldogApplication.java          # Main Spring Boot class
 └── pom.xml
 ```
 
-#### Architecture Layers Explanation
+---
 
+
+---
+
+## Java 21 Features to Leverage
+
+### 1. Virtual Threads (Project Loom)
+
+```java
+// In your application service
+@Service
+public class TransactionService {
+
+    @Async
+    public CompletableFuture<TransactionDTO> createTransactionAsync(
+            CreateTransactionRequest request) {
+        // Virtual threads handle this efficiently
+        return CompletableFuture.completedFuture(
+            createTransaction(request)
+        );
+    }
+}
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    REST API Layer (In)                       │
-│  @RestController (Controllers & Exception Handlers)         │
-└────────────────────────┬────────────────────────────────────┘
-                         │
-┌────────────────────────▼────────────────────────────────────┐
-│                  Application Layer                           │
-│  Services, Use Cases, DTOs (Business Logic Context)         │
-└────────────────────────┬────────────────────────────────────┘
-                         │
-┌────────────────────────▼────────────────────────────────────┐
-│                    Domain Layer                              │
-│  Entities, Value Objects, Domain Services (Pure Business)   │
-└────────────────────────┬────────────────────────────────────┘
-                         │
-┌────────────────────────▼────────────────────────────────────┐
-│              Persistence Layer (Out)                         │
-│  JPA Repositories, Database Entities (Data Access)          │
-└─────────────────────────────────────────────────────────────┘
+
+### 2. Records (for DTOs)
+
+```java
+// application/dto/transactions/TransactionDTO.java
+public record TransactionDTO(
+    Long id,
+    Long bankAccountId,
+    TransactionType type,
+    BigDecimal amount,
+    String category,
+    LocalDate transactionDate,
+    LocalTime transactionTime,
+    String description
+) {}
+
+// Request/Response
+public record CreateTransactionRequest(
+    TransactionType transactionType,
+    BigDecimal amount,
+    String category,
+    String description,
+    String referenceNumber,
+    LocalDate transactionDate,
+    LocalTime transactionTime,
+    String notes
+) {}
+```
+
+### 3. Sealed Classes (for Domain Types)
+
+```java
+// domain/entities/transactions/Transaction.java
+public abstract sealed class Transaction
+    permits DepositTransaction, WithdrawalTransaction, TransferTransaction {
+
+    protected Long id;
+    protected BigDecimal amount;
+    protected LocalDate transactionDate;
+
+    abstract BigDecimal calculateFees();
+}
+
+public final class DepositTransaction extends Transaction {
+    @Override
+    BigDecimal calculateFees() {
+        return BigDecimal.ZERO;
+    }
+}
+
+public final class WithdrawalTransaction extends Transaction {
+    @Override
+    BigDecimal calculateFees() {
+        return amount.multiply(new BigDecimal("0.001")); // 0.1%
+    }
+}
+```
+
+### 4. Pattern Matching (Enhanced Switch)
+
+```java
+// Application service
+@Service
+public class ReportService {
+
+    public ReportDTO generateReport(ReportRequest request) {
+        return switch (request) {
+            case MonthlyReportRequest monthly ->
+                generateMonthlyReport(monthly.year(), monthly.month());
+            case YearlyReportRequest yearly ->
+                generateYearlyReport(yearly.year());
+            case CustomRangeReportRequest custom ->
+                generateCustomReport(custom.startDate(), custom.endDate());
+            default -> throw new IllegalArgumentException("Unknown report type");
+        };
+    }
+}
+```
+
+### 5. Text Blocks (for SQL/Multi-line strings)
+
+```java
+// infrastructure/persistence/TransactionRepositoryImpl.java
+@Repository
+public class TransactionRepositoryImpl {
+
+    private static final String QUERY = """
+        SELECT t FROM Transaction t
+        WHERE t.bankAccount.user.id = :userId
+            AND t.transactionDate BETWEEN :startDate AND :endDate
+            AND t.status = :status
+        ORDER BY t.transactionDate DESC
+        """;
+}
 ```
 
 ---
 
-### Frontend Architecture (Feature-Based)
+## application.yml Configuration for Java 21
 
-```
-bulldog-frontend/
-│
-├── 📁 src/
-│   │
-│   ├── 📁 components/
-│   │   │
-│   │   ├── 📁 ui/                      # Shadcn/ui Components (You Own)
-│   │   │   ├── button.tsx
-│   │   │   ├── card.tsx
-│   │   │   ├── form.tsx
-│   │   │   ├── input.tsx
-│   │   │   ├── select.tsx
-│   │   │   ├── table.tsx
-│   │   │   ├── dialog.tsx
-│   │   │   ├── tabs.tsx
-│   │   │   ├── alert.tsx
-│   │   │   ├── badge.tsx
-│   │   │   ├── pagination.tsx
-│   │   │   └── ... (20+ components)
-│   │   │
-│   │   ├── 📁 common/                  # Reusable Components
-│   │   │   ├── Header.tsx
-│   │   │   ├── Sidebar.tsx
-│   │   │   ├── Navbar.tsx
-│   │   │   ├── TransactionCard.tsx
-│   │   │   ├── AccountCard.tsx
-│   │   │   ├── BankAccountList.tsx
-│   │   │   └── LoadingSpinner.tsx
-│   │   │
-│   │   ├── 📁 forms/                   # Form Components
-│   │   │   ├── LoginForm.tsx
-│   │   │   ├── RegisterForm.tsx
-│   │   │   ├── CreateTransactionForm.tsx
-│   │   │   ├── CreateTransferForm.tsx
-│   │   │   └── CreateAccountForm.tsx
-│   │   │
-│   │   └── 📁 dashboard/               # Dashboard Components
-│   │       ├── DashboardLayout.tsx
-│   │       ├── BalanceWidget.tsx
-│   │       ├── TransactionChart.tsx
-│   │       ├── RecentTransactions.tsx
-│   │       ├── AccountSummary.tsx
-│   │       └── SpendingByCategory.tsx
-│   │
-│   ├── 📁 pages/                       # Route Pages
-│   │   │
-│   │   ├── 📁 auth/
-│   │   │   ├── LoginPage.tsx
-│   │   │   ├── RegisterPage.tsx
-│   │   │   └── LogoutPage.tsx
-│   │   │
-│   │   ├── 📁 dashboard/
-│   │   │   ├── DashboardPage.tsx       # Main Dashboard
-│   │   │   ├── AccountsPage.tsx        # Accounts Management
-│   │   │   ├── TransactionsPage.tsx    # Transactions List & Management
-│   │   │   ├── TransfersPage.tsx       # Transfers History
-│   │   │   ├── ReportsPage.tsx         # Analytics & Reports
-│   │   │   └── CategoriesPage.tsx      # Category Management
-│   │   │
-│   │   └── 📁 settings/
-│   │       ├── SettingsPage.tsx
-│   │       └── ProfilePage.tsx
-│   │
-│   ├── 📁 hooks/                       # Custom React Hooks
-│   │   ├── useAuth.ts
-│   │   ├── useFetch.ts
-│   │   ├── useLocalStorage.ts
-│   │   ├── useForm.ts
-│   │   └── useDebounce.ts
-│   │
-│   ├── 📁 services/                    # Business Logic & API
-│   │   │
-│   │   ├── 📁 api/                     # API Service Layer
-│   │   │   ├── axios-instance.ts       # Axios Config & Interceptors
-│   │   │   ├── authService.ts
-│   │   │   ├── accountService.ts
-│   │   │   ├── transactionService.ts
-│   │   │   ├── transferService.ts
-│   │   │   └── reportService.ts
-│   │   │
-│   │   └── 📁 store/                   # Zustand State Management
-│   │       ├── authStore.ts            # Authentication State
-│   │       ├── accountStore.ts         # Accounts State
-│   │       ├── transactionStore.ts     # Transactions State
-│   │       └── uiStore.ts              # UI State (Dark mode, etc)
-│   │
-│   ├── 📁 types/                       # TypeScript Type Definitions
-│   │   ├── index.ts
-│   │   ├── auth.ts
-│   │   ├── account.ts
-│   │   ├── transaction.ts
-│   │   ├── transfer.ts
-│   │   └── api.ts
-│   │
-│   ├── 📁 utils/                       # Utility Functions
-│   │   ├── formatters.ts               # Number, Date, Currency formatting
-│   │   ├── validators.ts               # Form & Data validation
-│   │   ├── constants.ts                # App constants
-│   │   ├── helpers.ts                  # Helper functions
-│   │   └── api-constants.ts            # API endpoints & config
-│   │
-│   ├── 📁 styles/
-│   │   ├── globals.css
-│   │   └── variables.css
-│   │
-│   ├── App.tsx                         # Root Component
-│   ├── main.tsx                        # Entry Point
-│   └── index.css
-│
-├── 📁 public/                          # Static Assets
-│   └── logo.svg
-│
-├── .env.example                        # Environment Variables Template
-├── .gitignore
-├── package.json
-├── tsconfig.json
-├── tailwind.config.ts
-├── postcss.config.js
-├── vite.config.ts
-└── README.md
-```
+```yaml
+# filepath: src/main/resources/application.yml
 
-#### Frontend Data Flow
+spring:
+  application:
+    name: bulldog-api
+    version: 1.0.0
 
-```
-User Action (UI Event)
-    ↓
-Component (React Component)
-    ↓
-Hook (useAuth, useForm, useFetch)
-    ↓
-Service (API Service with Axios)
-    ↓
-Store (Zustand State Management)
-    ↓
-Component Re-render (With Updated State)
-    ↓
-UI Update (Shadcn/ui Components)
-```
+  # DataSource Configuration
+  datasource:
+    url: jdbc:mysql://localhost:3306/bulldog_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 20000
+      idle-timeout: 300000
+      max-lifetime: 1200000
 
----
+  # JPA/Hibernate Configuration
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+        jdbc:
+          batch_size: 20
+          fetch_size: 50
+        order_inserts: true
+        order_updates: true
 
-## 📁 Project Structure
+  # Flyway Database Migration
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
 
-### Complete Directory Tree
+  # Cache Configuration (Redis)
+  cache:
+    type: redis
+    redis:
+      time-to-live: 600000  # 10 minutes
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
+    timeout: 5000
+    jedis:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+        max-wait: -1ms
 
-```
-bulldog/
-│
-├── bulldog-api/                        # Backend (Java 21)
-│   ├── src/
-│   │   ├── main/
-│   │   │   ├── java/com/bulldog/
-│   │   │   │   ├── domain/
-│   │   │   │   ├── application/
-│   │   │   │   ├── adapters/
-│   │   │   │   ├── config/
-│   │   │   │   └── BulldogApplication.java
-│   │   │   │
-│   │   │   └── resources/
-│   │   │       ├── application.yml
-│   │   │       ├── db/migration/      # Flyway migrations
-│   │   │       └── db/migration/
-│   │   │           ├── V1__001__Initial_schema.sql
-│   │   │           ├── V2__002__Create_users_table.sql
-│   │   │           ├── V3__003__Create_bank_accounts_table.sql
-│   │   │           ├── V4__004__Create_transactions_table.sql
-│   │   │           ├── V5__005__Create_transfers_table.sql
-│   │   │           └── ... (more migrations)
-│   │   │
-│   │   └── test/
-│   │       ├── java/com/bulldog/
-│   │       │   ├── domain/
-│   │       │   ├── application/
-│   │       │   └── adapters/
-│   │       │
-│   │       └── resources/
-│   │           └── application-test.yml
-│   │
-│   ├── Dockerfile
-│   ├── pom.xml
-│   └── README.md
-│
-├── bulldog-frontend/                   # Frontend (React 18 + TypeScript)
-│   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── hooks/
-│   │   ├── services/
-│   │   ├── types/
-│   │   ├── utils/
-│   │   ├── styles/
-│   │   ├── App.tsx
-│   │   └── main.tsx
-│   │
-│   ├── public/
-│   ├── .env.example
-│   ├── package.json
-│   ├── tsconfig.json
-│   ├── tailwind.config.ts
-│   ├── vite.config.ts
-│   └── README.md
-│
-├── docker-compose.yml                  # Multi-container Setup
-├── .gitignore
-├── README.md                           # This file
-└── docs/
-    ├── API.md                          # API Documentation
-    ├── ARCHITECTURE.md                 # Detailed Architecture
-    ├── DATABASE.md                     # Database Schema
-    ├── DEPLOYMENT.md                   # Deployment Guide
-    └── CONTRIBUTING.md                 # Contributing Guidelines
+  # Security
+  security:
+    user:
+      name: admin
+      password: admin123
+
+  # Jackson Configuration
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
+
+  # Servlet Configuration
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+# Server Configuration
+server:
+  servlet:
+    context-path: /api
+  port: 8080
+  shutdown: graceful
+  compression:
+    enabled: true
+    min-response-size: 1024
+
+# Logging Configuration
+logging:
+  level:
+    root: INFO
+    com.bulldog: DEBUG
+    org.springframework.web: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d %p %c{1.} [%t] %m%n"
+  file:
+    name: logs/bulldog.log
+
+# Actuator Configuration (Monitoring)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,prometheus,info,threaddump
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: always
+    metrics:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+# SpringDoc OpenAPI Configuration
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    show-common-extensions: true
+  api-docs:
+    path: /v3/api-docs
+  use-fqn: true
+
+# JWT Configuration
+app:
+  jwt:
+    secret: ${JWT_SECRET:your-secret-key-change-in-production}
+    expiration: 900000  # 15 minutes
+    refresh-expiration: 604800000  # 7 days
+    header: Authorization
+    prefix: Bearer
+
+# Custom Application Properties
+app:
+  api:
+    version: v1
+    base-path: /api/v1
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}
+    allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+    allowed-headers: "*"
+    allow-credentials: true
+    max-age: 3600
 ```
 
 ---
 
-## 🚀 Getting Started
+## Docker Configuration for Java 21
 
-### Prerequisites
+### Dockerfile
+
+```dockerfile
+# Multi-stage build for optimized image
+FROM eclipse-temurin:21-jdk-jammy as builder
+WORKDIR /app
+COPY . .
+RUN ./mvnw clean package -DskipTests
+
+FROM eclipse-temurin:21-jre-jammy
+WORKDIR /app
+COPY --from=builder /app/target/bulldog-api-1.0.0.jar app.jar
+
+EXPOSE 8080
+
+ENTRYPOINT ["java", \
+    "-XX:+UseG1GC", \
+    "-XX:MaxRAMPercentage=75.0", \
+    "-Djava.security.egd=file:/dev/./urandom", \
+    "-jar", "app.jar"]
+```
+
+### docker-compose.yml
+
+```yaml
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: bulldog_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      timeout: 5s
+      retries: 10
+
+  bulldog-api:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      DB_USERNAME: root
+      DB_PASSWORD: password
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: your-secret-key-change-in-production
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/actuator/health"]
+      timeout: 5s
+      retries: 10
+
+volumes:
+  mysql_data:
+```
+
+---
+
+## Build & Run Commands
+
+### Development
 
 ```bash
-# Backend Requirements
-✓ Java 21 LTS
-✓ Maven 3.8+
-✓ PostgreSQL 15+
-✓ Redis 7+
-✓ Docker & Docker Compose (optional but recommended)
-
-# Frontend Requirements
-✓ Node.js 18 LTS+
-✓ npm 9+ or yarn 3+
-```
-
-### Backend Setup
-
-#### Option 1: Local Setup
-
-```bash
-# Navigate to backend directory
-cd bulldog-api
-
-# Build the project
+# Clean and build
 mvn clean install
 
-# Run database migrations (Flyway)
-mvn flyway:migrate
-
-# Start the application
+# Run with Maven
 mvn spring-boot:run
-
-# Application will be available at http://localhost:8080/api
-# Swagger UI at http://localhost:8080/api/swagger-ui.html
-```
-
-#### Option 2: Docker Setup (Recommended)
-
-```bash
-# From project root
-docker-compose up -d
-
-# Check services
-docker-compose ps
-
-# View logs
-docker-compose logs -f bulldog-api
-
-# Check API health
-curl http://localhost:8080/api/actuator/health
-```
-
-### Frontend Setup
-
-```bash
-# Navigate to frontend directory
-cd bulldog-frontend
-
-# Install dependencies
-npm install
-
-# Create environment file
-cp .env.example .env
-
-# Start development server
-npm run dev
-
-# Application will be available at http://localhost:3000
-```
-
-#### Environment Variables (.env)
-
-```bash
-# Backend API URL
-VITE_API_URL=http://localhost:8080/api/v1
-
-# App Configuration
-VITE_APP_NAME=Bulldog
-VITE_APP_VERSION=1.0.0
-```
-
----
-
-## 💻 Development
-
-### Backend Development
-
-```bash
-# Terminal 1: Start PostgreSQL & Redis
-docker-compose up postgres redis
-
-# Terminal 2: Run backend with hot reload
-mvn spring-boot:run
-
-# Run tests
-mvn test
 
 # Run tests with coverage
 mvn clean test jacoco:report
 
-# Check code quality
-mvn checkstyle:check
-
-# Build for production
-mvn clean package -DskipTests
+# View coverage at: target/site/jacoco/index.html
 ```
 
-### Frontend Development
+### Production Build
 
 ```bash
-# Start development server (with HMR)
-npm run dev
+# Build JAR
+mvn clean package -DskipTests
 
-# Type checking
-npm run type-check
+# Run JAR
+java -Xmx1g -Xms512m -jar target/bulldog-api-1.0.0.jar
 
-# Linting
-npm run lint
+# Run with Docker
+docker-compose up -d
+```
 
-# Build for production
-npm run build
+### Development Profile
 
-# Preview production build
-npm run preview
+```bash
+# Run with dev profile
+mvn spring-boot:run -Dspring-boot.run.arguments="--spring.profiles.active=dev"
+
+# Run tests
+mvn test -Dspring.profiles.active=test
 ```
 
 ---
 
-## 📊 Data Flow Example: Creating a Transaction
+## IDE Configuration (IntelliJ IDEA)
 
-### Backend Flow: POST /api/v1/transactionEntities
+**File → Project Structure → Project**
 
+- SDK: temurin-21
+- Language level: 21
+
+**File → Project Structure → Modules**
+
+- Language level: 21
+
+**Code Style → Java → Imports**
+
+- Import layout: Custom (arrange imports properly)
+
+---
+
+## Java 21 Compiler Flags
+
+### For Enhanced Performance
+
+```bash
+java -XX:+UseG1GC \
+     -XX:MaxGCPauseMillis=200 \
+     -XX:+ParallelRefProcEnabled \
+     -XX:+UnlockExperimentalVMOptions \
+     -XX:G1NewCollectionPercentage=30 \
+     -XX:G1MaxNewGenPercent=40 \
+     -Djava.security.egd=file:/dev/./urandom \
+     -jar bulldog-api-1.0.0.jar
 ```
-1. REST Controller (Adapter In)
-   └─→ @RestController receives HTTP POST request
-       └─→ Validates JSON payload
-       └─→ Converts to CreateTransactionRequest DTO
 
-2. Application Service (Application Layer)
-   └─→ TransactionApplicationService.createTransaction()
-       └─→ Validates business rules
-       └─→ Maps DTO to Domain Entity
-       └─→ Calls domain service
+---
 
-3. Domain Service (Domain Layer)
-   └─→ TransactionValidationService.validate()
-       └─→ Checks account exists
-       └─→ Checks sufficient funds
-       └─→ Checks business rules
-       └─→ Throws DomainException if invalid
+## Advanced Java 21 Features
 
-4. Domain Entity (Domain Layer)
-   └─→ Transaction.calculateBalance()
-       └─→ Updates account balance
-       └─→ Records transaction
+### Virtual Threads Example
 
-5. Persistence Adapter (Adapter Out)
-   └─→ TransactionJpaRepository.save()
-       └─→ Calls SQL via Hibernate/JPA
-       └─→ Saves to PostgreSQL
+```java
+@Configuration
+public class AsyncConfig {
 
-6. Response
-   └─→ Maps Domain Entity to TransactionDTO
-       └─→ Returns HTTP 201 Created
-       └─→ Includes transaction data
-
-Response JSON:
-{
-  "id": 123,
-  "bankAccountId": 456,
-  "type": "WITHDRAWAL",
-  "amount": 50.00,
-  "category": "Groceries",
-  "transactionDate": "2026-03-19",
-  "status": "COMPLETED"
+    @Bean
+    public Executor taskExecutor() {
+        // Java 21 Virtual Threads
+        return Executors.newVirtualThreadPerTaskExecutor();
+    }
 }
 ```
 
-### Frontend Flow: User Creates Transaction
+### Pattern Matching with Records
 
-```
-1. User Action
-   └─→ User clicks "Add Transaction" button
+```java
+public record TransactionQuery(
+    Optional<TransactionType> type,
+    Optional<String> category,
+    Optional<LocalDate> startDate
+) {}
 
-2. Component (TransactionForm.tsx)
-   └─→ Renders form with React Hook Form
-       └─→ Binds to Zod validation schema
-
-3. Form Submission
-   └─→ onSubmit triggered
-       └─→ Form validation executed
-       └─→ If valid, calls service
-
-4. Service Layer (transactionService.ts)
-   └─→ axios.post('/transactionEntities', data)
-       └─→ Includes JWT token in header
-       └─→ Interceptor adds Authorization header
-
-5. HTTP Request
-   └─→ POST http://localhost:8080/api/v1/transactionEntities
-       └─→ Request sent to backend
-
-6. Response Handling
-   └─→ API returns 201 Created
-       └─→ Response interceptor processes data
-
-7. State Update (Zustand Store)
-   └─→ transactionStore.addTransaction(response)
-       └─→ Updates state
-
-8. UI Update
-   └─→ Component re-renders
-       └─→ Shows success toast notification
-       └─→ Updates transaction list
-       └─→ Updates account balance
-
-Visual Flow:
-┌─────────────────────────────┐
-│ TransactionForm Component   │
-└──────────────┬──────────────┘
-               │
-               ▼
-┌─────────────────────────────┐
-│ React Hook Form + Zod       │
-│ Validation                  │
-└──────────────┬──────────────┘
-               │
-               ▼
-┌─────────────────────────────┐
-│ transactionService.create() │
-└──────────────┬──────────────┘
-               │
-               ▼
-┌─────────────────────────────┐
-│ Axios HTTP Request          │
-│ JWT Token Injected          │
-└──────────────┬──────────────┘
-               │
-               ▼
-┌─────────────────────────────┐
-│ Backend API Processing      │
-│ (Hexagonal layers)          │
-└──────────────┬──────────────┘
-               │
-               ▼
-┌─────────────────────────────┐
-│ HTTP Response (201)         │
-└──────────────┬──────────────┘
-               │
-               ▼
-┌─────────────────────────────┐
-│ Zustand Store Update        │
-└──────────────┬──────────────┘
-               │
-               ▼
-┌─────────────────────────────┐
-│ UI Re-render               │
-│ Toast Notification         │
-│ Update Lists               │
-└─────────────────────────────┘
+public List<TransactionDTO> searchTransactions(TransactionQuery query) {
+    return transactionRepository.findAll().stream()
+        .filter(t -> query.type().isEmpty() || t.getType() == query.type().get())
+        .filter(t -> query.category().isEmpty() || t.getCategory().equals(query.category().get()))
+        .filter(t -> query.startDate().isEmpty() || t.getTransactionDate().isAfter(query.startDate().get()))
+        .map(transactionMapper::toDTO)
+        .toList();  // New toList() method (immutable)
+}
 ```
 
 ---
 
-## 🧪 Testing
-
-### Backend Testing
-
-```bash
-# Unit Tests
-mvn test
-
-# Integration Tests
-mvn verify
-
-# Test specific class
-mvn test -Dtest=TransactionServiceTest
-
-# Test with TestContainers (PostgreSQL in Docker)
-mvn test -Dgroups=integration
-
-# Code Coverage Report
-mvn clean test jacoco:report
-open target/site/jacoco/index.html
-```
-
-### Frontend Testing
-
-```bash
-# Coming soon - Vitest setup for React
-npm run test          # Run tests
-npm run test:watch    # Watch mode
-npm run test:ui       # UI mode
-```
-
----
-
-## 📡 API Endpoints
-
-### Authentication
-
-```
-POST   /api/v1/auth/login              # Login with email & password
-POST   /api/v1/auth/register           # Create new userEntity account
-POST   /api/v1/auth/refresh            # Refresh JWT token
-POST   /api/v1/auth/logout             # Logout userEntity
-```
-
-### Accounts
-
-```
-GET    /api/v1/accounts                # List all userEntity accounts
-POST   /api/v1/accounts                # Create new bank account
-GET    /api/v1/accounts/{id}           # Get account details
-PUT    /api/v1/accounts/{id}           # Update account
-DELETE /api/v1/accounts/{id}           # Delete account
-GET    /api/v1/accounts/{id}/balance   # Get current balance
-```
-
-### Transactions
-
-```
-GET    /api/v1/transactionEntities            # List userEntity transactionEntities (paginated)
-POST   /api/v1/transactionEntities            # Create new transaction
-GET    /api/v1/transactionEntities/{id}       # Get transaction details
-PUT    /api/v1/transactionEntities/{id}       # Update transaction
-DELETE /api/v1/transactionEntities/{id}       # Delete transaction (if pending)
-GET    /api/v1/accounts/{id}/transactionEntities  # Get account transactionEntities
-```
-
-### Transfers
-
-```
-GET    /api/v1/transferEntities               # List userEntity transferEntities
-POST   /api/v1/transferEntities               # Create new transfer
-GET    /api/v1/transferEntities/{id}          # Get transfer details
-PUT    /api/v1/transferEntities/{id}          # Update transfer (if pending)
-```
-
-### Reports
-
-```
-GET    /api/v1/reports/monthly         # Monthly summary report
-GET    /api/v1/reports/yearly          # Yearly summary report
-GET    /api/v1/reports/spending        # Spending by category
-GET    /api/v1/reports/income          # Income summary
-```
-
-### Categories
-
-```
-GET    /api/v1/categories/income       # List income categories
-POST   /api/v1/categories/income       # Create income category
-GET    /api/v1/categories/expense      # List expense categories
-POST   /api/v1/categories/expense      # Create expense category
-```
-
-**Full API Documentation:** See [Swagger UI](http://localhost:8080/api/swagger-ui.html)
-
----
-
-## 🐳 Deployment
-
-### Docker Deployment
-
-```bash
-# Build backend image
-docker build -t bulldog-api:1.0.0 ./bulldog-api
-
-# Run all services
-docker-compose -f docker-docker-compose.yaml up -d
-
-# Check service status
-docker-compose ps
-
-# View logs
-docker-compose logs -f
-
-# Stop services
-docker-compose down
-```
-
-### Production Checklist
-
-```
-Backend:
-□ Set SPRING_PROFILES_ACTIVE=prod
-□ Update JWT_SECRET with strong key
-□ Configure SSL/TLS certificates
-□ Set up proper database backups
-□ Configure Redis persistence
-□ Set up monitoring (Prometheus/Grafana)
-□ Enable audit logging
-□ Configure email service for notifications
-
-Frontend:
-□ Build for production (npm run build)
-□ Set VITE_API_URL to production backend
-□ Enable gzip compression
-□ Set up CDN for static assets
-□ Configure security headers
-□ Set up error tracking (Sentry)
-□ Enable analytics
-```
-
----
-
-## 🤝 Contributing
-
-We welcome contributions! Please see [CONTRIBUTING.md](./docs/CONTRIBUTING.md)
-
-```bash
-# Clone repository
-git clone https://github.com/yourusername/bulldog.git
-cd bulldog
-
-# Create feature branch
-git checkout -b feature/your-feature
-
-# Make changes and test
-npm run test        # Frontend tests
-mvn test            # Backend tests
-
-# Commit changes
-git commit -m "feat: describe your changes"
-
-# Push to branch
-git push origin feature/your-feature
-
-# Create Pull Request
-```
-
----
-
-## 📚 Documentation
-
-- **[API Documentation](./docs/API.md)** - Detailed API endpoints & examples
-- **[Architecture Guide](./docs/ARCHITECTURE.md)** - Deep dive into design patterns
-- **[Database Schema](./docs/DATABASE.md)** - ER diagram & schema details
-- **[Deployment Guide](./docs/DEPLOYMENT.md)** - Production deployment steps
-- **[Backend README](./bulldog-api/README.md)** - Backend specific docs
-- **[Frontend README](./bulldog-frontend/README.md)** - Frontend specific docs
-
----
-
-## 🔐 Security
-
-### Authentication
-
-- **JWT Tokens**: Access token (15 min) + Refresh token (7 days)
-- **Password Hashing**: BCrypt with salt
-- **HTTPS**: Required in production
-- **CORS**: Configured for frontend origin
-- **SQL Injection**: Protected via JPA/Hibernate
-- **CSRF Protection**: Spring Security CSRF tokens
-
-### Best Practices
-
-```
-✅ Never commit secrets (.env files)
-✅ Use HTTPS in production
-✅ Rotate JWT secret regularly
-✅ Update dependencies frequently
-✅ Enable audit logging
-✅ Regular security audits
-✅ Encrypt sensitive data at rest
-✅ Monitor for suspicious activities
-```
-
----
-
-## 📊 Performance
-
-### Backend Performance Optimizations
-
-```
-✅ Database indexing on frequently queried columns
-✅ Redis caching for account balances & summaries
-✅ Batch processing for bulk operations
-✅ Connection pooling (HikariCP)
-✅ Virtual Threads (Java 21) for async operations
-✅ Query optimization with proper JPA fetch strategies
-✅ Pagination on list endpoints
-```
-
-### Frontend Performance Optimizations
-
-```
-✅ Code splitting with React lazy loading
-✅ Shadcn/ui minimal bundle size (55KB vs MUI 285KB)
-✅ TailwindCSS with PurgeCSS
-✅ Image optimization
-✅ Lazy loading images with IntersectionObserver
-✅ Memoization for expensive components
-✅ Zustand for efficient state management
-```
-
-#### Performance Metrics
-
-```
-Backend:
-- API Response Time: < 200ms (p95)
-- Database Query: < 50ms (p95)
-- Cache Hit Rate: > 80%
-
-Frontend:
-- Initial Load: < 1s
-- Interactive: < 1.5s
-- Bundle Size: 165KB (gzipped)
-- Lighthouse Score: > 90
-```
-
----
-
-## 🐛 Troubleshooting
-
-### Backend Issues
-
-```bash
-# Database connection refused
-→ Check PostgreSQL is running: docker-compose ps
-→ Verify connection string in application.yml
-
-# Redis connection refused
-→ Check Redis is running: docker-compose ps
-→ Verify redis host/port configuration
-
-# Migration issues
-→ Reset database: docker-compose down -v
-→ Re-run migrations: mvn flyway:migrate
-
-# JWT token invalid
-→ Check JWT_SECRET matches between tokens
-→ Verify token hasn't expired
-```
-
-### Frontend Issues
-
-```bash
-# API calls failing (CORS)
-→ Check backend CORS configuration
-→ Verify VITE_API_URL in .env
-
-# Components not rendering
-→ Check browser console for errors
-→ Verify Shadcn/ui components are installed
-
-# Styling issues
-→ Rebuild TailwindCSS: npm run build:css
-→ Clear node_modules: rm -rf node_modules && npm install
-
-# State not updating
-→ Check Zustand store initialization
-→ Verify component is subscribed to store
-```
-
----
-
-## 📞 Support
-
-- **Bugs & Issues**: [GitHub Issues](https://github.com/yourusername/bulldog/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/bulldog/discussions)
-- **Email**: support@bulldog.io
-- **Community**: [Discord Server](https://discord.gg/bulldog)
-
----
-
-## 📄 License
-
-MIT License © 2026 Bulldog Personal Finance
-
----
-
-## 🙏 Acknowledgments
-
-- **Java 21** Teams for modern Java features
-- **Spring Boot** for excellent framework
-- **React** for UI library
-- **Shadcn/ui** for beautiful components
-- **PostgreSQL** for reliable database
-- **Redis** for caching layer
-
----
-
-## 🎯 Roadmap
-
-### Phase 1 (Current - Q1 2026)
-
-- ✅ Core backend with Hexagonal architecture
-- ✅ React frontend with Shadcn/ui
-- ✅ Authentication & Authorization
-- ✅ Transaction management
-- ✅ Basic reporting
-
-### Phase 2 (Q2 2026)
-
-- 📋 Mobile app (React Native)
-- 📋 Advanced analytics & charts
-- 📋 Budget management & alerts
-- 📋 Bill reminders
-- 📋 Email notifications
-
-### Phase 3 (Q3 2026)
-
-- 📋 Bank account auto-sync
-- 📋 Investment tracking
-- 📋 Cryptocurrency support
-- 📋 Multi-currency support
-- 📋 Export to PDF/Excel
-
-### Phase 4 (Q4 2026)
-
-- 📋 AI-powered insights
-- 📋 Spending predictions
-- 📋 Savings recommendations
-- 📋 Tax optimization
-- 📋 API for third-party integrations
-
----
-
-## 📈 Project Stats
-
-```
-Backend:
-├── Lines of Code: ~5,000
-├── Test Coverage: 85%+
-├── Dependencies: 25+
-└── Modules: 4 (Domain, Application, Adapters, Config)
-
-Frontend:
-├── Lines of Code: ~3,000
-├── Components: 40+
-├── Pages: 8
-└── Type Coverage: 95%+
-
-Database:
-├── Tables: 10
-├── Indices: 25+
-├── Stored Procedures: 5
-└── Triggers: 3
-```
-
----
-
-## 🎓 Learning Resources
-
-### Backend (Java 21 Hexagonal Architecture)
-
-- [Clean Architecture by Robert C. Martin](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
-- [Spring Boot Documentation](https://spring.io/projects/spring-boot)
-- [Java 21 Features Guide](https://www.oracle.com/java/technologies/java21-features.html)
-
-### Frontend (React + TypeScript + Shadcn/ui)
-
-- [React Official Docs](https://react.dev)
-- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
-- [Shadcn/ui Documentation](https://ui.shadcn.com)
-- [TailwindCSS Documentation](https://tailwindcss.com/docs)
-
----
-
-**Last Updated**: March 19, 2026  
-**Status**: 🚀 Production Ready  
-**Version**: 1.0.0
-
----
-
-Made with ❤️ by Brayan Espinoza
+## Summary
+
+| Aspect            | Details                            |
+| ----------------- | ---------------------------------- |
+| **Java Version**  | 21 LTS                             |
+| **Spring Boot**   | 3.2.0+                             |
+| **Build Tool**    | Maven 3.8+                         |
+| **Target**        | Hexagonal Architecture             |
+| **Database**      | MySQL 8.0                          |
+| **Caching**       | Redis 7+                           |
+| **Testing**       | JUnit 5 + Mockito + TestContainers |
+| **Documentation** | SpringDoc OpenAPI 3.0              |
+| **Monitoring**    | Micrometer + Prometheus            |
+
+This configuration is production-ready and leverages modern Java 21 features! 🚀
